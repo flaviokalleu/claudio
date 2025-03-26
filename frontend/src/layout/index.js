@@ -515,14 +515,14 @@ const LoggedInLayout = ({ children, themeToggle }) => {
             setCallVolume={setCallVolume} // Callback function
             setRingVolume={setRingVolume} // Callback function
             timelocale={'UTC-3'} //Set time local for call history
-          /> */}
+          /> 
           <IconButton edge="start" onClick={colorMode.toggleColorMode}>
             {theme.mode === "dark" ? (
               <Brightness7Icon style={{ color: "white" }} />
             ) : (
               <Brightness4Icon style={{ color: "white" }} />
             )}
-          </IconButton>
+          </IconButton>*/}
 
           <NotificationsVolume setVolume={setVolume} volume={volume} />
 

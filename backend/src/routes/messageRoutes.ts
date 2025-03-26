@@ -3,6 +3,7 @@ import multer from "multer";
 import isAuth from "../middleware/isAuth";
 import uploadConfig from "../config/upload";
 
+
 import * as MessageController from "../controllers/MessageController";
 
 const messageRoutes = Router();
@@ -14,6 +15,7 @@ messageRoutes.post("/messages/:ticketId", isAuth, upload.array("medias"), Messag
 // messageRoutes.post("/forwardmessage",isAuth,MessageController.forwardmessage);
 messageRoutes.delete("/messages/:messageId", isAuth, MessageController.remove);
 messageRoutes.post("/messages/edit/:messageId", isAuth, MessageController.edit);
+messageRoutes.post('/messages/:messageId/reactions', isAuth, MessageController.addReaction);
 
 messageRoutes.get("/messages-allMe", isAuth, MessageController.allMe);
 // Nova rota para transcrição

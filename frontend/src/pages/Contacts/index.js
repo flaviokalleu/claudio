@@ -1,715 +1,467 @@
-import React, {
-    useState,
-    useEffect,
-    useReducer,
-    useContext,
-    useRef,
-} from "react";
-// import { SocketContext } from "../../context/Socket/SocketContext";
+import React, { useState, useEffect, useReducer, useContext, useRef } from "react";
 import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
+import { 
+  Search, Edit, Trash2, Lock, Unlock, CheckCircle, XCircle, 
+  Facebook, Instagram, MessageCircle, ChevronDown, Upload, Phone 
+} from "lucide-react";
 
-import { makeStyles } from "@material-ui/core/styles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
-import Button from "@material-ui/core/Button";
-import Avatar from "@material-ui/core/Avatar";
-import { Facebook, Instagram, WhatsApp } from "@material-ui/icons";
-import SearchIcon from "@material-ui/icons/Search";
-
-import TextField from "@material-ui/core/TextField";
-import InputAdornment from "@material-ui/core/InputAdornment";
-
-import IconButton from "@material-ui/core/IconButton";
-import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
-import EditIcon from "@material-ui/icons/Edit";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import CancelIcon from "@material-ui/icons/Cancel";
-import BlockIcon from "@material-ui/icons/Block";
-
+// Services e Contexts
 import api from "../../services/api";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
-import ContactModal from "../../components/ContactModal";
-import ConfirmationModal from "../../components/ConfirmationModal";
-
-import { i18n } from "../../translate/i18n";
-import MainHeader from "../../components/MainHeader";
-import Title from "../../components/Title";
-import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
-import MainContainer from "../../components/MainContainer";
-import toastError from "../../errors/toastError";
-
 import { AuthContext } from "../../context/Auth/AuthContext";
-import { Can } from "../../components/Can";
+import { TicketsContext } from "../../context/Tickets/TicketsContext";
+
+// Components
+import MainContainer from "../../components/MainContainer";
+import MainHeader from "../../components/MainHeader";
+import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
+import Title from "../../components/Title";
+import ContactModal from "../../components/ContactModal";
 import NewTicketModal from "../../components/NewTicketModal";
+import ConfirmationModal from "../../components/ConfirmationModal";
+import ContactImportWpModal from "../../components/ContactImportWpModal";
 import { TagsFilter } from "../../components/TagsFilter";
-import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
+import TableRowSkeleton from "../../components/TableRowSkeleton";
+import { Can } from "../../components/Can";
+
+// Utils e Hooks
+import { i18n } from "../../translate/i18n";
+import toastError from "../../errors/toastError";
+import useCompanySettings from "../../hooks/useSettings/companySettings";
 import formatSerializedId from '../../utils/formatSerializedId';
 import { v4 as uuidv4 } from "uuid";
 
-import {
-    ArrowDropDown,
-    Backup,
-    ContactPhone,
-} from "@material-ui/icons";
-import { Menu, MenuItem } from "@material-ui/core";
-
-import ContactImportWpModal from "../../components/ContactImportWpModal";
-import useCompanySettings from "../../hooks/useSettings/companySettings";
-import { TicketsContext } from "../../context/Tickets/TicketsContext";
-
+// Reducer
 const reducer = (state, action) => {
-    if (action.type === "LOAD_CONTACTS") {
-        const contacts = action.payload;
-        const newContacts = [];
-
-        contacts.forEach((contact) => {
-            const contactIndex = state.findIndex((c) => c.id === contact.id);
-            if (contactIndex !== -1) {
-                state[contactIndex] = contact;
-            } else {
-                newContacts.push(contact);
-            }
-        });
-
-        return [...state, ...newContacts];
-    }
-
-    if (action.type === "UPDATE_CONTACTS") {
-        const contact = action.payload;
-        const contactIndex = state.findIndex((c) => c.id === contact.id);
-
-        if (contactIndex !== -1) {
-            state[contactIndex] = contact;
-            return [...state];
-        } else {
-            return [contact, ...state];
-        }
-    }
-
-    if (action.type === "DELETE_CONTACT") {
-        const contactId = action.payload;
-
-        const contactIndex = state.findIndex((c) => c.id === contactId);
-        if (contactIndex !== -1) {
-            state.splice(contactIndex, 1);
-        }
+  switch (action.type) {
+    case "LOAD_CONTACTS":
+      const contacts = action.payload;
+      const newContacts = contacts.filter(c => !state.some(existing => existing.id === c.id));
+      return [...state, ...newContacts];
+    case "UPDATE_CONTACTS":
+      const updatedContact = action.payload;
+      const contactIndex = state.findIndex(c => c.id === updatedContact.id);
+      if (contactIndex !== -1) {
+        state[contactIndex] = updatedContact;
         return [...state];
-    }
-
-    if (action.type === "RESET") {
-        return [];
-    }
+      }
+      return [updatedContact, ...state];
+    case "DELETE_CONTACT":
+      return state.filter(c => c.id !== action.payload);
+    case "RESET":
+      return [];
+    default:
+      return state;
+  }
 };
 
-const useStyles = makeStyles((theme) => ({
-    mainPaper: {
-        flex: 1,
-        padding: theme.spacing(1),
-        overflowY: "scroll",
-        ...theme.scrollbarStyles,
-    },
-}));
+// Componente de Ícone de Canal
+const ChannelIcon = ({ channel }) => {
+  const icons = {
+    whatsapp: <MessageCircle className="text-[#25D366] w-5 h-5" />,
+    instagram: <Instagram className="text-[#C13584] w-5 h-5" />,
+    facebook: <Facebook className="text-[#4267B2] w-5 h-5" />
+  };
+  return icons[channel] || null;
+};
 
 const Contacts = () => {
-    const classes = useStyles();
-    const history = useHistory();
+  const history = useHistory();
+  const { user, socket } = useContext(AuthContext);
+  const { setCurrentTicket } = useContext(TicketsContext);
+  const { getAll: getAllSettings } = useCompanySettings();
 
-    //   const socketManager = useContext(SocketContext);
-    const { user, socket } = useContext(AuthContext);
+  // Estados
+  const [contacts, dispatch] = useReducer(reducer, []);
+  const [loading, setLoading] = useState(false);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [searchParam, setSearchParam] = useState("");
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [newTicketModalOpen, setNewTicketModalOpen] = useState(false);
+  const [importContactModalOpen, setImportContactModalOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmChatsOpen, setConfirmChatsOpen] = useState(false);
+  const [selectedContactId, setSelectedContactId] = useState(null);
+  const [contactTicket, setContactTicket] = useState({});
+  const [deletingContact, setDeletingContact] = useState(null);
+  const [blockingContact, setBlockingContact] = useState(null);
+  const [unBlockingContact, setUnBlockingContact] = useState(null);
+  const [importContacts, setImportContacts] = useState(null);
+  const [importWhatsappId, setImportWhatsappId] = useState();
+  const [enableLGPD, setEnableLGPD] = useState(false);
+  const [hideNum, setHideNum] = useState(false);
+  
+  const fileUploadRef = useRef(null);
 
-
-    const [loading, setLoading] = useState(false);
-    const [pageNumber, setPageNumber] = useState(1);
-    const [searchParam, setSearchParam] = useState("");
-    const [contacts, dispatch] = useReducer(reducer, []);
-    const [selectedContactId, setSelectedContactId] = useState(null);
-    const [contactModalOpen, setContactModalOpen] = useState(false);
-
-    const [importContactModalOpen, setImportContactModalOpen] = useState(false);
-    const [deletingContact, setDeletingContact] = useState(null);
-    const [ImportContacts, setImportContacts] = useState(null);
-    
-    const [blockingContact, setBlockingContact] = useState(null);
-    const [unBlockingContact, setUnBlockingContact] = useState(null);
-    const [confirmOpen, setConfirmOpen] = useState(false);
-    const [exportContact, setExportContact] = useState(false);
-    const [confirmChatsOpen, setConfirmChatsOpen] = useState(false);
-    const [hasMore, setHasMore] = useState(false);
-    const [newTicketModalOpen, setNewTicketModalOpen] = useState(false);
-    const [contactTicket, setContactTicket] = useState({});
-    const fileUploadRef = useRef(null);
-    const [selectedTags, setSelectedTags] = useState([]);
-    const { setCurrentTicket } = useContext(TicketsContext);
-
-    const [importWhatsappId, setImportWhatsappId] = useState()
-
-
-    const { getAll: getAllSettings } = useCompanySettings();
-    const [hideNum, setHideNum] = useState(false);
-    const [enableLGPD, setEnableLGPD] = useState(false);
-    useEffect(() => {
-
-        async function fetchData() {
-
-            const settingList = await getAllSettings(user.companyId);
-
-            for (const [key, value] of Object.entries(settingList)) {
-                
-                if (key === "enableLGPD") setEnableLGPD(value === "enabled");
-                if (key === "lgpdHideNumber") setHideNum(value === "enabled");
-                
-              }
-
-            // if (settingHideNumber.lgpdHideNumber === "enabled") {
-            //     setHideNum(true);
-            // }
-        }
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    const handleImportExcel = async () => {
-        try {
-            const formData = new FormData();
-            formData.append("file", fileUploadRef.current.files[0]);
-            await api.request({
-                url: `/contacts/upload`,
-                method: "POST",
-                data: formData,
-            });
-            history.go(0);
-        } catch (err) {
-            toastError(err);
-        }
+  // Efeitos
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const settings = await getAllSettings(user.companyId);
+      setEnableLGPD(settings.enableLGPD === "enabled");
+      setHideNum(settings.lgpdHideNumber === "enabled");
     };
+    fetchSettings();
+  }, [user.companyId]);
 
-    useEffect(() => {
-        dispatch({ type: "RESET" });
-        setPageNumber(1);
-    }, [searchParam, selectedTags]);
+  useEffect(() => {
+    dispatch({ type: "RESET" });
+    setPageNumber(1);
+  }, [searchParam, selectedTags]);
 
-    useEffect(() => {
-        setLoading(true);
-        const delayDebounceFn = setTimeout(() => {
-            const fetchContacts = async () => {
-                try {
-                    const { data } = await api.get("/contacts/", {
-                        params: { searchParam, pageNumber, contactTag: JSON.stringify(selectedTags) },
-                    });
-                    dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
-                    setHasMore(data.hasMore);
-                    setLoading(false);
-                } catch (err) {
-                    toastError(err);
-                }
-            };
-            fetchContacts();
-        }, 500);
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchParam, pageNumber, selectedTags]);
+  useEffect(() => {
+    setLoading(true);
+    const delayDebounceFn = setTimeout(() => {
+      const fetchContacts = async () => {
+        try {
+          const { data } = await api.get("/contacts/", {
+            params: { searchParam, pageNumber, contactTag: JSON.stringify(selectedTags) },
+          });
+          dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
+          setHasMore(data.hasMore);
+        } catch (err) {
+          toastError(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchContacts();
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchParam, pageNumber, selectedTags]);
 
-    useEffect(() => {
-        const companyId = user.companyId;
-        //    const socket = socketManager.GetSocket();
+  useEffect(() => {
+    const companyId = user.companyId;
+    const handleContactEvent = (data) => {
+      if (data.action === "update" || data.action === "create") {
+        dispatch({ type: "UPDATE_CONTACTS", payload: data.contact });
+      }
+      if (data.action === "delete") {
+        dispatch({ type: "DELETE_CONTACT", payload: +data.contactId });
+      }
+    };
+    socket.on(`company-${companyId}-contact`, handleContactEvent);
+    return () => socket.off(`company-${companyId}-contact`, handleContactEvent);
+  }, [socket, user.companyId]);
 
-        const onContactEvent = (data) => {
-            if (data.action === "update" || data.action === "create") {
-                dispatch({ type: "UPDATE_CONTACTS", payload: data.contact });
-            }
+  // Handlers
+  const handleSearch = (e) => setSearchParam(e.target.value.toLowerCase());
 
-            if (data.action === "delete") {
-                dispatch({ type: "DELETE_CONTACT", payload: +data.contactId });
-            }
-        };
-        socket.on(`company-${companyId}-contact`, onContactEvent);
+  const handleOpenContactModal = () => {
+    setSelectedContactId(null);
+    setContactModalOpen(true);
+  };
 
-        return () => {
-            socket.off(`company-${companyId}-contact`, onContactEvent);
-        };
-    }, [socket]);
+  const handleEditContact = (contactId) => {
+    setSelectedContactId(contactId);
+    setContactModalOpen(true);
+  };
 
-    const handleSelectTicket = (ticket) => {
-        const code = uuidv4();
-        const { id, uuid } = ticket;
-        setCurrentTicket({ id, uuid, code });
+  const handleDeleteContact = async (contactId) => {
+    try {
+      await api.delete(`/contacts/${contactId}`);
+      toast.success(i18n.t("contacts.toasts.deleted"));
+    } catch (err) {
+      toastError(err);
+    } finally {
+      setDeletingContact(null);
+      setSearchParam("");
+      setPageNumber(1);
     }
+  };
 
-    const handleCloseOrOpenTicket = (ticket) => {
-        setNewTicketModalOpen(false);
-        if (ticket !== undefined && ticket.uuid !== undefined) {
-            handleSelectTicket(ticket);
-            history.push(`/tickets/${ticket.uuid}`);
-        }
-    };
-
-    const handleSelectedTags = (selecteds) => {
-        const tags = selecteds.map((t) => t.id);
-        setSelectedTags(tags);
-    };
-
-    const handleSearch = (event) => {
-        setSearchParam(event.target.value.toLowerCase());
-    };
-
-    const handleOpenContactModal = () => {
-        setSelectedContactId(null);
-        setContactModalOpen(true);
-    };
-
-    const handleCloseContactModal = () => {
-        setSelectedContactId(null);
-        setContactModalOpen(false);
-    };
-
-    const hadleEditContact = (contactId) => {
-        setSelectedContactId(contactId);
-        setContactModalOpen(true);
-    };
-
-    const handleDeleteContact = async (contactId) => {
-        try {
-            await api.delete(`/contacts/${contactId}`);
-            toast.success(i18n.t("contacts.toasts.deleted"));
-        } catch (err) {
-            toastError(err);
-        }
-        setDeletingContact(null);
-        setSearchParam("");
-        setPageNumber(1);
-    };
-
-    const handleBlockContact = async (contactId) => {
-        try {
-            await api.put(`/contacts/block/${contactId}`, { active: false });
-            toast.success("Contato bloqueado");
-        } catch (err) {
-            toastError(err);
-        }
-        setDeletingContact(null);
-        setSearchParam("");
-        setPageNumber(1);
-        setBlockingContact(null);
-    };
-
-    const handleUnBlockContact = async (contactId) => {
-        try {
-            await api.put(`/contacts/block/${contactId}`, { active: true });
-            toast.success("Contato desbloqueado");
-        } catch (err) {
-            toastError(err);
-        }
-        setDeletingContact(null);
-        setSearchParam("");
-        setPageNumber(1);
-        setUnBlockingContact(null);
-    };
-
-    const onSave = (whatsappId) => {
-        setImportWhatsappId(whatsappId)
+  const handleBlockContact = async (contactId) => {
+    try {
+      await api.put(`/contacts/block/${contactId}`, { active: false });
+      toast.success("Contato bloqueado");
+    } catch (err) {
+      toastError(err);
+    } finally {
+      setBlockingContact(null);
+      setSearchParam("");
+      setPageNumber(1);
     }
+  };
 
+  const handleUnBlockContact = async (contactId) => {
+    try {
+      await api.put(`/contacts/block/${contactId}`, { active: true });
+      toast.success("Contato desbloqueado");
+    } catch (err) {
+      toastError(err);
+    } finally {
+      setUnBlockingContact(null);
+      setSearchParam("");
+      setPageNumber(1);
+    }
+  };
 
-    const handleimportContact = async () => {
-        setImportContactModalOpen(false)
+  const handleImportExcel = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("file", fileUploadRef.current.files[0]);
+      await api.post("/contacts/upload", formData);
+      history.go(0);
+    } catch (err) {
+      toastError(err);
+    }
+  };
 
-        try {
-            await api.post("/contacts/import", { whatsappId: importWhatsappId });
-            history.go(0);
-            setImportContactModalOpen(false);
-        } catch (err) {
-            toastError(err);
-            setImportContactModalOpen(false);
-        }
-    };
+  const handleImportContact = async () => {
+    setImportContactModalOpen(false);
+    try {
+      await api.post("/contacts/import", { whatsappId: importWhatsappId });
+      history.go(0);
+    } catch (err) {
+      toastError(err);
+    }
+  };
 
-    const handleimportChats = async () => {
-        console.log("handleimportChats")
-        try {
-            await api.post("/contacts/import/chats");
-            history.go(0);
-        } catch (err) {
-            toastError(err);
-        }
-    };
+  const handleImportChats = async () => {
+    try {
+      await api.post("/contacts/import/chats");
+      history.go(0);
+    } catch (err) {
+      toastError(err);
+    }
+  };
 
-    const loadMore = () => {
-        setPageNumber((prevState) => prevState + 1);
-    };
+  const handleSelectTicket = (ticket) => {
+    const code = uuidv4();
+    setCurrentTicket({ id: ticket.id, uuid: ticket.uuid, code });
+  };
 
-    const handleScroll = (e) => {
-        if (!hasMore || loading) return;
-        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-        if (scrollHeight - (scrollTop + 100) < clientHeight) {
-            loadMore();
-        }
-    };
+  const handleCloseOrOpenTicket = (ticket) => {
+    setNewTicketModalOpen(false);
+    if (ticket?.uuid) {
+      handleSelectTicket(ticket);
+      history.push(`/tickets/${ticket.uuid}`);
+    }
+  };
 
-    // function getDateLastMessage(contact) {
-    //     if (!contact) return null;
-    //     if (!contact.tickets) return null;
+  const handleSelectedTags = (selected) => {
+    setSelectedTags(selected.map(t => t.id));
+  };
 
-    //     if (contact.tickets.length > 0) {
-    //         const date = new Date(contact.tickets[contact.tickets.length - 1].updatedAt);
+  const loadMore = () => setPageNumber(prev => prev + 1);
 
-    //         const day = date.getDate() > 9 ? date.getDate() : `0${date.getDate()}`;
-    //         const month = date.getMonth() + 1 > 9 ? date.getMonth() + 1 : `0${date.getMonth() + 1}`;
-    //         const year = date.getFullYear();
-    //         const hours = date.getHours() > 9 ? date.getHours() : `0${date.getHours()}`;
-    //         const minutes = date.getMinutes() > 9 ? date.getMinutes() : `0${date.getMinutes()}`;
+  const handleScroll = (e) => {
+    if (!hasMore || loading) return;
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - (scrollTop + 100) < clientHeight) loadMore();
+  };
 
-    //         return `${day}/${month}/${year} ${hours}:${minutes}`;
-    //     }
-
-    //     return null;
-    // }
-
-
-    return (
-
-        <MainContainer className={classes.mainContainer}>
-            <NewTicketModal
-                modalOpen={newTicketModalOpen}
-                initialContact={contactTicket}
-                onClose={(ticket) => {
-                    handleCloseOrOpenTicket(ticket);
-                }}
+  // Render
+  return (
+    <MainContainer className="bg-gray-100 min-h-screen p-4">
+      <MainHeader className="mb-6">
+        <Title>{i18n.t("contacts.title")} ({contacts.length})</Title>
+        <MainHeaderButtonsWrapper className="flex items-center gap-3 flex-wrap">
+          <TagsFilter onFiltered={handleSelectedTags} />
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="search"
+              value={searchParam}
+              onChange={handleSearch}
+              placeholder={i18n.t("contacts.searchPlaceholder")}
+              className="w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
             />
-            <ContactModal
-                open={contactModalOpen}
-                onClose={handleCloseContactModal}
-                aria-labelledby="form-dialog-title"
-                contactId={selectedContactId}
-            ></ContactModal>
-            {/* <ContactImportModal 
-                open={ImportContacts}
-                onClose={setConfirmOpen}
-                onSave={handleimportContact}
-            /> */}
-            <ConfirmationModal
-                title={
-                    deletingContact
-                        ? `${i18n.t(
-                            "contacts.confirmationModal.deleteTitle"
-                        )} ${deletingContact.name}?`
-                        : blockingContact
-                            ? `Bloquear Contato ${blockingContact.name}?`
-                            : unBlockingContact
-                                ? `Desbloquear Contato ${unBlockingContact.name}?`
-                                : ImportContacts
-                                    ? `${i18n.t("contacts.confirmationModal.importTitlte")}`
-                                    : `${i18n.t("contactListItems.confirmationModal.importTitlte")}`
-                }
-                onSave={onSave}
-                isCellPhone={ImportContacts}
-                open={confirmOpen}
-                onClose={setConfirmOpen}
-                onConfirm={(e) =>
-                    deletingContact
-                        ? handleDeleteContact(deletingContact.id)
-                        : blockingContact
-                            ? handleBlockContact(blockingContact.id)
-                            : unBlockingContact
-                                ? handleUnBlockContact(unBlockingContact.id)
-                                : ImportContacts
-                                    ? handleimportContact()
-                                    : handleImportExcel()
-                }
-            >
-                {exportContact
-                    ?
-                    `${i18n.t("contacts.confirmationModal.exportContact")}`
-                    : deletingContact
-                        ? `${i18n.t("contacts.confirmationModal.deleteMessage")}`
-                        : blockingContact
-                            ? `${i18n.t("contacts.confirmationModal.blockContact")}`
-                            : unBlockingContact
-                                ? `${i18n.t("contacts.confirmationModal.unblockContact")}`
-                                : ImportContacts
-                                    ? `Escolha de qual conexão deseja importar`
-                                    : `${i18n.t(
-                                        "contactListItems.confirmationModal.importMessage"
-                                    )}`}
-            </ConfirmationModal>
-            <ConfirmationModal
-                title={i18n.t("contacts.confirmationModal.importChat")}
-                open={confirmChatsOpen}
-                onClose={setConfirmChatsOpen}
-                onConfirm={(e) => handleimportChats()}
-            >
-                {i18n.t("contacts.confirmationModal.wantImport")}
-            </ConfirmationModal>
-            <MainHeader>
-                <Title>{i18n.t("contacts.title")} ({contacts.length})</Title>
-                <MainHeaderButtonsWrapper>
-                    <TagsFilter
-                        onFiltered={handleSelectedTags}
-                    />
-                    <TextField
-                        placeholder={i18n.t("contacts.searchPlaceholder")}
-                        type="search"
-                        value={searchParam}
-                        onChange={handleSearch}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon color="secondary" />
-                                </InputAdornment>
-                            ),
+          </div>
+          <div className="relative group">
+            <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md">
+              Importar / Exportar
+              <ChevronDown className="ml-2 w-5 h-5" />
+            </button>
+            <div className="absolute hidden group-hover:block bg-white shadow-lg rounded-lg mt-1 right-0 z-10 min-w-[200px]">
+              <button
+                onClick={() => {
+                  setConfirmOpen(true);
+                  setImportContacts(true);
+                }}
+                className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <Phone className="mr-2 w-4 h-4 text-blue-500" />
+                {i18n.t("contacts.menu.importYourPhone")}
+              </button>
+              <button
+                onClick={() => setImportContactModalOpen(true)}
+                className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <Upload className="mr-2 w-4 h-4 text-blue-500" />
+                {i18n.t("contacts.menu.importToExcel")}
+              </button>
+            </div>
+          </div>
+          <button
+            onClick={handleOpenContactModal}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all shadow-md"
+          >
+            {i18n.t("contacts.buttons.add")}
+          </button>
+        </MainHeaderButtonsWrapper>
+      </MainHeader>
+
+      {/* Modals */}
+      <NewTicketModal
+        modalOpen={newTicketModalOpen}
+        initialContact={contactTicket}
+        onClose={handleCloseOrOpenTicket}
+      />
+      <ContactModal
+        open={contactModalOpen}
+        onClose={() => setContactModalOpen(false)}
+        contactId={selectedContactId}
+      />
+      <ConfirmationModal
+        title={
+          deletingContact ? `${i18n.t("contacts.confirmationModal.deleteTitle")} ${deletingContact.name}?` :
+          blockingContact ? `Bloquear Contato ${blockingContact.name}?` :
+          unBlockingContact ? `Desbloquear Contato ${unBlockingContact.name}?` :
+          importContacts ? i18n.t("contacts.confirmationModal.importTitlte") :
+          i18n.t("contactListItems.confirmationModal.importTitlte")
+        }
+        onSave={setImportWhatsappId}
+        isCellPhone={importContacts}
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() =>
+          deletingContact ? handleDeleteContact(deletingContact.id) :
+          blockingContact ? handleBlockContact(blockingContact.id) :
+          unBlockingContact ? handleUnBlockContact(unBlockingContact.id) :
+          importContacts ? handleImportContact() :
+          handleImportExcel()
+        }
+      >
+        {deletingContact ? i18n.t("contacts.confirmationModal.deleteMessage") :
+         blockingContact ? i18n.t("contacts.confirmationModal.blockContact") :
+         unBlockingContact ? i18n.t("contacts.confirmationModal.unblockContact") :
+         importContacts ? "Escolha de qual conexão deseja importar" :
+         i18n.t("contactListItems.confirmationModal.importMessage")}
+      </ConfirmationModal>
+      <ConfirmationModal
+        title={i18n.t("contacts.confirmationModal.importChat")}
+        open={confirmChatsOpen}
+        onClose={() => setConfirmChatsOpen(false)}
+        onConfirm={handleImportChats}
+      >
+        {i18n.t("contacts.confirmationModal.wantImport")}
+      </ConfirmationModal>
+      <ContactImportWpModal
+        isOpen={importContactModalOpen}
+        handleClose={() => setImportContactModalOpen(false)}
+        selectedTags={selectedTags}
+        hideNum={hideNum}
+        userProfile={user.profile}
+      />
+
+      {/* Tabela */}
+      <div className="flex-1 bg-white rounded-xl shadow-lg overflow-hidden">
+        <input
+          className="hidden"
+          id="upload"
+          name="file"
+          type="file"
+          accept=".xls,.xlsx"
+          onChange={() => setConfirmOpen(true)}
+          ref={fileUploadRef}
+        />
+        <div className="overflow-x-auto max-h-[calc(100vh-200px)]" onScroll={handleScroll}>
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b sticky top-0">
+              <tr>
+                <th className="p-4 w-16"></th>
+                <th className="p-4 text-left text-gray-600 font-semibold">{i18n.t("contacts.table.name")}</th>
+                <th className="p-4 text-center text-gray-600 font-semibold">{i18n.t("contacts.table.whatsapp")}</th>
+                <th className="p-4 text-center text-gray-600 font-semibold">{i18n.t("contacts.table.email")}</th>
+                <th className="p-4 text-center text-gray-600 font-semibold">{i18n.t("contacts.table.whatsapp")}</th>
+                <th className="p-4 text-center text-gray-600 font-semibold">Status</th>
+                <th className="p-4 text-center text-gray-600 font-semibold">{i18n.t("contacts.table.actions")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contacts.map((contact) => (
+                <tr key={contact.id} className="hover:bg-gray-50 transition-colors border-b">
+                  <td className="p-4">
+                    <img src={contact?.urlPicture} alt="" className="w-10 h-10 rounded-full object-cover" />
+                  </td>
+                  <td className="p-4 text-gray-800">{contact.name}</td>
+                  <td className="p-4 text-center text-gray-600">
+                    {(enableLGPD && hideNum && user.profile === "user")
+                      ? contact.isGroup
+                        ? contact.number
+                        : `${formatSerializedId(contact?.number)?.slice(0, -6)}**-**${contact?.number?.slice(-2)}`
+                      : contact.isGroup
+                      ? contact.number
+                      : formatSerializedId(contact?.number)}
+                  </td>
+                  <td className="p-4 text-center text-gray-600">{contact.email || '-'}</td>
+                  <td className="p-4 text-center text-gray-600">{contact?.whatsapp?.name || '-'}</td>
+                  <td className="p-4 text-center">
+                    {contact.active ? (
+                      <CheckCircle className="text-green-500 w-5 h-5 mx-auto" />
+                    ) : (
+                      <XCircle className="text-red-500 w-5 h-5 mx-auto" />
+                    )}
+                  </td>
+                  <td className="p-4 text-center">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        disabled={!contact.active}
+                        onClick={() => {
+                          setContactTicket(contact);
+                          setNewTicketModalOpen(true);
                         }}
-                    />
-                    <PopupState variant="popover" popupId="demo-popup-menu">
-                        {(popupState) => (
-                            <React.Fragment>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    {...bindTrigger(popupState)}
-                                >
-                                    Importar / Exportar
-                                    <ArrowDropDown />
-                                </Button>
-                                <Menu {...bindMenu(popupState)}>
-                                    <MenuItem
-                                        onClick={() => {
-                                            setConfirmOpen(true);
-                                            setImportContacts(true);
-                                            popupState.close();
-                                        }}
-                                    >
-                                        <ContactPhone
-                                            fontSize="small"
-                                            color="primary"
-                                            style={{
-                                                marginRight: 10,
-                                            }}
-                                        />
-                                        {i18n.t("contacts.menu.importYourPhone")}
-                                    </MenuItem>
-                                    <MenuItem
-                                        onClick={() => { setImportContactModalOpen(true) }}
-
-                                    >
-                                        <Backup
-                                            fontSize="small"
-                                            color="primary"
-                                            style={{
-                                                marginRight: 10,
-                                            }}
-                                        />
-                                        {i18n.t("contacts.menu.importToExcel")}
-
-                                    </MenuItem>
-                                    {/* {<MenuItem>
-                        
-                                       <CSVLink
-                                            className={classes.csvbtn}
-                                            separator=";"
-                                            filename={'contacts.csv'}
-                                            data={
-                                                contacts.map((contact) => ({
-                                                    number: hideNum && user.profile === "user" ? contact.isGroup ? contact.number : formatSerializedId(contact.number).slice(0,-6)+"**-**"+ contact.number.slice(-2): contact.isGroup ? contact.number : formatSerializedId(contact.number),
-                                                    firstName: contact.name.split(' ')[0],
-                                                    lastname: String(contact.name).replace(contact.name.split(' ')[0],''),
-                                                    tags: contact?.tags?.name
-                                                }))
-
-                                            }
-                                            
-                                            >
-                                        
-                                        <CloudDownload fontSize="small"
-                                            color="primary"
-                                            style={{
-                                                marginRight: 10,
-                                            
-                                                }}                                                
-                                        />        
-                                        Exportar Excel                                
-                                   </CSVLink>
-                                        
-                                    </MenuItem> } */}
-                                </Menu>
-                            </React.Fragment>
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+                      >
+                        <ChannelIcon channel={contact.channel} />
+                      </button>
+                      <button
+                        onClick={() => handleEditContact(contact.id)}
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      >
+                        <Edit className="text-blue-500 w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setConfirmOpen(true);
+                          contact.active ? setBlockingContact(contact) : setUnBlockingContact(contact);
+                        }}
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      >
+                        {contact.active ? (
+                          <Lock className="text-red-500 w-5 h-5" />
+                        ) : (
+                          <Unlock className="text-green-500 w-5 h-5" />
                         )}
-                    </PopupState>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleOpenContactModal}
-                    >
-                        {i18n.t("contacts.buttons.add")}
-                    </Button>
-                </MainHeaderButtonsWrapper>
-            </MainHeader>
-
-            {importContactModalOpen && (
-                <ContactImportWpModal
-                    isOpen={importContactModalOpen}
-                    handleClose={() => setImportContactModalOpen(false)}
-                    selectedTags={selectedTags}
-                    hideNum={hideNum}
-                    userProfile={user.profile}
-                />
-            )}
-            <Paper
-                className={classes.mainPaper}
-                variant="outlined"
-                onScroll={handleScroll}
-            >
-                <>
-                    <input
-                        style={{ display: "none" }}
-                        id="upload"
-                        name="file"
-                        type="file"
-                        accept=".xls,.xlsx"
-                        onChange={() => {
-                            setConfirmOpen(true);
-                        }}
-                        ref={fileUploadRef}
-                    />
-                </>
-                <Table size="small">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell padding="checkbox" />
-                            <TableCell>
-                                {i18n.t("contacts.table.name")}
-                            </TableCell>
-                            <TableCell align="center">
-                                {i18n.t("contacts.table.whatsapp")}
-                            </TableCell>
-                            <TableCell align="center">
-                                {i18n.t("contacts.table.email")}
-                            </TableCell>
-                            {/* <TableCell align="center">
-                                {i18n.t("contacts.table.lastMessage")}
-                            </TableCell> */}
-                            <TableCell align="center">
-                                {i18n.t("contacts.table.whatsapp")}
-                            </TableCell>
-                            <TableCell align="center">{"Status"}</TableCell>
-                            <TableCell align="center">
-                                {i18n.t("contacts.table.actions")}
-                            </TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        <>
-                            {contacts.map((contact) => (
-                                <TableRow key={contact.id}>
-                                    <TableCell style={{ paddingRight: 0 }}>
-                                        {<Avatar src={`${contact?.urlPicture}`} />}
-                                    </TableCell>
-                                    <TableCell>{contact.name}</TableCell>
-                                    <TableCell align="center">
-                                        {((enableLGPD && hideNum && user.profile === "user")
-                                            ? contact.isGroup
-                                                ? contact.number :
-                                                formatSerializedId(contact?.number) === null ? contact.number.slice(0, -6) + "**-**" + contact?.number.slice(-2) :
-                                                    formatSerializedId(contact?.number)?.slice(0, -6) + "**-**" + contact?.number?.slice(-2) :
-                                                    contact.isGroup ? contact.number : formatSerializedId(contact?.number)
-                                        )}
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        {contact.email}
-                                    </TableCell>
-                                    {/* <TableCell align="center">
-                                        {getDateLastMessage(contact)}
-                                    </TableCell> */}
-                                    <TableCell>{contact?.whatsapp?.name}</TableCell>
-                                    <TableCell align="center">
-                                        {contact.active ? (
-                                            <CheckCircleIcon
-                                                style={{ color: "green" }}
-                                                fontSize="small"
-                                            />
-                                        ) : (
-                                            <CancelIcon
-                                                style={{ color: "red" }}
-                                                fontSize="small"
-                                            />
-                                        )}
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <IconButton
-                                            size="small"
-                                            disabled={!contact.active}
-                                            onClick={() => {
-                                                setContactTicket(contact);
-                                                setNewTicketModalOpen(true);
-                                                // handleSaveTicket(contact.id);
-                                            }}
-                                        >
-                                            {contact.channel === "whatsapp" && (<WhatsApp style={{ color: "green" }} />)}
-                                            {contact.channel === "instagram" && (<Instagram style={{ color: "purple" }} />)}
-                                            {contact.channel === "facebook" && (<Facebook style={{ color: "blue" }} />)}
-                                        </IconButton>
-
-                                        <IconButton
-                                            size="small"
-                                            onClick={() =>
-                                                hadleEditContact(contact.id)
-                                            }
-                                        >
-                                            <EditIcon color="secondary" />
-                                        </IconButton>
-                                        <IconButton
-                                            size="small"
-                                            onClick={
-                                                contact.active
-                                                    ? () => {
-                                                        setConfirmOpen(true);
-                                                        setBlockingContact(
-                                                            contact
-                                                        );
-                                                    }
-                                                    : () => {
-                                                        setConfirmOpen(true);
-                                                        setUnBlockingContact(
-                                                            contact
-                                                        );
-                                                    }
-                                            }
-                                        >
-                                            {contact.active ? (
-                                                <BlockIcon color="secondary" />
-                                            ) : (
-                                                <CheckCircleIcon color="secondary" />
-                                            )}
-                                        </IconButton>
-                                        <Can
-                                            role={user.profile}
-                                            perform="contacts-page:deleteContact"
-                                            yes={() => (
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={(e) => {
-                                                        setConfirmOpen(true);
-                                                        setDeletingContact(
-                                                            contact
-                                                        );
-                                                    }}
-                                                >
-                                                    <DeleteOutlineIcon color="secondary" />
-                                                </IconButton>
-                                            )}
-                                        />
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            {loading && <TableRowSkeleton avatar columns={6} />}
-                        </>
-                    </TableBody>
-                </Table>
-            </Paper>
-        </MainContainer >
-    );
+                      </button>
+                      <Can
+                        role={user.profile}
+                        perform="contacts-page:deleteContact"
+                        yes={() => (
+                          <button
+                            onClick={() => {
+                              setConfirmOpen(true);
+                              setDeletingContact(contact);
+                            }}
+                            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                          >
+                            <Trash2 className="text-red-500 w-5 h-5" />
+                          </button>
+                        )}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {loading && <TableRowSkeleton avatar columns={6} />}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </MainContainer>
+  );
 };
 
 export default Contacts;

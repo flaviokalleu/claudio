@@ -309,28 +309,42 @@ export const ActionsWebhookService = async (
       if (nodeSelected.type === "question") {
         const webhook = ticket?.dataWebhook;
         const variables = ticket?.dataWebhook?.variables;
-
+      
         if (!variables || variables === undefined || variables === null) {
           const { message } = nodeSelected.data.typebotIntegration;
+      
+          // Ensure ticket is defined; fetch it if not already set
+          if (!ticket) {
+            if (!idTicket) {
+              throw new Error("No ticket ID provided to initialize ticket in question node");
+            }
+            ticket = await Ticket.findOne({
+              where: { id: idTicket, companyId }
+            });
+            if (!ticket) {
+              throw new Error(`Ticket with ID ${idTicket} not found`);
+            }
+          }
+      
           const ticketDetails = await ShowTicketService(ticket.id, companyId);
-
+      
           const bodyFila = formatBody(`${message}`, ticket.contact);
-
+      
           await delay(3000);
           await typeSimulation(ticket, "composing");
-
+      
           await SendWhatsAppMessage({
             body: bodyFila,
             ticket: ticketDetails,
             quotedMsg: null
           });
-
+      
           SetTicketMessagesAsRead(ticketDetails);
-
+      
           await ticketDetails.update({
             lastMessage: bodyFila
           });
-
+      
           await ticket.update({
             userId: null,
             companyId: companyId,
@@ -339,7 +353,7 @@ export const ActionsWebhookService = async (
             flowStopped: idFlowDb.toString()
           });
         }
-        break;
+        return;
       }
 
       if (nodeSelected.type === "ticket") {

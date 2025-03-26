@@ -29,7 +29,7 @@ import ShowPlanCompanyService from "../services/CompanyService/ShowPlanCompanySe
 import ListMessagesServiceAll from "../services/MessageServices/ListMessagesServiceAll";
 import ShowContactService from "../services/ContactServices/ShowContactService";
 import FindOrCreateTicketService from "../services/TicketServices/FindOrCreateTicketService";
-
+import SendWhatsAppReaction from "../services/WbotServices/SendWhatsAppReaction";
 import Contact from "../models/Contact";
 import { verifyMessage,  } from "../services/WbotServices/wbotMessageListener";
 import UpdateTicketService from "../services/TicketServices/UpdateTicketService";
@@ -66,6 +66,54 @@ type MessageData = {
   number?: string;
   isPrivate?: string;
   vCard?: Contact;
+};
+
+export const addReaction = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const {messageId} = req.params;
+    const {type} = req.body; // O tipo de reação, por exemplo, 'like', 'heart', etc.
+    const {companyId, id} = req.user;
+
+    const message = await Message.findByPk(messageId);
+
+    const ticket = await Ticket.findByPk(message.ticketId, {
+      include: ["contact"]
+    });
+
+    if (!message) {
+      return res.status(404).send({message: "Mensagem não encontrada"});
+    }
+
+    // Envia a reação via WhatsApp
+    const reactionResult = await SendWhatsAppReaction({
+      messageId: messageId,
+      ticket: ticket,
+      reactionType: type
+    });
+
+    // Atualiza a mensagem com a nova reação no banco de dados (opcional, dependendo da necessidade)
+    /*const updatedMessage = await message.update({
+      reactions: [...message.reactions, {type: type, userId: id}]
+    });*/
+
+    const io = getIO();
+    io.to(message.ticketId.toString()).emit(`company-${companyId}-appMessage`, {
+      action: "update",
+      message
+    });
+
+    return res.status(200).send({
+      message: 'Reação adicionada com sucesso!',
+      reactionResult,
+      //reactions: updatedMessage.reactions
+    });
+  } catch (error) {
+    console.error('Erro ao adicionar reação:', error);
+    if (error instanceof AppError) {
+      return res.status(400).send({message: error.message});
+    }
+    return res.status(500).send({message: 'Erro ao adicionar reação', error: error.message});
+  }
 };
 
 // adicionar funções de botões, pix, etc.

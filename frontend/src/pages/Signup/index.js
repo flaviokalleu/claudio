@@ -1,36 +1,34 @@
 import React, { useState, useEffect } from "react";
-import qs from 'query-string';
+import qs from "query-string";
 import * as Yup from "yup";
 import { useHistory } from "react-router-dom";
 import { Link as RouterLink } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Formik, Form, Field } from "formik";
-import Avatar from "@material-ui/core/Avatar";
-import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
-import Link from "@material-ui/core/Link";
-import Grid from "@material-ui/core/Grid";
-import Box from "@material-ui/core/Box";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
-import usePlans from '../../hooks/usePlans';
-import { i18n } from "../../translate/i18n";
-import { FormControl } from "@material-ui/core";
-import { InputLabel, MenuItem, Select } from "@material-ui/core";
-import { openApi } from "../../services/api";
-import toastError from "../../errors/toastError";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import BusinessIcon from "@material-ui/icons/Business";
-import PersonIcon from "@material-ui/icons/Person";
-import EmailIcon from "@material-ui/icons/Email";
-import LockIcon from "@material-ui/icons/Lock";
-import PhoneIcon from "@material-ui/icons/Phone";
+import {
+  TextField,
+  Button,
+  Grid,
+  Typography,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@material-ui/core";
 import { InputAdornment, IconButton } from "@mui/material";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import EmailIcon from "@material-ui/icons/Email";
+import LockIcon from "@material-ui/icons/Lock";
+import PhoneIcon from "@material-ui/icons/Phone";
+import BusinessIcon from "@material-ui/icons/Business";
+import PersonIcon from "@material-ui/icons/Person";
+import usePlans from "../../hooks/usePlans";
+import { openApi } from "../../services/api";
+import toastError from "../../errors/toastError";
+import { i18n } from "../../translate/i18n";
 
 const UserSchema = Yup.object().shape({
   name: Yup.string().min(2, "Muito curto!").max(50, "Muito longo!").required("Obrigatório"),
@@ -45,77 +43,118 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     width: "100vw",
     height: "100vh",
+    background: "linear-gradient(120deg, #ffffff 0%, #e8f0fe 100%)",
+    overflow: "hidden",
     [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
     },
   },
   imageSide: {
     flex: 1,
-    background: `url('https://siteconnect.com.br/wp-content/uploads/2025/02/capazapflow.webp') no-repeat center center`,
+    background: `url('https://wallpapercave.com/wp/wp12255781.jpg') no-repeat center center`,
     backgroundSize: "cover",
     height: "100%",
+    position: "relative",
+    "&:after": {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      background: "rgba(0, 0, 0, 0.2)",
+    },
+    [theme.breakpoints.down("sm")]: {
+      height: "25vh",
+    },
   },
   formSide: {
     flex: 1,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    padding: "40px",
+    padding: theme.spacing(5),
     [theme.breakpoints.down("sm")]: {
-      padding: "20px",
+      padding: theme.spacing(3),
     },
   },
   formContainer: {
     width: "100%",
-    maxWidth: "400px",
-    background: "#fff",
-    borderRadius: "12px",
-    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-    padding: "30px",
+    maxWidth: "450px",
+    background: "#ffffff",
+    borderRadius: "20px",
+    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.08)",
+    padding: theme.spacing(4),
+    border: "1px solid rgba(0, 0, 0, 0.05)",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      boxShadow: "0 15px 40px rgba(0, 0, 0, 0.12)",
+    },
   },
   logoImg: {
     display: "block",
-    margin: "0 auto 20px",
-    maxWidth: "150px",
+    margin: "0 auto 30px",
+    maxWidth: "180px",
     height: "auto",
+    filter: "drop-shadow(0 3px 6px rgba(0, 0, 0, 0.1))",
+  },
+  textField: {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "10px",
+      background: "#fafafa",
+      "&:hover fieldset": {
+        borderColor: "#350A64",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#350A64",
+      },
+    },
+    "& .MuiInputLabel-outlined": {
+      color: "#555",
+      fontWeight: 500,
+    },
   },
   submitBtn: {
-    marginTop: "20px",
-    backgroundColor: "#10aa62",  // Cor alterada para #350A64
+    marginTop: theme.spacing(3),
+    background: "linear-gradient(45deg, #350A64 30%, #4F0F96 90%)",
     color: "#fff",
-    borderRadius: "8px",
-    padding: "12px",
-    fontWeight: "bold",
+    borderRadius: "12px",
+    padding: "14px",
+    fontWeight: 600,
+    fontSize: "1.1rem",
+    textTransform: "none",
     width: "100%",
-    cursor: "pointer",
+    boxShadow: "0 5px 15px rgba(53, 10, 100, 0.3)",
     transition: "all 0.3s ease",
     "&:hover": {
-      backgroundColor: "#10aa62",  // Cor de hover ajustada para uma tonalidade mais escura
-      boxShadow: "0px 4px 12px #08591a",
+      background: "linear-gradient(45deg, #2A0851 30%, #350A64 90%)",
+      boxShadow: "0 8px 20px rgba(53, 10, 100, 0.5)",
+      transform: "translateY(-2px)",
     },
     "&:disabled": {
-      backgroundColor: "#ddd",
+      background: "#ddd",
+      boxShadow: "none",
       cursor: "not-allowed",
     },
   },
   loginBtn: {
-    marginTop: "10px",
-    backgroundColor: "#10aa62",  // Cor alterada para #4F0F96
-    color: "#fff",  // Cor do texto ajustada para branco
-    borderRadius: "8px",
+    marginTop: theme.spacing(2),
+    background: "transparent",
+    color: "#350A64",
+    border: "2px solid #350A64",
+    borderRadius: "12px",
     padding: "12px",
-    fontWeight: "normal", // Fonte mais leve
-    width: "100%", // O mesmo tamanho do botão "Cadastrar"
-    cursor: "pointer",
-    border: "2px solid transparent", // Borda invisível
+    fontWeight: 600,
+    fontSize: "1rem",
+    textTransform: "none",
+    width: "100%",
     transition: "all 0.3s ease",
     "&:hover": {
-      backgroundColor: "#10aa62", // Cor de hover ajustada para um tom mais claro
-      color: "#fff", // Mantém a cor branca no hover
-      borderColor: "#10aa62", // Cor da borda ajustada
-      boxShadow: "0px 4px 12px #08591a",
+      background: "#350A64",
+      color: "#fff",
+      boxShadow: "0 5px 15px rgba(53, 10, 100, 0.3)",
+      transform: "translateY(-2px)",
     },
-    textDecoration: "none", // Remover o sublinhado
   },
 }));
 
@@ -133,7 +172,15 @@ const SignUp = () => {
     companyId = params.companyId;
   }
 
-  const initialState = { name: "", email: "", password: "", phone: "", companyId, companyName: "", planId: "" };
+  const initialState = {
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    companyId,
+    companyName: "",
+    planId: "",
+  };
   const [user] = useState(initialState);
 
   useEffect(() => {
@@ -144,7 +191,7 @@ const SignUp = () => {
       setLoading(false);
     };
     fetchData();
-  }, []);
+  }, [getPlanList]);
 
   const handleSignUp = async (values) => {
     try {
@@ -160,7 +207,7 @@ const SignUp = () => {
     <div className={classes.root}>
       <div className={classes.imageSide}></div>
       <div className={classes.formSide}>
-        <form className={classes.formContainer} onSubmit={handleSignUp}>
+        <form className={classes.formContainer}>
           <img src="/logo.png" alt="Logo" className={classes.logoImg} />
           <Formik
             initialValues={user}
@@ -187,10 +234,11 @@ const SignUp = () => {
                       helperText={touched.companyName && errors.companyName}
                       name="companyName"
                       autoComplete="companyName"
+                      className={classes.textField}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <BusinessIcon />
+                            <BusinessIcon style={{ color: "#555" }} />
                           </InputAdornment>
                         ),
                       }}
@@ -208,10 +256,11 @@ const SignUp = () => {
                       fullWidth
                       id="name"
                       label="Nome"
+                      className={classes.textField}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <PersonIcon />
+                            <PersonIcon style={{ color: "#555" }} />
                           </InputAdornment>
                         ),
                       }}
@@ -229,11 +278,12 @@ const SignUp = () => {
                       error={touched.email && Boolean(errors.email)}
                       helperText={touched.email && errors.email}
                       autoComplete="email"
-                      inputProps={{ style: { textTransform: 'lowercase' } }}
+                      inputProps={{ style: { textTransform: "lowercase" } }}
+                      className={classes.textField}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <EmailIcon />
+                            <EmailIcon style={{ color: "#555" }} />
                           </InputAdornment>
                         ),
                       }}
@@ -252,10 +302,11 @@ const SignUp = () => {
                       type={showPassword ? "text" : "password"}
                       id="password"
                       autoComplete="current-password"
+                      className={classes.textField}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <LockIcon />
+                            <LockIcon style={{ color: "#555" }} />
                           </InputAdornment>
                         ),
                         endAdornment: (
@@ -280,10 +331,11 @@ const SignUp = () => {
                       error={touched.phone && Boolean(errors.phone)}
                       helperText={touched.phone && errors.phone}
                       autoComplete="phone"
+                      className={classes.textField}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <PhoneIcon />
+                            <PhoneIcon style={{ color: "#555" }} />
                           </InputAdornment>
                         ),
                       }}
@@ -291,11 +343,11 @@ const SignUp = () => {
                   </Grid>
 
                   <Grid item xs={12}>
-                    <FormControl fullWidth>
-                      <InputLabel id="plan">Plano</InputLabel>
+                    <FormControl fullWidth variant="outlined" className={classes.textField}>
+                      <InputLabel id="plan-label">Plano</InputLabel>
                       <Field
                         as={Select}
-                        labelId="plan"
+                        labelId="plan-label"
                         id="plan"
                         name="planId"
                         label="Plano"
@@ -314,7 +366,6 @@ const SignUp = () => {
                       fullWidth
                       type="submit"
                       variant="contained"
-                      color="primary"
                       disabled={isSubmitting}
                       className={classes.submitBtn}
                     >
@@ -323,12 +374,8 @@ const SignUp = () => {
                   </Grid>
 
                   <Grid item xs={12}>
-                    <RouterLink to="/login" style={{ textDecoration: 'none' }}>
-                      <Button
-                        fullWidth
-                        variant="outlined"
-                        className={classes.loginBtn}
-                      >
+                    <RouterLink to="/login" style={{ textDecoration: "none" }}>
+                      <Button fullWidth variant="contained" className={classes.loginBtn}>
                         Já tem uma conta? Faça o login
                       </Button>
                     </RouterLink>

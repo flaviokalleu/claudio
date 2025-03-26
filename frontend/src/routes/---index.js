@@ -35,7 +35,7 @@ import Chat from "../pages/Chat";
 import Prompts from "../pages/Prompts";
 import AllConnections from "../pages/AllConnections";
 import Reports from "../pages/Reports";
-import { FlowBuilderConfig } from "../pages/FlowBuilderConfig";
+import FlowBuilderConfig from '../pages/FlowBuilderConfig';
 // import Integrations from '../pages/Integrations';
 // import GoogleCalendarComponent from '../pages/Integrations/components/GoogleCalendarComponent';
 import FlowBuilder from "../pages/FlowBuilder";

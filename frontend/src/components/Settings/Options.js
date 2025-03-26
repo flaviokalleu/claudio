@@ -850,9 +850,9 @@ export default function Options(props) {
               }}
             >
               <MenuItem value={"text"}>Texto</MenuItem>
-              <MenuItem value={"list"}>Lista</MenuItem>
+              {/*<MenuItem value={"list"}>Lista</MenuItem>
               <MenuItem value={"button"}>{i18n.t("settings.settings.options.buttons")}</MenuItem>
-             {/* <MenuItem value={"list"}>Lista</MenuItem> */}
+              <MenuItem value={"list"}>Lista</MenuItem> */}
             </Select>
             <FormHelperText>
               {loadingScheduleType && i18n.t("settings.settings.options.updating")}
