@@ -106,65 +106,17 @@ export const updateOne = async (
 
 
 
-export const publicShow = async (req: Request, res: Response) => {
-  const { settingKey } = req.params;
+export const publicShow = async (req: Request, res: Response): Promise<Response> => {
+  console.log("|=============== publicShow  ==============|")
+  
+  const { settingKey: key } = req.params;
+  
+  const settingValue = await GetPublicSettingService({ key });
 
-  try {
-    // Adicione verificação de segurança para o modelo
-    if (!Setting) {
-      console.error('Modelo Setting não importado corretamente');
-      return res.status(500).json({ error: 'Erro interno: Modelo não configurado' });
-    }
 
-    if (settingKey === 'userCreation') {
-      // Modifica a consulta para sempre buscar com companyId 1
-      const settings = await Setting.findAll({ 
-        where: { 
-          key: 'userCreation',
-          companyId: 1 // Fixa o companyId em 1
-        },
-        order: [
-          ['id', 'ASC'] // Ordena por ID caso tenha múltiplos registros
-        ]
-      });
-
-      // Log para depuração
-      console.log('Configurações encontradas:', JSON.stringify(settings, null, 2));
-
-      // Seleciona sempre o primeiro registro (que será com companyId 1)
-      const enabledSetting = settings[0];
-
-      // Log da configuração escolhida
-      console.log('Configuração selecionada:', enabledSetting ? enabledSetting.toJSON() : null);
-
-      return res.json({ 
-        userCreation: enabledSetting ? enabledSetting.get('value') : 'disabled',
-        details: enabledSetting ? enabledSetting.toJSON() : null
-      });
-    }
-
-    // Caso padrão para outras chaves de configuração
-    const setting = await Setting.findOne({ 
-      where: { 
-        key: settingKey,
-        companyId: 1 // Fixa o companyId em 1 para todas as outras consultas
-      } 
-    });
-
-    if (!setting) {
-      return res.status(404).json({ error: 'Configuração não encontrada' });
-    }
-
-    return res.json(setting.toJSON());
-
-  } catch (error) {
-    console.error('Erro detalhado:', error);
-    return res.status(500).json({ 
-      error: 'Erro interno do servidor', 
-      details: error instanceof Error ? error.message : error 
-    });
-  }
+  return res.status(200).json(settingValue);
 };
+
 
 export const storeLogo = async (req: Request, res: Response): Promise<Response> => {
   const file = req.file as Express.Multer.File;
