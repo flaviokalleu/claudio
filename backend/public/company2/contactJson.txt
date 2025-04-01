@@ -1,6 +1,0 @@
-[
-  {
-    "id": "556191324098@s.whatsapp.net",
-    "name": "Day Cliente Internet"
-  }
-]
