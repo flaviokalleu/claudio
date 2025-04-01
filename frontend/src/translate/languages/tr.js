@@ -4,952 +4,1677 @@ const messages = {
       signup: {
         title: "Kayıt Ol",
         toasts: {
-          success: "Kullanıcı başarılı bir şekilde oluşturuldu. Giriş Yapın!",
-          fail: "Kullanıcı oluştururken hata oluştu."
+          success: "Kullanıcı başarıyla oluşturuldu! Şimdi giriş yap!!!",
+          fail: "Kullanıcı oluşturma hatası. Sağlanan verileri kontrol et.",
         },
         form: {
-          name: "Adınız",
-          companyName: "Organizasyon Adı",
-          email: "Eposta",
-          phone: "Telefon",
-          password: "Şifre"
-        },
-        buttons: {
-          submit: "Kayıt",
-          login: "Hesabınız var mı? Giriş Yapın."
-        },
-        recaptcha1: "This site is protected by reCAPTCHA and the Google",
-        recaptcha2: "Privacy Policy",
-        recaptcha3: "and",
-        recaptcha4: "Terms of Service",
-        recaptcha5: "apply."
-      },
-      passwordRecovery: {
-        title: "Şifremi Unuttum",
-        toasts: {
-          success: "Eposta gönderildi, eposta adresinizi kontrol edin.",
-          passwordUpdateSuccess: "Şifre Başarılı bir şekilde değiştirildi.",
-          fail: "Şifre değiştirilirken hata oluştu. Tekrar deneyin."
-        },
-        form: {
-          email: "Eposta",
+          name: "İsim",
+          email: "E-posta",
           password: "Şifre",
-          confirmPassword: "Şifre Tekrar",
-          validation: "Şifrelerin eşleşmesi gerekiyor!"
+          company: "Organizasyon Adı",
+          phone: "Whatsapp (Alan Kodu + Numara)",
         },
         buttons: {
-          submit: "Gönder",
-          login: "Giriş Yap"
-        }
+          submit: "Kayıt Ol",
+          login: "Zaten hesabın var mı? Giriş yap!",
+        },
       },
       login: {
-        title: "Giriş",
+        title: "Giriş Yap",
         form: {
-          email: "Eposta",
-          password: "Şifre"
+          email: "E-posta",
+          password: "Şifre",
+          button: "Erişim",
         },
         buttons: {
-          submit: "Gönder",
-          register: "Hesabınız yok mu? Kayıt Ol!",
-          recovery: "Şifremi Unuttum?"
-        }
+          submit: "Giriş Yap",
+          register: "Hesabın yok mu? Kayıt ol!",
+        },
+      },
+      companies: {
+        title: "Şirket Kaydet",
+        form: {
+          name: "Şirket Adı",
+          plan: "Plan",
+          token: "Token",
+          submit: "Kayıt Ol",
+          success: "Şirket başarıyla oluşturuldu!",
+        },
       },
       auth: {
         toasts: {
-          success: "Giriş Başarılı!",
-          active:
-            "Hesap başarılı bir şekilde aktif edildi. Lütfen giriş yapın.",
-          trialExpired: "Deneme süreniz bitti, bizimle iletişime geçiniz.",
-          notActive:
-            "Hesabınız aktif edilmedi, Lütfen eposta adresinizi doğrulayın."
-        }
+          success: "Giriş başarılı!",
+        },
+        dueDate: {
+          expiration: "Aboneliğiniz şu tarihte sona eriyor:",
+          days: "gün!",
+          day: "gün!",
+          expirationToday: "Aboneliğiniz bugün sona eriyor!",
+        },
+        token: "Token",
       },
       dashboard: {
+        tabs: {
+          indicators: "Gösterge",
+          assessments: "NPS",
+          attendants: "Görevliler",
+        },
         charts: {
-          perHour: {
-            title: "Bugün - Sohbet Adeti: ",
-            verticalTitle: "Sohbet"
-          }
-        }
+          perDay: {
+            title: "Bugün hizmetler: ",
+          },
+        },
+        cards: {
+          inAttendance: "Hizmette",
+          waiting: "Bekliyor",
+          activeAttendants: "Aktif Görevliler",
+          finalized: "Tamamlanmış",
+          newContacts: "Yeni İletişimler",
+          totalReceivedMessages: "Alınan Mesajlar",
+          totalSentMessages: "Gönderilen Mesajlar",
+          averageServiceTime: "Ort. Hizmet Süresi",
+          averageWaitingTime: "Ort. Bekleme Süresi",
+          status: "Durum (Şu Anki)",
+          activeTickets: "Aktif Biletler",
+          passiveTickets: "Pasif Biletler",
+          groups: "Gruplar",
+        },
+        users: {
+          name: "İsim",
+          numberAppointments: "Hizmet Sayısı",
+          statusNow: "Şu Anki",
+          totalCallsUser: "Kullanıcı Başına Toplam Hizmet",
+          totalAttendances: "Toplam Hizmet",
+        },
+        date: {
+          initialDate: "Başlangıç Tarihi",
+          finalDate: "Bitiş Tarihi",
+        },
+        licence: {
+          available: "Şu tarihe kadar mevcut:",
+        },
+        assessments: {
+          totalCalls: "Toplam Hizmet",
+          callsWaitRating: "Değerlendirme Bekleyen Hizmetler",
+          callsWithoutRating: "Değerlendirilmemiş Hizmetler",
+          ratedCalls: "Değerlendirilmiş Hizmetler",
+          evaluationIndex: "Değerlendirme Endeksi",
+          score: "Puan",
+          prosecutors: "Tavsiye Edenler",
+          neutral: "Tarafsız",
+          detractors: "Eleştirenler",
+        },
+      },
+      reports: {
+        title: "Anket Raporları",
+        operator: "Operatör",
+        period: "Dönem",
+        until: "Şu tarihe kadar:",
+        date: "Tarih",
+        reportTitle: "Raporlar",
+        calls: "Hizmetler",
+        search: "Anketler",
+        durationCalls: "Hizmet Süresi",
+        grupoSessions: "Grup Hizmetleri",
+        groupTicketsReports: {
+          timezone: "America/Sao_Paulo",
+          msgToast: "Sıkıştırılmış rapor oluşturuluyor, lütfen bekleyin.",
+          errorToast: "Rapor oluşturma hatası",
+          back: "Geri",
+          groupServiceReport: "Grup Hizmet Raporu",
+          loading: "Yükleniyor...",
+          contact: "İletişim",
+          dateOpen: "Açılış Tarihi",
+          dateLastUpdated: "Son Güncelleme Tarihi",
+          agent: "Temsilci",
+          agentClosed: "Kapatan",
+          waitingAssistance: "Yardım Bekliyor",
+          process: "Devam Ediyor",
+        },
+        researchReports: {
+          response: "Yanıt",
+          active: "(Aktif)",
+          inactive: "(Pasif)",
+          quantity: "Miktar",
+          percentage: "Yüzde",
+          title: "Anket Raporları",
+          activeSearch: "Aktif Anket",
+          inactiveSearch: "Pasif Anket",
+        },
+        ticketDurationDetail: {
+          msgToast: "Sıkıştırılmış rapor oluşturuluyor, lütfen bekleyin.",
+          title: "Hizmet Süresi Raporu",
+          startService: "Hizmet Başlangıcı",
+          lastUpdated: "Son Güncelleme",
+          lastAgent: "Son Temsilci",
+          durationFinished: "Tamamlandıktan Sonraki Süre",
+        },
+        ticketDuration: {
+          title: "Hizmet Süresi Raporu",
+          contact: "İletişim",
+          open: "Açık",
+          pending: "Beklemede",
+          finished: "Tamamlandı",
+          durationFinished: "Tamamlanan Süre",
+          durationAfterFinished: "Tamamlandıktan Sonraki Süre",
+          actions: "Eylemler",
+        },
+        ticketReports: {
+          msgToast: "Sıkıştırılmış rapor oluşturuluyor, lütfen bekleyin.",
+          title: "Hizmet Raporu",
+        },
+        pdf: {
+          title: "Yapılan Hizmetler Listesi",
+          exportTitle: "Yapılan Grup Hizmetleri Listesi",
+        },
+      },
+      todo: {
+        newTask: "Yeni Görev",
+        add: "Ekle",
+        task: "Görevler",
+      },
+      contactImportWpModal: {
+        title: "Kişileri Excel'e Aktar",
+        buttons: {
+          downloadModel: "İçe aktarma için Excel şablonunu indir",
+          closed: "Kapat",
+          import: "Kişileri içe aktarmak için Excel dosyasını seç",
+        },
       },
       connections: {
-        title: "Bağlantı",
+        title: "Bağlantılar",
+        waitConnection: "Bekle... Bağlantılarınız yeniden başlatılacak!",
+        newConnection: "Yeni Bağlantı",
+        restartConnections: "Bağlantıları Yeniden Başlat",
+        callSupport: "Destek Ara",
         toasts: {
-          deleted: "WhatsApp bağlantısı başarılı bir şekilde silindi!"
+          deleted: "Bağlantı başarıyla silindi!",
+          disconnected: "Bağlantı başarıyla kesildi!",
+          closedimported: "İçe aktarılan biletler kapatılıyor, lütfen biraz bekleyin",
         },
         confirmationModal: {
+          closedImportedTitle: "İçe aktarılan biletleri kapat",
+          closedImportedMessage: "Onaylarsanız, tüm içe aktarılan biletler kapatılacak",
           deleteTitle: "Sil",
-          deleteMessage:
-            "Silmek istediğinize emin misiniz? Bu işlem geri döndürülemez.",
-          disconnectTitle: "Bağlantı Yok!",
-          disconnectMessage:
-            "Emin misiniz? QR Kodu yeniden okutmanız gerekecek."
+          deleteMessage: "Emin misiniz? Bu işlem geri alınamaz.",
+          disconnectTitle: "Bağlantıyı Kes",
+          disconnectMessage: "Emin misiniz? QR Kodunu tekrar taramanız gerekecek.",
         },
         buttons: {
-          add: "WhatsApp Ekle",
-          disconnect: "Bağlantıyı Sonlandır",
-          tryAgain: "Tekrar Deneyin",
-          qrcode: "QR Kodu",
-          newQr: "Yeni QR Kodu",
-          connecting: "Bağlantıyı Oluştur",
-          start: "Başla"
+          add: "Bağlantı Ekle",
+          disconnect: "Bağlantıyı Kes",
+          tryAgain: "Tekrar Dene",
+          qrcode: "QR KODU",
+          newQr: "Yeni QR KODU",
+          closedImported: "Tüm İçe Aktarılan Biletleri Kapat",
+          preparing: "İçe aktarma için mesajlar hazırlanıyor",
+          importing: "WhatsApp Mesajları İçe Aktarılıyor",
+          processed: "İşlendi",
+          in: "/",
+          connecting: "Bağlanıyor",
+        },
+        typography: {
+          processed: "İşlendi",
+          in: "/",
+          date: "Mesaj Tarihi",
         },
         toolTips: {
           disconnected: {
-            title: "WhatsApp oturumu başlatılamadı!",
-            content:
-              "Telefonun İnternet bağlantısı ve şarj seviyesinin düşük olmadığından emin olunuz. Ya da QR Kodu yeniden oluşturunuz."
+            title: "WhatsApp oturumu başlatılamadı",
+            content: "Telefonunuzun internete bağlı olduğundan emin olun ve tekrar deneyin veya yeni bir QR Kodu isteyin",
           },
           qrcode: {
-            title: "QR Kodu okumasını bekleyiniz.",
-            content:
-              "'QR Kodu' butonuna tıklayın ve telefonunuzdan QR Kodu okutarak oturumu başlatın."
+            title: "QR Kodu tarama bekleniyor",
+            content: "Oturumu başlatmak için 'QR KODU' düğmesine tıklayın ve telefonunuzla QR Kodunu tarayın",
           },
           connected: {
-            title: "Bağlantı Kuruldu."
+            title: "Bağlantı kuruldu!",
           },
           timeout: {
-            title: "Telefonunuzla olan bağlantı koptu!",
-            content:
-              "Telefonun İnternet bağlantısından, WhatsApp'ın arka planda da çalışır olduğundan ve şarj seviyesinin düşük olmadığından emin olunuz. Ya da QR Kodu yeniden oluşturunuz."
+            title: "Telefonla bağlantı kesildi",
+            content: "Telefonunuzun internete bağlı olduğundan ve WhatsApp'ın açık olduğundan emin olun veya yeni bir QR Kodu almak için 'Bağlantıyı Kes'e tıklayın",
           },
-          offline: {
-            title: "Bağlantı kapalı",
-            content: "Online olmak için başlayın."
-          }
         },
         table: {
           name: "İsim",
-          number: "Numara",
           status: "Durum",
-          provider: "WhatsApp",
+          lastUpdate: "Son Güncelleme",
           default: "Varsayılan",
-          actions: "İşlem",
-          session: "Oturum"
-        }
+          actions: "Eylemler",
+          session: "Oturum",
+          number: "WhatsApp Numarası",
+        },
+      },
+      showTicketOpenModal: {
+        title: {
+          header: "Mevcut Hizmet",
+        },
+        form: {
+          message: "Bu kişi zaten hizmet alıyor:",
+          user: "Temsilci",
+          queue: "Sıra",
+          messageWait: "Bu kişi zaten hizmet bekliyor. Bekleme sekmesini kontrol et!",
+        },
+      },
+      showTicketLogModal: {
+        title: {
+          header: "Kayıtlar",
+        },
+        options: {
+          create: "Bilet oluşturuldu.",
+          chatBot: "ChatBot başlatıldı.",
+          queue: " - Sıra tanımlandı.",
+          open: " hizmeti başlattı.",
+          access: "bilete erişti.",
+          transfered: "bileti transfer etti.",
+          receivedTransfer: "transfer edilen bileti aldı.",
+          pending: "sıraya geri döndü.",
+          closed: "bileti kapattı",
+          reopen: "bileti yeniden açtı",
+          redirect: "- yönlendirildi",
+        },
       },
       whatsappModal: {
         title: {
-          add: "WhatsApp Ekle",
-          edit: "WhatsApp'ı düzenle"
+          add: "Bağlantı Ekle",
+          edit: "Bağlantıyı Düzenle",
+        },
+        tabs: {
+          general: "Genel",
+          messages: "Mesajlar",
+          assessments: "NPS",
+          integrations: "Entegrasyonlar",
+          schedules: "Çalışma Saatleri",
         },
         form: {
+          importOldMessagesEnable: "Cihazdan mesajları içe aktar",
+          importOldMessages: "İçe aktarma başlangıç tarihi",
+          importRecentMessages: "İçe aktarma bitiş tarihi",
+          importOldMessagesGroups: "Grup mesajlarını içe aktar",
+          closedTicketsPostImported: "İçe aktardıktan sonra biletleri kapat",
           name: "İsim",
-          onNewMessage: "Yeni Bir Mesajda",
-          greetingMessage: "Karşılama Mesajı",
-          farewellMessage: "Kapanış Mesajı",
-          alwaysReopen: "Her zaman önceki konuşmayı yeniden aç",
-          customReopen1: "Önceki konuşmayı",
-          customReopen2: "dakikaya kadar yeniden aç",
-          farewellTooltip: {
-            title: "Sohbet Kapatıldıktan sonra gönderilecek mesaj",
-            content:
-              "Eklemek için aşağıdaki değişkenlere tıklayabilirsiniz. Göndermemek için boş bırakın"
-          }
-        },
-        buttons: {
-          okAdd: "Ekle",
-          okEdit: "Kaydet",
-          cancel: "İptal"
-        },
-        success: "WhatsApp başarılı bir şekilde kaydedildi."
-      },
-      qrCode: {
-        message: "Oturumu başlatmak için QR Kodu okuyun."
-      },
-      fastResponses: {
-        title: "Hızlı Yanıtlar",
-        toasts: {
-          deleted: "Hızlı yanıt başarılı bir şekilde silindi!"
-        },
-        confirmationModal: {
-          deleteTitle: "Sil",
-          deleteMessage: "Emin misiniz? Bu işlem geri döndürülemez."
-        },
-        buttons: {
-          add: "Hızlı yanıt etkle"
-        },
-        table: {
-          shortcut: "Kısayol",
-          message: "Mesaj",
-          actions: "Eylem"
-        }
-      },
-      fastResponseModal: {
-        title: {
-          add: "Hızlı yanıt ekle",
-          edit: "Hızlı yanıt düzenle"
-        },
-        form: {
-          shortcut: "Kısayol",
-          message: "Mesaj"
-        },
-        buttons: {
-          okAdd: "Ekle",
-          okEdit: "Kaydet",
-          cancel: "İptal"
-        },
-        success: "Hızlı yanıt başarılı bir şekilde kaydedildi."
-      },
-      help: {
-        title: "Yardım Merkezi"
-      },
-      contacts: {
-        title: "Kişiler",
-        toasts: {
-          deleted: "Kişi Başarılı bir şekilde silindi!",
-          not_imported_beta:
-            "WhatsApp Beta'da kişileri içe aktarmak mümkün değil"
-        },
-        searchPlaceholder: "Ara ...",
-        confirmationModal: {
-          deleteTitle: "Sil",
-          importTitlte: "Kişileri Yükle",
-          deleteMessage:
-            "Kişiyi silmek istediğinize emin misiniz? İlgili kişiye ait tüm sohbetler silinecektir.",
-          importMessage:
-            "Tüm Kişileri telefonunuzdan yüklemek istediğinize emin misiniz?"
-        },
-        newTicketModal: {
-          title: "Yeni Konuşma",
-          message: "Sohbete Başlamak için bağlantı oluştur."
-        },
-        buttons: {
-          import: "Kişileri Çek",
-          add: "Kişi Ekle"
-        },
-        table: {
-          name: "İsim",
-          whatsapp: "WhatsApp",
-          email: "Eposta",
-          actions: "İşlemler"
-        }
-      },
-      contactModal: {
-        title: {
-          add: "Kişi Ekle",
-          edit: "Kişi Düzenle"
-        },
-        form: {
-          mainInfo: "İletişim Bilgileri",
-          extraInfo: "Ek Bilgiler",
-          name: "İsim",
-          number: "Whatsapp numarası",
-          email: "Eposta",
-          extraName: "Alan Adı",
-          extraValue: "Değeri",
-          treatmentName: "İletişim Nedeni",
-          verified: "Onaylı",
-          notVerified: "Onaylı Değiş"
-        },
-        buttons: {
-          addExtraInfo: "Ekstra Bilgi Ekle ",
-          okAdd: "Ekle",
-          okEdit: "Kaydet",
-          cancel: "İptal"
-        },
-        success: "Kişi Başarılı bir şekilde kaydedildi."
-      },
-      queueModal: {
-        title: {
-          add: "Kuyruk Oluştur",
-          edit: "Kuyruk Düzenle"
-        },
-        form: {
-          options: "Ayarlar",
-          option: "Ayar",
-          name: "İsim",
-          color: "Renk",
-          greetingMessage: "Karşılama Mesajı",
-          responseMessage: "Yanıt:"
-        },
-        optionsTooltip: {
-          title: "ChatBot için ayarları ekle",
-          content:
-            "Tek bir seçenek varsa, otomatik olarak seçilecek ve botun seçenek mesajıyla yanıt vermesini sağlayacak."
-        },
-        greetingTooltip: {
-          title:
-            "Mesaj zorunlu alan, düzenlemek için tıkla! Message is required, click here to edit!",
-          content: "Mesajsız bir seçenek seçilmeyecek."
+          queueRedirection: "Sıra Yönlendirme",
+          queueRedirectionDesc: "Sırası olmayan kişileri yönlendirmek için bir sıra seçin",
+          default: "Varsayılan",
+          group: "Gruplara izin ver",
+          timeSendQueue: "Sıraya yönlendirme süresi (dakika)",
+          importAlert: "DİKKAT: Kaydettiğinizde bağlantınız sonlanacak ve mesajları içe aktarmak için QR Kodunu tekrar taramanız gerekecek",
+          groupAsTicket: "Grupları bilet olarak değerlendir",
+          timeCreateNewTicket: "X dakikada yeni bilet oluştur",
+          maxUseBotQueues: "Botu x kez gönder",
+          timeUseBotQueues: "Botu x dakikada gönder",
+          expiresTicket: "Açık sohbetleri x dakikadan sonra kapat",
+          expiresTicketNPS: "Değerlendirme bekleyen sohbetleri x dakikadan sonra kapat",
+          maxUseBotQueuesNPS: "Değerlendirmenin maksimum gönderim sayısı",
+          closeLastMessageOptions1: "Temsilci/Müşteri'den",
+          closeLastMessageOptions2: "Temsilci'den",
+          outOfHoursMessage: "Mesai dışı mesajı",
+          greetingMessage: "Karşılama mesajı",
+          complationMessage: "Tamamlama mesajı",
+          lgpdLinkPrivacy: "Gizlilik politikası bağlantısı",
+          lgpdMessage: "LGPD karşılama mesajı",
+          lgpdDeletedMessages: "Kişi tarafından silinen mesajı gizle",
+          lgpdSendMessage: "Her zaman kişi onayı iste",
+          ratingMessage: "Değerlendirme mesajı - Ölçek 0'dan 10'a olmalı",
+          token: "Harici entegrasyon için token",
+          sendIdQueue: "Sıra",
+          inactiveMessage: "Hareketsizlik mesajı",
+          timeInactiveMessage: "Hareketsizlik uyarısı gönderme süresi (dakika)",
+          whenExpiresTicket: "Son mesaj şu olduğunda açık sohbetleri kapat:",
+          expiresInactiveMessage: "Hareketsizlik nedeniyle kapatma mesajı",
+          prompt: "Prompt",
+          collectiveVacationEnd: "Bitiş tarihi",
+          collectiveVacationStart: "Başlangıç tarihi",
+          collectiveVacationMessage: "Toplu tatil mesajı",
+          queueIdImportMessages: "Mesajları içe aktarmak için sıra",
         },
         buttons: {
           okAdd: "Ekle",
           okEdit: "Kaydet",
           cancel: "İptal",
-          addOption: "Seçenek Ekle"
         },
-        confirmationModal: {
-          deleteTitle: "Seçeneği sil",
-          deleteMessage: "Emin misiniz? Yapılan tüm seçenekler silinecek!"
-        }
+        menuItem: {
+          enabled: "Etkin",
+          disabled: "Devre Dışı",
+          minutes: "dakika",
+        },
+        success: "Bağlantı başarıyla kaydedildi.",
+        errorSendQueue: "Sıraya yönlendirme süresi belirtildi, ancak sıra seçilmedi. Her iki alan da doldurulmalı.",
+        errorExpiresNPS: "NPS kullanıldığında değerlendirme süresi belirtilmesi zorunludur.",
+        errorRatingMessage: "NPS kullanıldığında değerlendirme mesajı belirtilmesi zorunludur.",
       },
-      campaignModal: {
-        title: {
-          add: "Yeni Kampanya"
+      qrCode: {
+        message: "Oturumu başlatmak için QR Kodunu tarayın",
+      },
+      contacts: {
+        title: "Kişiler",
+        toasts: {
+          deleted: "Kişi başarıyla silindi!",
         },
-        form: {
-          name: "Kampanya Adı",
-          connection: "Bağlantı",
-          globalBody: "Varsayılan Mesaj",
-          globalBodyTooltip:
-            "Bu mesaj, tanımlanmış bir body'si olmayan CSV'deki içe aktarılan numaralara gönderilecektir."
+        searchPlaceholder: "Ara...",
+        confirmationModal: {
+          deleteTitle: "Sil ",
+          importTitlte: "Kişileri içe aktar",
+          exportContact: "Kişileri dışa aktar",
+          deleteMessage: "Bu kişiyi silmek istediğinizden emin misiniz? İlgili tüm hizmetler kaybolacak.",
+          blockContact: "Bu kişiyi engellemek istediğinizden emin misiniz?",
+          unblockContact: "Bu kişinin engelini kaldırmak istediğinizden emin misiniz?",
+          importMessage: "Telefondaki tüm kişileri içe aktarmak istiyor musunuz?",
+          importChat: "Sohbetleri İçe Aktar",
+          wantImport: "Telefondaki tüm sohbetleri içe aktarmak istiyor musunuz?",
         },
         buttons: {
-          okAdd: "Ekle",
-          okEdit: "Kaydet",
-          cancel: "İptal"
+          import: "Kişileri İçe Aktar",
+          add: "Kişi Ekle",
+          export: "Kişiyi Dışa Aktar",
         },
-        success: "Kampanya Başarılı şekilde eklendi."
-      },
-      campaignProgressModal: {
-        title: "Kampanya Mesajı",
-        name: "Kampanya Adı",
-        status: "Durum",
         table: {
-          number: "Numara",
-          message: "Mesaj",
-          updatedAt: "Güncellendi",
-          status: "Durum"
+          name: "İsim",
+          whatsapp: "Bağlantı",
+          email: "E-posta",
+          actions: "Eylemler",
+          lastMessage: "Son Mesaj",
         },
+        menu: {
+          importYourPhone: "Varsayılan cihazdan içe aktar",
+          importToExcel: "Excel'den İçe/Dışa Aktar",
+        },
+      },
+      forwardMessage: {
+        text: "Yönlendirildi",
+      },
+      forwardMessageModal: {
+        title: "Mesajı Yönlendir",
         buttons: {
-          back: "Geri"
+          ok: "Yönlendir",
         },
-        ackLabels: {
-          scheduled: "Ayarlandı",
-          pending: "Gönderilmedi",
-          sent: "Gönderildi",
-          received: "Alındı",
-          read: "Okundu"
-        }
       },
-      csvHandler: {
-        downloadCsv: "Örnek Dosyayı İndir",
-        importCsv: "CSV Dosyası Yükle"
-      },
-      userModal: {
-        title: {
-          add: "Kullanıcı Ekle",
-          edit: "Kullanıcı Düzenle"
-        },
-        form: {
-          name: "Ad",
-          email: "Eposta",
-          password: "Şifre",
-          profile: "Profil"
-        },
-        buttons: {
-          okAdd: "Ekle",
-          okEdit: "Kaydet",
-          cancel: "İptal"
-        },
-        success: "Kullanıcı başarılı bir şekilde kaydedildi."
-      },
-      chat: {
-        noTicketMessage:
-          "Sohbete Başlamak için, herhangi bir sohbet kabul edin veya başlatın."
-      },
-      ticketsManager: {
-        buttons: {
-          newTicket: "Yeni"
-        }
-      },
-      multipleSelectField: {
-        selectAll: "Tümünü seç"
-      },
-      ticketsFilter: {
-        applyFilters: "Uygula",
-        cleanFilters: "Temizle",
-        found: "Bulundu",
-        placeholders: {
-          search: "İsime veya numaraya göre ara",
-          queues: "Kuyruklar",
-          noQueue: "Sıra",
-          whatsapps: "WhatsApp'lar",
-          noWhatsapp: "Ne whatsapp",
-          users: "Kullanıcılar",
-          noUser: "Cevapsız",
-          status: "Durumlar",
-          protocol: "Protokol",
-          tags: "Etiketler",
-          dateFrom: "Başlangıç",
-          dateTo: "Bitiş",
-          pending: "Beklemek",
-          open: "Katılmak",
-          closed: "Çözüldü"
-        }
-      },
-      ticketTagManager: {
-        addTags: "Etiket Ekle",
-        add: "Ekle",
-        typeToAdd: "Yeni Etiket Yaz",
-        confirmationModal: {
-          deleteTitle: "Etiket Sil",
-          deleteMessage:
-            "Emin misiniz? Bu etiket ilgili tüm konuşmalardan silinecek!"
-        }
-      },
-      referral: {
-        title: "Referans Programı",
-        link: "Referans Bağlantısı"
-      },
-      subscription: {
-        title: "Abonelik",
-        details: "Abonelik Detayları",
-        billingEmail: "Fatura Eposta",
-        unverifiedEmail1: "Bu eposta onaylanmamış, ",
-        unverifiedEmailClick: "Buraya Tıkla ",
-        unverifiedEmail2: "Aktivasyon mailini yeniden almak için.",
-        status: {
-          trial: "Deneme",
-          active: "Aylık Abone",
-          suspended: "Aboneliğin süresi doldu!"
-        },
-        expirationMessage: {
-          trialExpiringIn: "Deneme sürenizin bitmesine {{count}} gün kaldı!!",
-          trialExpiringIn_plural:
-            "Deneme süreniz {{count}} gün içinde sona eriyor!",
-          trialExpired:
-            "Deneme süresi doldu, Kullanmak için aboneliğinizi yenileyin!",
-          subscriptionCycleExpiring: "Mevcut aboneliğiniz sona eriyor."
-        },
-        planTable: {
-          header: {
-            plan: "Plan",
-            users: "Kullanıcılar",
-            whatsapps: "Whatsapplar",
-            total: "Toplam",
-            lastInvoice: "Son Fatura"
-          },
-          planName: "Özel"
-        },
-        buttons: {
-          subscribe: "Abone Ol!",
-          edit: "Değiştir",
-          close: "Sonlandır"
-        },
-        tooltip: {
-          billingCycle: {
-            title: "Bir sonraki faturanızın son ödeme tarihi",
-            content:
-              "Fatura son ödeme tarihinden 10 gün önce düzenlenir. Aşağıdaki 'Son fatura' düğmesi aracılığıyla veya fatura e-postanız aracılığıyla faturaya erişin."
-          }
-        }
-      },
-      changeEmailModal: {
-        title: "Fatura epostasını değiştirin",
-        placeholder: "Yeni eposta",
-        toast: "Yeni bir onay maili eposta adresinize gönderildi.",
-        buttons: {
-          ok: "Değiştir",
-          cancel: "İptal"
-        }
-      },
-      checkoutStepper: {
-        titleEdit: "Planı Değiştir",
-        titlePending: "Neredeyse Hazır!",
-        titleDone: "Aboneliğiniz için Teşekkürler!",
-        steps: {
-          billingData: "Veri",
-          customize: "Özelleştir",
-          review: "Gözden Geçir",
-          success: "Tebrikler!"
-        },
-        messages: {
-          toastMinimumPlan: "En az 3 kullanıcı ve 1 whatsapp numarası gerekli",
-          fieldMinimumUsers: "En Az 3!",
-          fieldMinimumWhats: "En az 1!",
-          emailSent:
-            "Fatura adresine ödeme talimatı içeren bir e-posta gönderildi.",
-          activationInfo:
-            "Kredi kartı ödemeleri anında etkinleştirilir. Daha fazla yardıma ihtiyacınız olursa bizimle iletişime geçmekten çekinmeyin.",
-          planChanged: "Aboneliğiniz güncellendi!",
-          planChangedInfo:
-            "Yeni kullanıcılar ve whatsapp limiti zaten mevcut. Yeni değer, bir sonraki açık faturanızda tahsil edilecektir."
-        },
-        buttons: {
-          payNow: "Öde!",
-          close: "Kapat"
-        }
-      },
-      billingData: {
-        title: "Gerekli Bilgiler",
+      promptModal: {
         form: {
           name: "İsim",
-          document: "Döküman Numarası",
-          zip: "Posta Kodu",
-          street: "Sokak",
-          number: "Numara",
-          district: "İlçe",
-          complement: "Adres",
-          city: "İl",
-          state: "Ülke"
-        }
-      },
-      planBuilder: {
-        title: "Aboneliğinizi özelleştirin",
-        table: {
-          header: {
-            item: "Ürün",
-            quantity: "Miktar",
-            unitaryValue: "Değer",
-            subtotal: "Ara Toplam"
-          },
-          users: "Kullanıcılar",
-          whatsapps: "Whatsapp'lar",
-          total: "Toplam"
+          prompt: "Prompt",
+          voice: "Ses",
+          max_tokens: "Yanıttaki Maksimum Token",
+          temperature: "Sıcaklık",
+          apikey: "API Anahtarı",
+          max_messages: "Geçmişteki Maksimum Mesaj",
+          voiceKey: "Ses API Anahtarı",
+          voiceRegion: "Ses Bölgesi",
+        },
+        success: "Prompt başarıyla kaydedildi!",
+        title: {
+          add: "Prompt Ekle",
+          edit: "Prompt Düzenle",
         },
         buttons: {
-          next: "Sıradaki"
-        }
+          okAdd: "Ekle",
+          okEdit: "Kaydet",
+          cancel: "İptal",
+        },
       },
-      subscriptionReview: {
-        title: "Abonelik Özeti",
-        titleChange: "Uyarı! Değişiklik 30 gün içerisinde değiştirilemez!",
-        whatsExceeded:
-          "Dikkat! Şu anda kullandığınızdan daha az whatsapp'a ayarlıyorsunuz. Fazla bağlantılar silinecek.",
-        planDetails: "Plan Detayları",
-        paymentDetails: "Ödeme Bilgisi",
-        email: "Eposta",
-        users: "Kullanıcılar",
-        whatsapps: "Whatsapplar",
-        name: "İsim",
-        address: "Adres",
-        document: "Döküman",
-        total: "Toplam",
+      prompts: {
+        title: "Promptlar",
+        table: {
+          name: "İsim",
+          queue: "Departman/Sıra",
+          max_tokens: "Maksimum Yanıt Tokenları",
+          actions: "Eylemler",
+        },
+        confirmationModal: {
+          deleteTitle: "Sil",
+          deleteMessage: "Emin misiniz? Bu işlem geri alınamaz!",
+        },
         buttons: {
-          subscribe: "Abone Ol ",
-          change: "Değişikliği Onayla",
-          back: "Geri"
-        }
+          add: "Prompt Ekle",
+        },
+      },
+      contactModal: {
+        title: {
+          add: "Kişi Ekle",
+          edit: "Kişiyi Düzenle",
+        },
+        form: {
+          mainInfo: "Kişi Detayları",
+          extraInfo: "Ek Bilgiler",
+          name: "İsim",
+          number: "Whatsapp Numarası",
+          email: "E-posta",
+          extraName: "Alan Adı",
+          extraValue: "Değer",
+          chatBotContact: "Chatbot'u devre dışı bırak",
+          termsLGDP: "LGPD Koşulları kabul edildi:",
+          whatsapp: "Kaynak Bağlantı: ",
+        },
+        buttons: {
+          addExtraInfo: "Bilgi Ekle",
+          okAdd: "Ekle",
+          okEdit: "Kaydet",
+          cancel: "İptal",
+        },
+        success: "Kişi başarıyla kaydedildi.",
+      },
+      flowbuilderModal: {
+        flowNotIdPhrase: "Varsayılan Akış",
+      },
+      queueModal: {
+        title: {
+          queueData: "Sıra Verileri",
+          text: "Hizmet Saatleri",
+          add: "Sıra Ekle",
+          edit: "Sırayı Düzenle",
+          confirmationDelete: "Emin misiniz? Tüm entegrasyon seçenekleri silinecek.",
+        },
+        form: {
+          name: "İsim",
+          color: "Renk",
+          orderQueue: "Sıra Sıralaması (Bot)",
+          rotate: "Rotasyon",
+          timeRotate: "Rotasyon Süresi",
+          greetingMessage: "Karşılama Mesajı",
+          complationMessage: "Tamamlama Mesajı",
+          outOfHoursMessage: "Mesai Dışı Mesaj",
+          token: "Token",
+          integrationId: "Entegrasyon",
+          fileListId: "Dosya Listesi",
+          closeTicket: "Bileti Kapat",
+          queueType: "Menü Türü",
+          message: "Geri Dönüş Mesajı",
+          queue: "Transfer için Sıra",
+          integration: "Entegrasyon",
+          file: "Dosya Listesi",
+        },
+        buttons: {
+          okAdd: "Ekle",
+          okEdit: "Kaydet",
+          cancel: "İptal",
+        },
+        bot: {
+          title: "Seçenekler",
+          toolTipTitle: "Chatbot oluşturmak için seçenekler ekle",
+          toolTip: "Yalnızca bir seçenek varsa, otomatik olarak seçilecek ve bot bu seçeneğin mesajıyla yanıt verecek ve devam edecek",
+          selectOption: "Bir seçenek seç",
+          text: "Metin",
+          attendent: "Temsilci",
+          queue: "Sıra",
+          integration: "Entegrasyon",
+          file: "Dosya",
+          toolTipMessageTitle: "Bir sonraki seviyeye geçmek için mesaj zorunludur",
+          toolTipMessageContent: "Bir sonraki seviyeye geçmek için mesaj zorunludur",
+          selectUser: "Bir Kullanıcı Seç",
+          selectQueue: "Bir Sıra Seç",
+          selectIntegration: "Bir Entegrasyon Seç",
+          addOptions: "Seçenekler ekle",
+        },
+        serviceHours: {
+          dayWeek: "Haftanın Günü",
+          startTimeA: "Başlangıç Saati - Vardiya A",
+          endTimeA: "Bitiş Saati - Vardiya A",
+          startTimeB: "Başlangıç Saati - Vardiya B",
+          endTimeB: "Bitiş Saati - Vardiya B",
+          monday: "Pazartesi",
+          tuesday: "Salı",
+          wednesday: "Çarşamba",
+          thursday: "Perşembe",
+          friday: "Cuma",
+          saturday: "Cumartesi",
+          sunday: "Pazar",
+        },
+      },
+      queueIntegrationModal: {
+        title: {
+          add: "Proje Ekle",
+          edit: "Projeyi Düzenle",
+        },
+        form: {
+          id: "ID",
+          type: "Tür",
+          name: "İsim",
+          projectName: "Proje Adı",
+          language: "Dil",
+          jsonContent: "JsonContent",
+          urlN8N: "URL",
+          typebotSlug: "Typebot - Slug",
+          typebotExpires: "Bir konuşmanın sona erme süresi (dakika)",
+          typebotKeywordFinish: "Bileti bitirme kelimesi",
+          typebotKeywordRestart: "Akışı yeniden başlatma kelimesi",
+          typebotRestartMessage: "Konuşmayı yeniden başlatırken mesaj",
+          typebotUnknownMessage: "Geçersiz seçenek mesajı",
+          typebotDelayMessage: "Mesajlar arası gecikme (ms)",
+        },
+        buttons: {
+          okAdd: "Ekle",
+          okEdit: "Kaydet",
+          cancel: "İptal",
+          test: "Botu Test Et",
+        },
+        messages: {
+          testSuccess: "Entegrasyon başarıyla test edildi!",
+          addSuccess: "Entegrasyon başarıyla eklendi.",
+          editSuccess: "Entegrasyon başarıyla düzenlendi.",
+        },
+      },
+      userModal: {
+        warning: "Mesajları içe aktarmak için QR Kodunu tekrar taramanız gerekiyor!!!",
+        title: {
+          add: "Kullanıcı Ekle",
+          edit: "Kullanıcıyı Düzenle",
+          updateImage: "Resmi Güncelle",
+          removeImage: "Resmi Sil",
+        },
+        form: {
+          name: "İsim",
+          email: "E-posta",
+          password: "Şifre",
+          farewellMessage: "Veda Mesajı",
+          profile: "Profil",
+          startWork: "Çalışma Başlangıcı",
+          endWork: "Çalışma Bitişi",
+          whatsapp: "Varsayılan Bağlantı",
+          allTicketEnable: "Etkin",
+          allTicketDisable: "Devre Dışı",
+          allTicket: "Sırasız biletleri görüntüle",
+          allowGroup: "Gruplara İzin Ver",
+          defaultMenuOpen: "Açık",
+          defaultMenuClosed: "Kapalı",
+          defaultMenu: "Varsayılan Menü",
+          defaultTheme: "Varsayılan Tema",
+          defaultThemeDark: "Koyu",
+          defaultThemeLight: "Açık",
+          allHistoric: "Diğer sıralardaki sohbetleri görüntüle",
+          allHistoricEnabled: "Etkin",
+          allHistoricDisabled: "Devre Dışı",
+          allUserChat: "Diğer kullanıcıların sohbetlerini görüntüle",
+          userClosePendingTicket: "Bekleyen biletleri kapatma izni",
+          showDashboard: "Kontrol Panelini Görüntüle",
+          allowRealTime: "Hizmet Panelini Görüntüle",
+          allowConnections: "Bağlantılarda işlem yapmaya izin ver",
+        },
+        tabs: {
+          general: "Genel",
+          permissions: "İzinler",
+        },
+        buttons: {
+          okAdd: "Ekle",
+          okEdit: "Kaydet",
+          cancel: "İptal",
+          addImage: "Resim Ekle",
+          editImage: "Resmi Düzenle",
+        },
+        success: "Kullanıcı başarıyla kaydedildi.",
+      },
+      companyModal: {
+        title: {
+          add: "Şirket Ekle",
+          edit: "Şirketi Düzenle",
+        },
+        form: {
+          name: "İsim",
+          email: "E-posta",
+          passwordDefault: "Şifre",
+          numberAttendants: "Kullanıcılar",
+          numberConections: "Bağlantılar",
+        },
+        buttons: {
+          okAdd: "Ekle",
+          okEdit: "Kaydet",
+          cancel: "İptal",
+        },
+        success: "Şirket başarıyla kaydedildi.",
+      },
+      scheduleModal: {
+        title: {
+          add: "Yeni Planlama",
+          edit: "Planlamayı Düzenle",
+        },
+        form: {
+          body: "Mesaj",
+          contact: "İletişim",
+          sendAt: "Planlama Tarihi",
+          sentAt: "Gönderim Tarihi",
+          assinar: "İmza Gönder",
+        },
+        buttons: {
+          okAdd: "Ekle",
+          okEdit: "Kaydet",
+          cancel: "İptal",
+          addSchedule: "Planlama Ekle",
+        },
+        success: "Planlama başarıyla kaydedildi.",
+      },
+      tagModal: {
+        title: {
+          add: "Yeni Etiket",
+          edit: "Etiketi Düzenle",
+          addKanban: "Yeni Şerit",
+          editKanban: "Şeridi Düzenle",
+        },
+        form: {
+          name: "İsim",
+          color: "Renk",
+          timeLane: "Şeride yönlendirme süresi (saat)",
+          nextLaneId: "Şerit",
+          greetingMessageLane: "Şerit karşılama mesajı",
+          rollbackLaneId: "Hizmet devam ettikten sonra şeride geri dön",
+        },
+        buttons: {
+          okAdd: "Ekle",
+          okEdit: "Kaydet",
+          cancel: "İptal",
+        },
+        success: "Etiket başarıyla kaydedildi.",
+        successKanban: "Şerit başarıyla kaydedildi.",
+      },
+      fileModal: {
+        title: {
+          add: "Dosya Listesi Ekle",
+          edit: "Dosya Listesini Düzenle",
+        },
+        buttons: {
+          okAdd: "Kaydet",
+          okEdit: "Düzenle",
+          cancel: "İptal",
+          fileOptions: "Dosya Ekle",
+        },
+        form: {
+          name: "Dosya Listesi Adı",
+          message: "Liste Detayları",
+          fileOptions: "Dosya Listesi",
+          extraName: "Dosyayla gönderilecek mesaj",
+          extraValue: "Seçenek Değeri",
+        },
+        success: "Dosya listesi başarıyla kaydedildi!",
+      },
+      chat: {
+        noTicketMessage: "Sohbete başlamak için bir bilet seçin.",
+      },
+      uploads: {
+        titles: {
+          titleUploadMsgDragDrop: "⬇️ DOSYALARI AŞAĞIDAKİ ALANA SÜRÜKLEYİP BIRAKIN ⬇️",
+          titleFileList: "Dosya Listesi",
+        },
+      },
+      chatInternal: {
+        new: "Yeni",
+        modal: {
+          conversation: "Konuşma",
+          title: "Başlık",
+          filterUsers: "Kullanıcılara Göre Filtrele",
+          cancel: "Kapat",
+          save: "Kaydet",
+        },
+        modalDelete: {
+          title: "Konuşmayı Sil",
+          message: "Bu işlem geri alınamaz, onaylıyor musunuz?",
+        },
+      },
+      ticketsManager: {
+        questionCloseTicket: "TÜM BİLETLERİ KAPATMAK İSTİYOR MUSUNUZ?",
+        yes: "EVET",
+        not: "HAYIR",
+        buttons: {
+          newTicket: "Yeni",
+          resolveAll: "Hepsini Çöz",
+          close: "Kapat",
+          new: "Yeni",
+        },
+      },
+      ticketsQueueSelect: {
+        placeholder: "Sıralar",
       },
       tickets: {
+        inbox: {
+          closedAllTickets: "Tüm biletleri kapat?",
+          closedAll: "Hepsini Kapat",
+          newTicket: "Yeni Bilet",
+          yes: "EVET",
+          no: "HAYIR",
+          open: "Açık",
+          resolverd: "Çözülmüş",
+        },
         toasts: {
-          deleted: "Oluşturulan sohbet silindi."
+          deleted: "İçinde olduğunuz hizmet silindi.",
         },
         notification: {
-          message: "Gelen Mesaj"
+          message: "Şuradan mesaj:",
         },
         tabs: {
           open: { title: "Açık" },
-          closed: { title: "Kapalı" },
-          search: { title: "Ara" }
+          closed: { title: "Çözülmüş" },
+          search: { title: "Ara" },
+        },
+        search: {
+          placeholder: "Hizmet ve mesaj ara",
+          filterConections: "Bağlantıya Göre Filtrele",
+          filterConectionsOptions: {
+            open: "Açık",
+            closed: "Kapalı",
+            pending: "Beklemede",
+          },
+          filterUsers: "Kullanıcılara Göre Filtrele",
+          filterContacts: "Kişilere Göre Filtrele",
+          ticketsPerPage: "Sayfa başına bilet",
         },
         buttons: {
-          showAll: "Tüm"
-        }
+          showAll: "Tümü",
+          returnQueue: "Sıraya Geri Dön",
+          scredule: "Planla",
+          deleteTicket: "Bileti Sil",
+          quickmessageflash: "Hızlı Mesaj",
+        },
+        closedTicket: {
+          closedMessage: "Bileti Veda Mesajıyla Kapat",
+          closedNotMessage: "Bileti Veda Mesajı Olmadan Kapat",
+        },
       },
       transferTicketModal: {
-        title: "Sohbeti Transfer Et",
-        fieldLabel: "Kullanıcı Ara",
-        noOptions: "Bu isimde Kullanıcı Bulunamadı.",
-        noteLabel: "Gözlemler",
+        title: "Bileti Transfer Et",
+        fieldLabel: "Kullanıcıları aramak için yazın",
+        fieldQueueLabel: "Sıraya transfer et",
+        fieldQueuePlaceholder: "Bir sıra seçin",
+        fieldWhatsapp: "Bir WhatsApp seçin",
+        noOptions: "Bu isimle kullanıcı bulunamadı",
+        msgTransfer: "Notlar - dahili mesaj, müşteriye gönderilmez",
         buttons: {
-          ok: "Transfer",
-          cancel: "İptal"
-        }
+          ok: "Transfer Et",
+          cancel: "İptal",
+        },
       },
       ticketsList: {
-        pendingHeader: "Kuyruktakiler",
-        assignedHeader: "İlgilenilenler",
-        noTicketsTitle: "Boş!",
-        noTicketsMessage: "Aranan terimle alakalı hiçbir şey bulunamadı.",
+        called: "Arandı",
+        today: "Bugün",
+        missedCall: "Sesli/görüntülü arama kaçırıldı:",
+        pendingHeader: "Bekliyor",
+        assignedHeader: "Hizmet Veriyor",
+        groupingHeader: "Gruplar",
+        noTicketsTitle: "Burada hiçbir şey yok!",
+        noTicketsMessage: "Bu durum veya arama terimiyle hizmet bulunamadı",
+        noQueue: "Sıra Yok",
         buttons: {
-          accept: "Kabul Et"
+          accept: "Kabul Et",
+          cancel: "İptal",
+          start: "Başlat",
+          closed: "Kapat",
+          reopen: "Yeniden Aç",
+          transfer: "Transfer Et",
+          ignore: "Yoksay",
+          exportAsPDF: "PDF'ye Aktar",
+          kanbanActions: "Kanban Seçenekleri",
         },
-        confirmationModal: {
-          title: "Otomatik Yanıtlama",
-          message:
-            "Bu konuşma otomatik yanıtlamada. Kabul etmek, otomatik yanıtlamanın kesilmesine neden olur."
+        acceptModal: {
+          title: "Sohbeti Kabul Et",
+          queue: "Departman seç",
         },
-        status: {
-          closed: "Kapandı"
-        }
-      },
-      ticketListItem: {
-        assignedTo: "İlgilenen",
-        waitingWarning: "5 dakikadan fazla bekliyor!",
-        noQueue: "sıra yok",
-        connectionTooltip: {
-          title: "Bir bağlantı seçmek için tıklayın"
-        },
-        chatbotTooltip: {
-          title: "Otomatik Yanıtlama"
-        },
-        selectWhatsModal: {
-          title: "Bu görüşmenin bağlantısı yok",
-          message: "Sohbete devam etmek için bir bağlantı seçin",
-          applyToAll: "Bağlantı olmadan herkese uygula"
-        }
       },
       newTicketModal: {
-        title: "Sohbet Oluştur",
-        fieldLabel: "Kişileri Ara",
-        queues: "Kuyruklar",
-        noQueue: "Boş",
+        title: "Bilet Oluştur",
+        fieldLabel: "Kişiyi aramak için yazın",
         add: "Ekle",
         buttons: {
-          ok: "Başla",
-          cancel: "İptal"
-        }
+          ok: "Kaydet",
+          cancel: "İptal",
+        },
       },
-      whatsappSelect: {
-        label: "Bağlantı Seç*"
+      SendContactModal: {
+        title: "Kişi Gönder",
+        fieldLabel: "Kişiyi aramak için yazın",
+        add: "Ekle",
+        buttons: {
+          ok: "Gönder",
+          cancel: "İptal",
+        },
       },
       mainDrawer: {
         listItems: {
-          dashboard: "Pano",
+          dashboard: "Kontrol Paneli",
           connections: "Bağlantılar",
-          tickets: "Sohbetler",
+          chatsTempoReal: "Panel",
+          tickets: "Hizmetler",
+          quickMessages: "Hızlı Yanıtlar",
           contacts: "Kişiler",
-          help: "Yardım",
-          fastResponses: "Hızlı Yanıtlamalar",
-          queues: "Kuyruklar & Chatbotlar",
+          queues: "Sıralar & Chatbot",
+          tags: "Etiketler",
           administration: "Yönetim",
+          companies: "Şirketler",
           users: "Kullanıcılar",
-          api: "API",
-          apiKeys: "Tokens",
-          apiDocs: "Dökümanlar",
-          subscription: "Abonelik",
+          settings: "Ayarlar",
+          files: "Dosya Listesi",
+          helps: "Yardım",
+          messagesAPI: "API",
+          schedules: "Planlamalar",
           campaigns: "Kampanyalar",
-          referral: "Referans",
-          settings: "Ayarlar"
+          annoucements: "Duyurular",
+          chats: "Dahili Sohbet",
+          financeiro: "Finansal",
+          queueIntegration: "Entegrasyonlar",
+          version: "Sürüm",
+          kanban: "Kanban",
+          prompts: "Talk.Ai",
+          allConnections: "Bağlantıları Yönet",
+          reports: "Raporlar",
+          management: "Yönetim",
         },
         appBar: {
           user: {
             profile: "Profil",
-            logout: "Çıkış"
-          }
-        }
+            logout: "Çıkış Yap",
+            message: "Merhaba",
+            messageEnd: "hoş geldiniz",
+            active: "Şu tarihe kadar aktif:",
+            goodMorning: "Merhaba,",
+            myName: "benim adım",
+            continuity: "ve hizmetinize devam edeceğim.",
+            virtualAssistant: "Sanal Asistan",
+            token: "Geçersiz token, lütfen platform yöneticisine başvurun.",
+          },
+          message: {
+            location: "Konum",
+            contact: "İletişim",
+          },
+          notRegister: "Kayıt yok",
+          refresh: "Yenile",
+        },
+      },
+      languages: {
+        undefined: "Dil",
+        "pt-BR": "Portekizce",
+        es: "İspanyolca",
+        en: "İngilizce",
+        tr: "Türkçe",
+      },
+      messagesAPI: {
+        title: "API",
+        textMessage: {
+          number: "Numara",
+          body: "Mesaj",
+          token: "Kayıtlı Token",
+          userId: "Kullanıcı/Temsilci ID",
+          queueId: "Sıra ID",
+        },
+        mediaMessage: {
+          number: "Numara",
+          body: "Dosya Adı",
+          media: "Dosya",
+          token: "Kayıtlı Token",
+        },
+        API: {
+          title: "Mesaj Gönderme Dokümantasyonu",
+          methods: {
+            title: "Gönderme Yöntemleri",
+            messagesText: "Metin Mesajları",
+            messagesMidia: "Medya Mesajları",
+          },
+          instructions: {
+            title: "Talimatlar",
+            comments: "Önemli Notlar",
+            comments1: "Mesaj göndermeden önce, mesajları gönderecek bağlantıya bağlı token'ı kaydetmeniz gerekir. <br />Kayıt yapmak için 'Bağlantılar' menüsüne gidin, bağlantının düzenle düğmesine tıklayın ve uygun alana token'ı girin.",
+            comments2: "Gönderme numarası maske veya özel karakter içermemelidir ve şu şekilde olmalıdır:",
+            codeCountry: "Ülke Kodu",
+            code: "Alan Kodu",
+            number: "Numara",
+          },
+          text: {
+            title: "1. Metin Mesajları",
+            instructions: "Metin mesajları göndermek için gerekli bilgiler aşağıda listelenmiştir:",
+          },
+          media: {
+            title: "2. Medya Mesajları",
+            instructions: "Medya mesajları göndermek için gerekli bilgiler aşağıda listelenmiştir:",
+          },
+        },
       },
       notifications: {
-        noTickets: "Bildirim Yok."
+        noTickets: "Bildirim yok.",
       },
-      queues: {
-        title: "Kuyruklar",
-        deleteQueue: "Sıra başarıyla silindi.",
-        saveQueue: "Sıra başarıyla kaydedildi!",
-        table: {
-          name: "İsim",
-          color: "Renk",
-          greeting: "Karşılama mesajı",
-          actions: "İşlemler"
+      quickMessages: {
+        title: "Hızlı Yanıtlar",
+        searchPlaceholder: "Ara...",
+        noAttachment: "Ek yok",
+        confirmationModal: {
+          deleteTitle: "Silme",
+          deleteMessage: "Bu işlem geri alınamaz! Devam etmek istiyor musunuz?",
         },
         buttons: {
-          add: "Kuyruk Ekle"
+          add: "Ekle",
+          attach: "Dosya Ekle",
+          cancel: "İptal",
+          edit: "Düzenle",
+        },
+        toasts: {
+          success: "Kısayol başarıyla eklendi!",
+          deleted: "Kısayol başarıyla kaldırıldı!",
+        },
+        dialog: {
+          title: "Hızlı Mesaj",
+          shortcode: "Kısayol",
+          message: "Yanıt",
+          save: "Kaydet",
+          cancel: "İptal",
+          geral: "Düzenlemeye izin ver",
+          add: "Ekle",
+          edit: "Düzenle",
+          visao: "Görüntülemeye izin ver",
+        },
+        table: {
+          shortcode: "Kısayol",
+          message: "Mesaj",
+          actions: "Eylemler",
+          mediaName: "Dosya Adı",
+          status: "Durum",
+        },
+      },
+      contactLists: {
+        title: "Kişi Listeleri",
+        table: {
+          name: "İsim",
+          contacts: "Kişiler",
+          actions: "Eylemler",
+        },
+        buttons: {
+          add: "Yeni Liste",
+        },
+        dialog: {
+          name: "İsim",
+          company: "Şirket",
+          okEdit: "Düzenle",
+          okAdd: "Ekle",
+          add: "Ekle",
+          edit: "Düzenle",
+          cancel: "İptal",
         },
         confirmationModal: {
           deleteTitle: "Sil",
-          deleteMessage:
-            "Silmek istediğinize emin misiniz? Bu kuyruktaki sohbetler hala var olacak, ancak atanmışlar herhangi bir sıraya sahip olmayacak!"
-        }
+          deleteMessage: "Bu işlem geri alınamaz.",
+        },
+        toasts: {
+          deleted: "Kayıt silindi",
+        },
+      },
+      contactListItems: {
+        title: "Kişiler",
+        searchPlaceholder: "Ara",
+        buttons: {
+          add: "Yeni",
+          lists: "Listeler",
+          import: "İçe Aktar",
+        },
+        dialog: {
+          name: "İsim",
+          number: "Numara",
+          whatsapp: "Whatsapp",
+          email: "E-posta",
+          okEdit: "Düzenle",
+          okAdd: "Ekle",
+          add: "Ekle",
+          edit: "Düzenle",
+          cancel: "İptal",
+        },
+        table: {
+          name: "İsim",
+          number: "Numara",
+          whatsapp: "Whatsapp",
+          email: "E-posta",
+          actions: "Eylemler",
+        },
+        confirmationModal: {
+          deleteTitle: "Sil",
+          deleteMessage: "Bu işlem geri alınamaz.",
+          importMessage: "Bu tablodaki kişileri içe aktarmak istiyor musunuz? ",
+          importTitlte: "İçe Aktar",
+        },
+        toasts: {
+          deleted: "Kayıt silindi",
+        },
+      },
+      kanban: {
+        title: "Kanban",
+        searchPlaceholder: "Ara",
+        subMenus: {
+          list: "Panel",
+          tags: "Şeritler",
+        },
+      },
+      campaigns: {
+        title: "Kampanyalar",
+        searchPlaceholder: "Ara",
+        subMenus: {
+          list: "Liste",
+          listContacts: "Kişi Listesi",
+          settings: "Ayarlar",
+        },
+        settings: {
+          randomInterval: "Rastgele Gönderme Aralığı",
+          noBreak: "Ara Verme",
+          intervalGapAfter: "Şundan sonra daha büyük aralık:",
+          undefined: "Tanımlanmadı",
+          messages: "mesajlar",
+          laggerTriggerRange: "Daha büyük gönderme aralığı",
+          addVar: "Değişken ekle",
+          save: "Kaydet",
+          close: "Kapat",
+          add: "Ekle",
+          shortcut: "Kısayol",
+          content: "İçerik",
+        },
+        buttons: {
+          add: "Yeni Kampanya",
+          contactLists: "Kişi Listeleri",
+        },
+        table: {
+          name: "İsim",
+          whatsapp: "Bağlantı",
+          contactList: "Kişi Listesi",
+          option: "Yok",
+          disabled: "Devre Dışı",
+          enabled: "Etkin",
+          status: "Durum",
+          scheduledAt: "Planlandı",
+          completedAt: "Tamamlandı",
+          confirmation: "Onay",
+          actions: "Eylemler",
+        },
+        dialog: {
+          new: "Yeni Kampanya",
+          update: "Kampanyayı Düzenle",
+          readonly: "Salt Okunur",
+          help: "{isim}, {numara}, {email} gibi değişkenler kullanın veya özel değişkenler tanımlayın.",
+          form: {
+            name: "İsim",
+            message1: "Mesaj 1",
+            message2: "Mesaj 2",
+            message3: "Mesaj 3",
+            message4: "Mesaj 4",
+            message5: "Mesaj 5",
+            confirmationMessage1: "Onay Mesajı 1",
+            confirmationMessage2: "Onay Mesajı 2",
+            confirmationMessage3: "Onay Mesajı 3",
+            confirmationMessage4: "Onay Mesajı 4",
+            confirmationMessage5: "Onay Mesajı 5",
+            messagePlaceholder: "Mesaj İçeriği",
+            whatsapp: "Bağlantı",
+            status: "Durum",
+            scheduledAt: "Planlandı",
+            confirmation: "Onay",
+            contactList: "Kişi Listesi",
+            tagList: "Etiketler",
+            statusTicket: "Bilet Durumu",
+            openTicketStatus: "Açık",
+            pendingTicketStatus: "Beklemede",
+            closedTicketStatus: "Kapalı",
+            enabledOpenTicket: "Etkin",
+            disabledOpenTicket: "Devre Dışı",
+            openTicket: "Bilet aç",
+          },
+          buttons: {
+            add: "Ekle",
+            edit: "Güncelle",
+            okadd: "Tamam",
+            cancel: "Göndermeyi İptal Et",
+            restart: "Göndermeyi Yeniden Başlat",
+            close: "Kapat",
+            attach: "Dosya Ekle",
+          },
+        },
+        confirmationModal: {
+          deleteTitle: "Sil",
+          deleteMessage: "Bu işlem geri alınamaz.",
+        },
+        toasts: {
+          success: "İşlem başarıyla tamamlandı",
+          cancel: "Kampanya iptal edildi",
+          restart: "Kampanya yeniden başlatıldı",
+          deleted: "Kayıt silindi",
+        },
+      },
+      campaignReport: {
+        title: "Kampanya Raporu",
+        inactive: "Pasif",
+        scheduled: "Planlandı",
+        process: "Devam Ediyor",
+        cancelled: "İptal Edildi",
+        finished: "Tamamlandı",
+        campaign: "Kampanya",
+        validContacts: "Geçerli Kişiler",
+        confirmationsRequested: "Talep Edilen Onaylar",
+        confirmations: "Onaylar",
+        deliver: "Teslim Edildi",
+        connection: "Bağlantı",
+        contactLists: "Kişi Listeleri",
+        schedule: "Planlama",
+        conclusion: "Sonuç",
+      },
+      announcements: {
+        title: "Duyurular",
+        searchPlaceholder: "Ara",
+        active: "Aktif",
+        inactive: "Pasif",
+        buttons: {
+          add: "Yeni Duyuru",
+          contactLists: "Duyuru Listeleri",
+        },
+        table: {
+          priority: "Öncelik",
+          title: "Başlık",
+          text: "Metin",
+          mediaName: "Dosya",
+          status: "Durum",
+          actions: "Eylemler",
+        },
+        dialog: {
+          edit: "Duyuruyu Düzenle",
+          add: "Yeni Duyuru",
+          update: "Duyuruyu Güncelle",
+          readonly: "Salt Okunur",
+          form: {
+            priority: "Öncelik",
+            title: "Başlık",
+            text: "Metin",
+            mediaPath: "Dosya",
+            status: "Durum",
+            high: "Yüksek",
+            medium: "Orta",
+            low: "Düşük",
+            active: "Aktif",
+            inactive: "Pasif",
+          },
+          buttons: {
+            add: "Ekle",
+            edit: "Güncelle",
+            okadd: "Tamam",
+            cancel: "İptal",
+            close: "Kapat",
+            attach: "Dosya Ekle",
+          },
+        },
+        confirmationModal: {
+          deleteTitle: "Sil",
+          deleteMessage: "Bu işlem geri alınamaz.",
+        },
+        toasts: {
+          success: "İşlem başarıyla tamamlandı",
+          deleted: "Kayıt silindi",
+        },
+      },
+      campaignsConfig: {
+        title: "Kampanya Ayarları",
+      },
+      queues: {
+        title: "Sıralar & Chatbot",
+        table: {
+          name: "İsim",
+          color: "Renk",
+          greeting: "Karşılama Mesajı",
+          orderQueue: "Sıra Sıralaması (bot)",
+          actions: "Eylemler",
+          ID: "ID",
+        },
+        buttons: {
+          add: "Sıra Ekle",
+        },
+        toasts: {
+          success: "Sıra başarıyla kaydedildi",
+          deleted: "Sıra başarıyla silindi",
+        },
+        confirmationModal: {
+          deleteTitle: "Sil",
+          deleteMessage: "Emin misiniz? Bu işlem geri alınamaz! Bu sıradaki hizmetler hala mevcut olacak ancak bir sıraya atanmayacak.",
+        },
+      },
+      queue: {
+        queueData: "Veri",
       },
       queueSelect: {
-        inputLabel: "Kuyruklar"
+        inputLabel: "Sıralar",
+        inputLabelRO: "Salt Okunur Sıralar",
+        withoutQueue: "Sıra Yok",
+      },
+      reports: {
+        title: "Hizmet Raporları",
+        table: {
+          id: "Bilet",
+          user: "Kullanıcı",
+          dateOpen: "Açılış Tarihi",
+          dateClose: "Kapanış Tarihi",
+          NPS: "NPS",
+          status: "Durum",
+          whatsapp: "Bağlantı",
+          queue: "Sıra",
+          actions: "Eylemler",
+          lastMessage: "Son Mesaj",
+          contact: "Müşteri",
+          supportTime: "Hizmet Süresi",
+        },
+        buttons: {
+          filter: "Filtre Uygula",
+          onlyRated: "Yalnızca Değerlendirilmiş",
+        },
+        searchPlaceholder: "Ara...",
+      },
+      queueIntegration: {
+        title: "Entegrasyonlar",
+        table: {
+          id: "ID",
+          type: "Tür",
+          name: "İsim",
+          projectName: "Proje Adı",
+          language: "Dil",
+          lastUpdate: "Son Güncelleme",
+          actions: "Eylemler",
+        },
+        buttons: {
+          add: "Proje Ekle",
+        },
+        searchPlaceholder: "Ara...",
+        confirmationModal: {
+          deleteTitle: "Sil",
+          deleteMessage: "Emin misiniz? Bu işlem geri alınamaz! Bağlı sıralardan ve bağlantılardan kaldırılacak",
+        },
       },
       users: {
         title: "Kullanıcılar",
         table: {
+          status: "Durum",
           name: "İsim",
-          email: "Eposta",
+          email: "E-posta",
           profile: "Profil",
-          actions: "İşlemler",
-          no_data: "Veri yok"
+          startWork: "Çalışma Başlangıcı",
+          endWork: "Çalışma Bitişi",
+          actions: "Eylemler",
+          ID: "ID",
         },
         buttons: {
-          add: "Kullanıcı Ekle"
+          add: "Kullanıcı Ekle",
         },
         toasts: {
-          deleted: "Kullanıcı Başarılı bir şekilde silindi."
+          deleted: "Kullanıcı başarıyla silindi.",
         },
         confirmationModal: {
           deleteTitle: "Sil",
-          deleteMessage:
-            "Tüm kullanıcı verileri silinecek. Kullanıcıların açık sohbetleri kuyruğa taşınacaktır."
+          deleteMessage: "Kullanıcının tüm verileri kaybolacak. Bu kullanıcının açık hizmetleri sıraya taşınacak.",
         },
-        totalCountUsers: "Toplam Kullanıcılar :"
       },
-      campaigns: {
-        title: "Kampanyalar",
+      compaies: {
+        title: "Şirketler",
         table: {
-          name: "Kampanya Adı",
-          status: "Durum",
-          createdAt: "Oluşturulma Zamanı",
-          connection: "Bağlantı",
-          progress: "İlerleme",
-          actions: "İşlem"
-        },
-        not_connection: "Bağlantı Yok",
-        status: {
-          concluded: "Tamamlandı",
-          suspended: "Askıda",
-          active: "Aktif"
+          ID: "ID",
+          status: "Aktif",
+          name: "İsim",
+          email: "E-posta",
+          password: "Şifre",
+          phone: "Telefon",
+          plan: "Plan",
+          active: "Aktif",
+          numberAttendants: "Temsilciler",
+          numberConections: "Bağlantılar",
+          value: "Değer",
+          namePlan: "Plan Adı",
+          numberQueues: "Sıralar",
+          useCampaigns: "Kampanyalar",
+          useExternalApi: "Rest API",
+          useFacebook: "Facebook",
+          useInstagram: "Instagram",
+          useWhatsapp: "Whatsapp",
+          useInternalChat: "Dahili Sohbet",
+          useSchedules: "Planlama",
+          createdAt: "Oluşturulma Tarihi",
+          dueDate: "Son Kullanma Tarihi",
+          lastLogin: "Son Giriş",
+          actions: "Eylemler",
+          money: "$",
+          yes: "Evet",
+          no: "Hayır",
+          document: "Vergi Kimliği",
+          recurrence: "Tekrarlama",
+          monthly: "Aylık",
+          bimonthly: "İki Aylık",
+          quarterly: "Üç Aylık",
+          semester: "Yarıyıl",
+          yearly: "Yıllık",
+          clear: "Temizle",
+          delete: "Sil",
+          user: "Kullanıcı",
+          save: "Kaydet",
         },
         buttons: {
-          add: "Yeni Kampanya"
+          add: "Şirket Ekle",
         },
         toasts: {
-          created: "Kampanya başarılı bir şekilde oluşturuldu!",
-          started: "Kampanya başarılı bir şekilde başladı!",
-          suspended: "Kampanya başarılı bir şekilde durduruldu!"
+          deleted: "Şirket başarıyla silindi.",
         },
-        remainingMessages: "Kalan Mesajlar :"
+        confirmationModal: {
+          deleteTitle: "Sil",
+          deleteMessage: "Şirketin tüm verileri kaybolacak. Bu kullanıcının açık biletleri sıraya taşınacak.",
+        },
+      },
+      plans: {
+        form: {
+          name: "İsim",
+          users: "Kullanıcılar",
+          connections: "Bağlantılar",
+          campaigns: "Kampanyalar",
+          schedules: "Planlamalar",
+          enabled: "Etkin",
+          disabled: "Devre Dışı",
+          clear: "İptal",
+          delete: "Sil",
+          save: "Kaydet",
+          yes: "Evet",
+          no: "Hayır",
+          money: "$",
+          public: "Herkese Açık",
+        },
+      },
+      helps: {
+        title: "Yardım Merkezi",
+        settings: {
+          codeVideo: "Video Kodu",
+          description: "Açıklama",
+          clear: "Temizle",
+          delete: "Sil",
+          save: "Kaydet",
+        },
+      },
+      schedules: {
+        title: "Planlamalar",
+        confirmationModal: {
+          deleteTitle: "Bu Planlamayı silmek istediğinizden emin misiniz?",
+          deleteMessage: "Bu işlem geri alınamaz.",
+        },
+        table: {
+          contact: "İletişim",
+          body: "Mesaj",
+          sendAt: "Planlama Tarihi",
+          sentAt: "Gönderim Tarihi",
+          status: "Durum",
+          actions: "Eylemler",
+        },
+        buttons: {
+          add: "Yeni Planlama",
+        },
+        toasts: {
+          deleted: "Planlama başarıyla silindi.",
+        },
+      },
+      tags: {
+        title: "Etiketler",
+        confirmationModal: {
+          deleteTitle: "Bu Etiketi silmek istediğinizden emin misiniz?",
+          deleteMessage: "Bu işlem geri alınamaz.",
+        },
+        table: {
+          id: "ID",
+          name: "İsim",
+          kanban: "Kanban",
+          color: "Renk",
+          tickets: "Etiket Kayıtları",
+          contacts: "Kişiler",
+          actions: "Eylemler",
+        },
+        buttons: {
+          add: "Yeni Etiket",
+        },
+        toasts: {
+          deleted: "Etiket başarıyla silindi.",
+        },
+      },
+      tagsKanban: {
+        title: "Şeritler",
+        laneDefault: "Açık",
+        confirmationModal: {
+          deleteTitle: "Bu Şeridi silmek istediğinizden emin misiniz?",
+          deleteMessage: "Bu işlem geri alınamaz.",
+        },
+        table: {
+          name: "İsim",
+          color: "Renk",
+          tickets: "Biletler",
+          actions: "Eylemler",
+        },
+        buttons: {
+          add: "Yeni Şerit",
+        },
+        toasts: {
+          deleted: "Şerit başarıyla silindi.",
+        },
+      },
+      files: {
+        title: "Dosya Listesi",
+        table: {
+          name: "İsim",
+          contacts: "Kişiler",
+          actions: "Eylem",
+        },
+        toasts: {
+          deleted: "Liste başarıyla silindi!",
+          deletedAll: "Tüm listeler başarıyla silindi!",
+        },
+        buttons: {
+          add: "Ekle",
+          deleteAll: "Hepsini Sil",
+        },
+        confirmationModal: {
+          deleteTitle: "Sil",
+          deleteAllTitle: "Hepsini Sil",
+          deleteMessage: "Bu listeyi silmek istediğinizden emin misiniz?",
+          deleteAllMessage: "Tüm listeleri silmek istediğinizden emin misiniz?",
+        },
       },
       settings: {
-        success: "Ayarlar başarılı bir şekilde kaydedildi!",
+        success: "Ayarlar başarıyla kaydedildi.",
         title: "Ayarlar",
+        tabs: {
+          options: "Seçenekler",
+          plans: "Planlar",
+          helps: "Yardım",
+        },
         settings: {
-          language: "Otomatik olarak oluşturulan mesajların dili",
-          timezone: "Zaman dilimi"
-        }
+          userCreation: {
+            name: "Kullanıcı Oluşturma",
+            options: {
+              enabled: "Etkin",
+              disabled: "Devre Dışı",
+            },
+          },
+          tabs: {
+            options: "Seçenekler",
+            schedules: "Planlamalar",
+            plans: "Planlar",
+            help: "Yardım",
+          },
+          options: {
+            disabled: "Devre Dışı",
+            enabled: "Etkin",
+            updating: "Güncelleniyor...",
+            creationCompanyUser: "Şirket/Kullanıcı Oluşturma",
+            evaluations: "Değerlendirmeler",
+            officeScheduling: "Ofis Planlama",
+            queueManagement: "Sıra Yönetimi",
+            companyManagement: "Şirket Yönetimi",
+            connectionManagement: "Bağlantı Yönetimi",
+            sendGreetingAccepted: "Bileti kabul ederken karşılama gönder",
+            sendMsgTransfTicket: "Departman/temsilci transfer mesajı gönder",
+            checkMsgIsGroup: "Grup Mesajlarını Yoksay",
+            chatBotType: "Bot Türü",
+            userRandom: "Rastgele temsilci seç",
+            buttons: "Düğmeler",
+            acceptCallWhatsapp: "WhatsApp'ta aramaların kabul edilmediğini bildir?",
+            sendSignMessage: "Temsilcinin İMZA GÖNDER seçeneğini etkinleştir",
+            sendGreetingMessageOneQueues: "Yalnızca 1 sıra olduğunda karşılama gönder",
+            sendQueuePosition: "Sıra pozisyonu mesajı gönder",
+            sendFarewellWaitingTicket: "Beklemede veda mesajı gönder",
+            acceptAudioMessageContact: "Tüm kişilerden ses kabul et?",
+            enableLGPD: "LGPD işlemini etkinleştir",
+            requiredTag: "Bileti kapatmak için zorunlu etiket",
+            closeTicketOnTransfer: "Başka sıraya transferde bileti kapat",
+            DirectTicketsToWallets: "Müşteriyi otomatik olarak cüzdana taşı",
+            showNotificationPending: "Bekleyen biletler için bildirim göster",
+          },
+          customMessages: {
+            sendQueuePositionMessage: "Sıra pozisyonu mesajı",
+            AcceptCallWhatsappMessage: "Aramaların kabul edilmediğini bildiren mesaj",
+            greetingAcceptedMessage: "Bileti kabul ederken karşılama mesajı",
+            transferMessage: "Transfer mesajı - ${queue.name} = hedef sıra",
+          },
+          LGPD: {
+            title: "LGPD",
+            welcome: "Hoş geldiniz mesajı (LGPD)",
+            linkLGPD: "Gizlilik politikası bağlantısı",
+            obfuscateMessageDelete: "Silinen mesajı gizle",
+            alwaysConsent: "Her zaman onay iste",
+            obfuscatePhoneUser: "Kullanıcılar için telefon numarasını gizle",
+            enabled: "Etkin",
+            disabled: "Devre Dışı",
+          },
+        },
       },
       messagesList: {
         header: {
-          assignedTo: "İlgilenen :",
+          assignedTo: "Atanan:",
+          dialogRatingTitle: "Müşteri için hizmet değerlendirmesi bırakmak ister misiniz?",
+          dialogClosingTitle: "Müşteri ile hizmeti sonlandırıyor!",
+          dialogRatingCancel: "Veda Mesajıyla ÇÖZ",
+          dialogRatingSuccess: "Çöz ve Değerlendirme Gönder",
+          dialogRatingWithoutFarewellMsg: "Veda Mesajı Olmadan ÇÖZ",
+          ratingTitle: "Bir değerlendirme menüsü seç",
+          notMessage: "Mesaj seçilmedi",
+          amount: "Keşif miktarı",
           buttons: {
-            return: "Kuyruğa Al",
-            resolve: "Kapat",
+            return: "Geri Dön",
+            resolve: "Çöz",
             reopen: "Yeniden Aç",
-            accept: "Kabul"
-          }
-        }
-      },
-      contactMessage: {
-        add: "Ekle"
-      },
-
-      messageMedia: {
-        loading: "Yükleniyor..."
+            accept: "Kabul Et",
+            rating: "Değerlendirme Gönder",
+            enableIntegration: "Entegrasyonu Etkinleştir",
+            disableIntegration: "Entegrasyonu Devre Dışı Bırak",
+            logTicket: "Bilet Kayıtları",
+            requiredTag: "Bileti kapatmadan önce bir etiket atamanız gerekir.",
+          },
+        },
       },
       messagesInput: {
-        maxUploadSize: "Yüklenen dosya 20 MB sınırını aşıyor",
-        placeholder: {
-          open: "Hızlı yanıt vermek için bir mesaj veya ' / ' yazın",
-          closed: "Mesaj göndermek için bu bileti yeniden açın veya kabul edin",
-          note: "Özel not ekle"
-        },
-        signMessage: "Unvan",
-        dragAndDrop: "Dosya eklemek için sürükleyip bırakın",
-        tooltips: {
-          sendNote: "Özel not",
-          sendMessage: "Açık Mesaj"
-        }
+        placeholderPrivateMessage: "Mesaj yazın veya hızlı yanıtlar için / tuşuna basın",
+        placeholderOpen: "Mesaj yazın veya hızlı yanıtlar için / tuşuna basın",
+        placeholderClosed: "Mesaj göndermek için bu bileti yeniden açın veya kabul edin.",
+        signMessage: "İmzala",
+        privateMessage: "Özel Mesaj",
       },
       contactDrawer: {
-        header: "Kullanıcı Detayları",
+        header: "Kişi Detayları",
         buttons: {
-          edit: "Kullanıcı Düzenle"
+          edit: "Kişiyi Düzenle",
+          block: "Engelle",
+          unblock: "Engeli Kaldır",
         },
-        extraInfo: "Diğer Bilgiler"
-      },
-      ticketOptionsMenu: {
-        delete: "Sil",
-        transfer: "Transfer",
-        confirmationModal: {
-          title: "Sohbeti Sil #",
-          message: "Dikkat! Konuşmayla ilgili tüm mesajlar kaybolacak."
-        },
-        buttons: {
-          delete: "Sil",
-          cancel: "İptal"
-        }
-      },
-      confirmationModal: {
-        buttons: {
-          confirm: "Tamam",
-          cancel: "İptal"
-        }
-      },
-      messageOptionsMenu: {
-        delete: "Sil",
-        reply: "Yanıtla",
-        confirmationModal: {
-          title: "Mesajı Sil?",
-          message: "Bu işlem geri döndürülemez."
-        }
-      },
-      maxUsersModal: {
-        title: "Maksimum eşzamanlı kullanıcıya ulaşıldı!",
-        subtitle:
-          "Mevcut çevrimiçi kullanıcılar sözleşmeli kullanıcıları aştı, uygulamayı kullanmaya devam etmek için bir kullanıcının bağlantısını kesin.",
-        table: {
-          name: "İsim",
-          lastSeen: "Son Görülme"
-        },
-        buttons: {
-          disconnect: "Bağlantıyı Kes",
-          logout: "Çıkış"
-        },
-        confirmationModal: {
-          title: "Emin misiniz?",
-          message: "Bağlantınız kesilecek."
-        }
-      },
-      copyToClipboard: {
-        copy: "Kopyala",
-        copied: "Kopyalandı!"
-      },
-      retryMessageIcon: {
-        error: "Mesaj gönderilirken hata oluştu. Yeniden denemek için tıklayın",
-        loading: "Mesaj yeniden gönderiliyor..."
-      },
-      scheduledMessageIcon: {
-        tooltip: "API'den gönderilmek üzere planlanmış mesaj"
-      },
-      sentFromApiIcon: {
-        tooltip: "API'dan gönderildi"
+        extraInfo: "Diğer Bilgiler",
       },
       messageVariablesPicker: {
         label: "Kullanılabilir Değişkenler",
         vars: {
-          contactTreatment: "Kişi Sorunu",
-          contactName: "Kişi İsmi",
-          protocolNumber: "Protokol Numarası",
-          contactNumber: "Kişi Numarası",
-          greeting: "Karşılama"
-        }
-      },
-      tokens: {
-        title: "API Tokens",
-        subtitle: "API Tokenlarını yönet",
-        description:
-          "Uygulama ile entegre etmek için tokenları kullanabilirsiniz. Bu API'yi kullanma hakkında daha fazla bilgi için Dokümanlar'ı ziyaret edin",
-        table: {
-          name: "İsim",
-          secret: "Anahtar",
-          actions: "İşlemler"
+          contactFirstName: "İlk İsim",
+          contactName: "İsim",
+          user: "Temsilci",
+          greeting: "Selam",
+          protocolNumber: "Protokol",
+          date: "Tarih",
+          hour: "Saat",
+          ticket_id: "Bilet Numarası",
+          queue: "Departman",
+          connection: "Bağlantı",
         },
-        toasts: {
-          tokenDeleted: "Token başarılı bir şekilde silindi!"
+      },
+      ticketOptionsMenu: {
+        schedule: "Planla",
+        delete: "Sil",
+        transfer: "Transfer Et",
+        registerAppointment: "Kişi Notları",
+        resolveWithNoFarewell: "Vedalaşmadan çöz",
+        acceptAudioMessage: "Kişiden ses kabul et?",
+        appointmentsModal: {
+          title: "Bilet Notları",
+          textarea: "Not",
+          placeholder: "Kaydetmek istediğiniz bilgileri buraya girin",
         },
         confirmationModal: {
-          title: "Emin misiniz?",
-          content:
-            "Bu token'ı kullanan tüm sistemler yeniden yapılandırılmalıdır, aksi takdirde artık çalışmayacaktır.."
+          title: "Kişinin biletini sil",
+          titleFrom: "kişiden ",
+          message: "Dikkat! Biletle ilgili tüm mesajlar kaybolacak.",
         },
         buttons: {
-          new: "Yeni token"
-        }
-      },
-      apiTokenModal: {
-        title: "Token",
-        name: "İsim",
-        secret: "Anahtar",
-        permissions: "İzinler",
-        buttons: {
-          save: "Kaydet",
-          cancel: "İptal"
+          delete: "Sil",
+          cancel: "İptal",
         },
-        toasts: {
-          noPermissions: "En az bir izin gereklidir.",
-          success: "Token başarılı bir şekilde oluşturuldu!"
-        }
       },
-      initialConfig: {
-        title: "İlk ayar",
-        content1: "Whaticket 😊'a Hoşgeldiniz",
-        content2:
-          "Bunu kolaylaştırmak için * Hayatın, otomatik bir başlangıç ​​konfigürasyonu sağlıyoruz, böylece tüm Whaticket * * İnanılmaz * özelliklerini birkaç dakika içinde test edebilirsiniz.",
-        content3:
-          "* Tamam * tıklatarak, bir miktar * kuyruklar *, * chatbots *, * Hızlı Yanıtlar *, * Etiketler * ve A * WhatsApp bağlantısını oluşturalım. Bundan sonra, sadece sayfa * bağlantılardaki * QR kodunu * okuyun * bağlantılar * Testlere başlamak için. ",
-        content4:
-          "Bağlı sayıda ilk mesajı alır almaz, Whaticket eyleme geçecektir. 😎",
-        content5:
-          "Bütün bunları tek başına nasıl ayarlayacağınızı bilmek istiyorsanız, * Yardım * sayfasındaki videoları izleyebilir veya * Destek * ile temasa geçebilirsiniz.",
-        content6: "İyi Testler! 🥰🥰"
+      confirmationModal: {
+        buttons: {
+          confirm: "Tamam",
+          cancel: "İptal",
+        },
       },
-      languages: {
-        undefined: "Dilim",
-        "pt-BR": "Português",
-        es: "Español",
-        en: "English",
-        tr: "Türkçe"
+      messageInput: {
+        tooltip: {
+          signature: "İmzayı Etkinleştir/Devre Dışı Bırak",
+          privateMessage: "Özel Mesajı Etkinleştir/Devre Dışı Bırak",
+          meet: "Video konferans bağlantısı gönder",
+        },
+        type: {
+          imageVideo: "Fotoğraflar ve videolar",
+          cam: "Kamera",
+          contact: "İletişim",
+          meet: "Görüntülü arama",
+        },
       },
-
-      errorFallback: {
-        error: "Uups, birşeyler yanlış gitti!",
-        instructions: "Lütfen F5 yaparak sayfayı yenileyin ve tekrar deneyin!"
+      messageOptionsMenu: {
+        delete: "Sil",
+        reply: "Yanıtla",
+        edit: "Düzenle",
+        forward: "Yönlendir",
+        toForward: "Yönlendir",
+        talkTo: "Şununla Konuş",
+        confirmationModal: {
+          title: "Mesajı sil?",
+          message: "Bu işlem geri alınamaz.",
+        },
       },
-      serviceWorker: {
-        toast: "Yeni versiyon mevcut. Güncellemek için Tıklayın!"
+      invoices: {
+        table: {
+          invoices: "Faturalar",
+          details: "Detaylar",
+          users: "Kullanıcılar",
+          connections: "Bağlantılar",
+          queue: "Sıralar",
+          value: "Değer",
+          expirationDate: "Son Kullanma Tarihi",
+          action: "Eylem",
+        },
       },
       backendErrors: {
-        ERR_NO_OTHER_WHATSAPP:
-          "En az bir tane WhatsApp bağlantısı olmak zorunda.",
-        ERR_NO_DEF_WAPP_FOUND:
-          "Varsayılan bir WhatsApp Hesabı bulunamadı. Lütfen Bağlantı sayfasını kontrol edin.",
-        ERR_WAPP_NOT_INITIALIZED:
-          "WhatsApp Oturumu başlatılamadı. Lütfen Bağlantı sayfasını kontrol edin.",
-        ERR_WAPP_CHECK_CONTACT:
-          "WhatsApp kişileri getirilemedi. Lütfen Bağlantı sayfasını kontrol edin.",
-        ERR_WAPP_INVALID_CONTACT: "Bu uygun bir WhatsApp numarası gözükmüyor.",
-        ERR_WAPP_DOWNLOAD_MEDIA:
-          "Medya indirilemedi. Lütfen Bağlantı sayfasını kontrol edin.",
-        ERR_INVALID_CREDENTIALS: "Doğrulama Hatası. Lütfen Tekrar deneyiniz.",
-        ERR_SENDING_WAPP_MSG:
-          "Mesaj gönderilirken hata oluştu. Lütfen Bağlantı sayfasını kontrol edin.",
-        ERR_DELETE_WAPP_MSG: "Mesaj Silinemiyor!",
-        ERR_OTHER_OPEN_TICKET:
-          "Bu kişi ile zaten açık bir sohbetiniz bulunmakta.",
-        ERR_SESSION_EXPIRED: "Oturum sonlandı. Lütfen Giriş Yapın.",
-        ERR_USER_CREATION_DISABLED:
-          "Kullanıcı oluşturulması yönetici tarafından engellendi.",
-        ERR_NO_PERMISSION: "Bu kaynağa erişmek için yetkiniz yok.",
-        ERR_DUPLICATED_CONTACT: "Bu numaraya ait bir kişi zaten mevcut.",
-        ERR_NO_SETTING_FOUND: "Bu ID'ye ait bir ayar bulunamadı!",
-        ERR_NO_CONTACT_FOUND: "Bu ID'ye ait bir kişi bulunamadı!",
-        ERR_DUPLICATED_EMAIL: "Bu eposta zaten kayıtlı!",
-        ERR_NO_TICKET_FOUND: "Bu ID'ye aiit bir sohbet bulunamadı!",
-        ERR_NO_USER_FOUND: "Bu ID'ye ait bir kullanıcı bulunamadı!",
-        ERR_DIFFERENT_PASSWORDS: "Farklı Şifreler",
-        ERR_RECOVERY_EXPIRED: "Yenileme süresi doldu.",
-        ERR_NO_EMAIL_FOUND: "Bu Eposta ile kullanıcı bulunamadı.",
+        ERR_NO_OTHER_WHATSAPP: "En az bir varsayılan WhatsApp olmalı.",
+        ERR_NO_DEF_WAPP_FOUND: "Varsayılan WhatsApp bulunamadı. Bağlantılar sayfasını kontrol et.",
+        ERR_WAPP_NOT_INITIALIZED: "Bu WhatsApp oturumu başlatılmadı. Bağlantılar sayfasını kontrol et.",
+        ERR_WAPP_CHECK_CONTACT: "WhatsApp kişisi doğrulanamadı. Bağlantılar sayfasını kontrol et",
+        ERR_WAPP_INVALID_CONTACT: "Bu geçerli bir Whatsapp numarası değil.",
+        ERR_WAPP_DOWNLOAD_MEDIA: "WhatsApp'tan medya indirilemedi. Bağlantılar sayfasını kontrol et.",
+        ERR_INVALID_CREDENTIALS: "Kimlik doğrulama hatası. Lütfen tekrar deneyin.",
+        ERR_SENDING_WAPP_MSG: "WhatsApp mesajı gönderme hatası. Bağlantılar sayfasını kontrol et.",
+        ERR_DELETE_WAPP_MSG: "WhatsApp mesajı silinemedi.",
+        ERR_OTHER_OPEN_TICKET: "Bu kişi için zaten açık bir bilet var.",
+        ERR_SESSION_EXPIRED: "Oturum süresi doldu. Lütfen giriş yapın.",
+        ERR_USER_CREATION_DISABLED: "Kullanıcı oluşturma yönetici tarafından devre dışı bırakıldı.",
+        ERR_NO_PERMISSION: "Bu kaynağa erişim izniniz yok.",
+        ERR_DUPLICATED_CONTACT: "Bu numaraya sahip bir kişi zaten mevcut.",
+        ERR_NO_SETTING_FOUND: "Bu ID ile ayar bulunamadı.",
+        ERR_NO_CONTACT_FOUND: "Bu ID ile kişi bulunamadı.",
+        ERR_NO_TICKET_FOUND: "Bu ID ile bilet bulunamadı.",
+        ERR_NO_USER_FOUND: "Bu ID ile kullanıcı bulunamadı.",
         ERR_NO_WAPP_FOUND: "Bu ID ile WhatsApp bulunamadı.",
-        ERR_CREATING_MESSAGE: "Veritabanında mesaj oluşturulurken hata oluştu.",
-        ERR_MAX_WHATS_REACHED:
-          "İzin verilen maksimum whatsapp hesaplarına ulaşıldı, satış ekibiyle iletişime geçin.",
-        ERR_MAX_WHATS_EXCEEDED:
-          "İzin verilen maksimum whatsapp hesabı aşıldı! Uygulamayı kullanmaya devam etmek için bazı bağlantıları kaldırın.",
-        ERR_CREATING_TICKET: "Veritabanında sohbet oluşturulurken hata oluştu.",
-        ERR_FETCH_WAPP_MSG:
-          "WhatsApp'ta mesaj alınırken hata oluştu, mesaj çok eski olabilir.",
-        ERR_QUEUE_COLOR_ALREADY_EXISTS:
-          "Bu renk zaten kullanılıyor, başka bir tane seçin.",
-        ERR_QUEUE_INVALID_COLOR: "Bu renk geçersiz.",
-        ERR_WAPP_GREETING_REQUIRED:
-          "Birden fazla kuyruk varsa karşılama mesajı gereklidir.",
-        ERR_MAX_USERS_REACHED:
-          "Maksimum eşzamanlı kullanıcı sayısına ulaşıldı.",
-        ERR_TICKET_NO_WHATSAPP:
-          "Bir bağlantı atamak için konuşma listesini kontrol edin.",
-        ERR_CANT_IMPORT_MSGS:
-          "İçe aktarmaya yalnızca kişinin ilk konuşmasında izin verilir",
-        ERR_NOT_WHATSAPPS_ONLINE:
-          "Kişileri eklemek veya güncellemek için çevrimiçi bağlantı gereklidir. Bağlantılar sayfasını kontrol edin",
-        ERR_CANNOT_EDIT_GROUPS: "Grup kişilerini düzenlemeye izin verilmiyor",
-        ERR_ACCOUNT_DISABLED:
-          "Hesabınız devre dışı bırakıldı, daha fazla bilgi için bizimle iletişime geçin ",
-        ERR_TAG_INVALID_NAME:
-          "Etiket adı en az iki karakter uzunluğunda olmalıdır",
-        ERR_FASTRESP_SHORTCUT_ALREADY_EXISTS:
-          "Bu kısayolla hızlı bir yanıt zaten var",
-        ERR_TAG_ALREADY_EXISTS: "Bu ada sahip bir etiket zaten var",
-        ERR_SUBSCRIPTION_EXPIRED:
-          "Aboneliğinizin süresi doldu. Abonelik sayfasını kontrol edin",
-        ERR_PLAN_CHANGED_RECENTLY:
-          "30 gün içinde birden fazla değişikliğe izin verilmez.",
-        ERR_CEP_NOT_FOUND: "Posta kodu bulunamadı. Adresi manuel olarak girin",
-        ERR_NUMBER_IS_NOT_VERIFIED:
-          "Kişi doğrulanmadı, numarayı kontrol edin ve tekrar deneyin.",
-        ERR_DUPLICATED_CONTACT_NINTH:
-          "Bu numaraya ait bir kişi zaten bulunuyor.",
-        ERR_LAST_ADMIN: "Hesapta en az bir tane yöneticiniz olmalıdır.",
-        ERR_CREATING_COMPANY: "Hasabyňyzy döredip bolmaýar Goldaw goldawy.",
-        ERR_INVALID_RECAPTCHA:
-          "Howpsuzlygy barlamak säwligi, müşderi goldawyna ýüz tutuň."
-      }
-    }
-  }
+        ERR_CREATING_MESSAGE: "Veritabanında mesaj oluşturma hatası.",
+        ERR_CREATING_TICKET: "Veritabanında bilet oluşturma hatası.",
+        ERR_FETCH_WAPP_MSG: "WhatsApp'tan mesaj alınırken hata oluştu, mesaj çok eski olabilir.",
+        ERR_QUEUE_COLOR_ALREADY_EXISTS: "Bu renk zaten kullanılıyor, başka bir tane seçin.",
+        ERR_WAPP_GREETING_REQUIRED: "Birden fazla sıra olduğunda karşılama mesajı zorunludur.",
+        ERR_OUT_OF_HOURS: "Mesai Dışı!",
+      },
+    },
+  },
 };
 
 export { messages };
