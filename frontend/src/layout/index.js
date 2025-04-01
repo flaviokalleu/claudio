@@ -48,7 +48,7 @@ import logoDark from "../assets/logo-black.png";
 import ChatPopover from "../pages/Chat/ChatPopover";
 
 import { useDate } from "../hooks/useDate";
-// import UserLanguageSelector from "../components/UserLanguageSelector";
+import UserLanguageSelector from "../components/UserLanguageSelector";
 
 import ColorModeContext from "./themeContext";
 import Brightness4Icon from "@material-ui/icons/Brightness4";
@@ -503,7 +503,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
          
 
           {/* DESABILITADO POIS TEM BUGS */}
-          {/* <UserLanguageSelector /> */}
+          { <UserLanguageSelector /> }
           {/* <SoftPhone
             callVolume={33} //Set Default callVolume
             ringVolume={44} //Set Default ringVolume
@@ -515,14 +515,14 @@ const LoggedInLayout = ({ children, themeToggle }) => {
             setCallVolume={setCallVolume} // Callback function
             setRingVolume={setRingVolume} // Callback function
             timelocale={'UTC-3'} //Set time local for call history
-          /> 
+          /> */}
           <IconButton edge="start" onClick={colorMode.toggleColorMode}>
             {theme.mode === "dark" ? (
               <Brightness7Icon style={{ color: "white" }} />
             ) : (
               <Brightness4Icon style={{ color: "white" }} />
             )}
-          </IconButton>*/}
+          </IconButton>
 
           <NotificationsVolume setVolume={setVolume} volume={volume} />
 

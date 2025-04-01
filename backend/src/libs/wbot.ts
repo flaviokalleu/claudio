@@ -311,7 +311,7 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
                     action: "update",
                     session: wpp
                   });
-                //console.log(JSON.stringify(wpp, null, 2));
+                console.log(JSON.stringify(wpp, null, 2));
               }, 500);
 
               setTimeout(async () => {
@@ -331,14 +331,14 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
                     const dataLimite = +add(ultimoStatus, { seconds: +45 }).getTime();
 
                     if (dataLimite < new Date().getTime()) {
-                      //console.log("Pronto para come?ar")
+                      console.log("Pronto para come?ar")
                       ImportWhatsAppMessageService(wpp.id)
                       wpp.update({
                         statusImportMessages: "Running"
                       })
 
                     } else {
-                      //console.log("Aguardando inicio")
+                      console.log("Aguardando inicio")
                     }
                   }
                 }

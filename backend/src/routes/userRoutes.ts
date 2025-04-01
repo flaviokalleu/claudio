@@ -24,5 +24,6 @@ userRoutes.delete("/users/:userId", isAuth, UserController.remove);
 userRoutes.post("/users/:userId/media-upload", isAuth, upload.array("profileImage"), UserController.mediaUpload);
 
 userRoutes.put("/users/toggleChangeWidht/:userId", isAuth, UserController.toggleChangeWidht);
+userRoutes.post("/users/set-language/:newLanguage", isAuth, UserController.setLanguage)
 
 export default userRoutes;

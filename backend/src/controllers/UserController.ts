@@ -21,7 +21,7 @@ import User from "../models/User";
 import { head } from "lodash";
 import ToggleChangeWidthService from "../services/UserServices/ToggleChangeWidthService";
 import APIShowEmailUserService from "../services/UserServices/APIShowEmailUserService";
-
+import SetLanguageCompanyService from "../services/UserServices/SetLanguageCompanyService";
 
 type IndexQuery = {
   searchParam: string;
@@ -385,3 +385,15 @@ export const toggleChangeWidht = async (req: Request, res: Response): Promise<Re
 
   return res.status(200).json(user);
 };
+
+export const setLanguage = async (req: Request, res: Response): Promise<Response> => {
+  const { companyId } = req.user;
+  const {newLanguage} = req.params;
+
+  if( newLanguage !== "pt" && newLanguage !== "en" && newLanguage !== "es" )
+    throw new AppError("ERR_INTERNAL_SERVER_ERROR", 500);
+
+  await SetLanguageCompanyService( companyId, newLanguage );
+
+  return res.status(200).json({message: "Language updated successfully"});
+}

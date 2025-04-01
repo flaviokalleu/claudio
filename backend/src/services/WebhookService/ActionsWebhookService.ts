@@ -70,23 +70,18 @@ export const ActionsWebhookService = async (
 ): Promise<string> => {
   try {
     const io = getIO();
-    let next = nextStage;
-    console.log(
-      "ActionWebhookService | 53",
-      idFlowDb,
-      companyId,
-      nodes,
-      connects,
-      nextStage,
-      dataWebhook,
-      details,
-      hashWebhookId,
-      pressKey,
-      idTicket,
-      numberPhrase
-    );
-    let createFieldJsonName = "";
 
+    // Inicializar next com nextStage ou buscar do ticket se nextStage for null
+    let next = nextStage;
+    if (idTicket && (!next || next === "null")) {
+      const ticket = await Ticket.findOne({ where: { id: idTicket, companyId } });
+      if (ticket) {
+        next = ticket.lastFlowId || ticket.lastFlowId || next;
+      }
+    }
+    
+
+    let createFieldJsonName = "";
     const connectStatic = connects;
     if (numberPhrase === "") {
       const nameInput = details.inputs.find(item => item.keyValue === "nome");
@@ -105,12 +100,10 @@ export const ActionsWebhookService = async (
     }
 
     let numberClient = "";
-
     if (numberPhrase === "") {
       const numberInput = details.inputs.find(
         item => item.keyValue === "celular"
       );
-
       numberInput.data.split(",").map(dataN => {
         const lineToDataNumber = details.keysFull.find(item => item === dataN);
         let createFieldJsonNumber = "";
@@ -122,7 +115,6 @@ export const ActionsWebhookService = async (
             dataWebhook
           );
         }
-
         numberClient = numberClient + createFieldJsonNumber;
       });
     } else {
@@ -130,7 +122,6 @@ export const ActionsWebhookService = async (
     }
 
     numberClient = removerNaoLetrasNumeros(numberClient);
-
     if (numberClient.substring(0, 2) === "55") {
       if (parseInt(numberClient.substring(2, 4)) >= 31) {
         if (numberClient.length === 13) {
@@ -141,21 +132,18 @@ export const ActionsWebhookService = async (
     }
 
     let createFieldJsonEmail = "";
-
     if (numberPhrase === "") {
       const emailInput = details.inputs.find(item => item.keyValue === "email");
       emailInput.data.split(",").map(dataN => {
         const lineToDataEmail = details.keysFull.find(item =>
           item.endsWith("email")
         );
-
         let sumRes = "";
         if (!lineToDataEmail) {
           sumRes = dataN;
         } else {
           sumRes = constructJsonLine(lineToDataEmail, dataWebhook);
         }
-
         createFieldJsonEmail = createFieldJsonEmail + sumRes;
       });
     } else {
@@ -166,18 +154,15 @@ export const ActionsWebhookService = async (
     const whatsapp = await GetDefaultWhatsApp(whatsappId, companyId);
 
     if (whatsapp.status !== "CONNECTED") {
-      return;
+      return "whatsapp not connected";
     }
 
     let execCount = 0;
-
     let execFn = "";
-
     let ticket = null;
-
     let noAlterNext = false;
 
-    for (var i = 0; i < lengthLoop; i++) {
+    for (let i = 0; i < lengthLoop; i++) {
       let nodeSelected: any;
       let ticketInit: Ticket;
 
@@ -190,7 +175,7 @@ export const ActionsWebhookService = async (
             ticketInit = await Ticket.findOne({
               where: { id: idTicket, whatsappId }
             });
-            await ticket.update({
+            await ticketInit.update({
               status: "closed"
             });
           }
@@ -211,18 +196,32 @@ export const ActionsWebhookService = async (
         const otherNode = nodes.filter(node => node.id === next)[0];
         if (otherNode) {
           nodeSelected = otherNode;
+        } else {
+          console.log(`No node found for next: ${next}. Skipping to next iteration.`);
+          const nextConnection = connects.find(connect => connect.source === next);
+          if (nextConnection) {
+            next = nextConnection.target;
+          } else {
+            next = nodes[i + 1]?.id || next;
+          }
+          continue;
         }
       }
-        
+
+      if (!nodeSelected) {
+        console.log(`nodeSelected is undefined for next: ${next}. Skipping.`);
+        continue;
+      }
+
+      console.log(`Processing node: ${nodeSelected.id} of type: ${nodeSelected.type}`);
+
       if (nodeSelected.type === "message") {
-        
         let msg;
-        
-        const webhook = ticket.dataWebhook
+        const webhook = ticket?.dataWebhook;
 
         if (webhook && webhook.hasOwnProperty("variables")) {
           msg = {
-            body: replaceMessages(webhook, nodeSelected.data.label)
+            body: replaceMessages(webhook.variables, nodeSelected.data.label)
           };
         } else {
           msg = {
@@ -234,18 +233,10 @@ export const ActionsWebhookService = async (
           number: numberClient,
           body: msg.body
         });
-        
-
-        //TESTE BOTÃO
-        //await SendMessageFlow(whatsapp, {
-        //  number: numberClient,
-        //  body: msg.body
-        //} )
         await intervalWhats("1");
       }
-      console.log("273");
+
       if (nodeSelected.type === "typebot") {
-        console.log("275");
         const wbot = getWbot(whatsapp.id);
         await typebotListener({
           wbot: wbot,
@@ -307,64 +298,66 @@ export const ActionsWebhookService = async (
       }
 
       if (nodeSelected.type === "question") {
-        const webhook = ticket?.dataWebhook;
-        const variables = ticket?.dataWebhook?.variables;
-      
-        if (!variables || variables === undefined || variables === null) {
-          const { message } = nodeSelected.data.typebotIntegration;
-      
-          // Ensure ticket is defined; fetch it if not already set
-          if (!ticket) {
-            if (!idTicket) {
-              throw new Error("No ticket ID provided to initialize ticket in question node");
-            }
-            ticket = await Ticket.findOne({
-              where: { id: idTicket, companyId }
-            });
-            if (!ticket) {
-              throw new Error(`Ticket with ID ${idTicket} not found`);
-            }
-          }
-      
+        ticket = ticket || (await Ticket.findOne({ where: { id: idTicket, companyId } }));
+        const webhook = ticket?.dataWebhook || {};
+        const variables = webhook.variables || {};
+        const { message, answerKey } = nodeSelected.data.typebotIntegration;
+        
+        // Verificar se esta pergunta específica já foi respondida
+        if (!variables[answerKey]) {
+          // Esta pergunta ainda não foi respondida, então a enviamos ao usuário
           const ticketDetails = await ShowTicketService(ticket.id, companyId);
-      
           const bodyFila = formatBody(`${message}`, ticket.contact);
       
           await delay(3000);
           await typeSimulation(ticket, "composing");
-      
-          await SendWhatsAppMessage({
-            body: bodyFila,
-            ticket: ticketDetails,
-            quotedMsg: null
-          });
-      
+          await SendWhatsAppMessage({ body: bodyFila, ticket: ticketDetails, quotedMsg: null });
           SetTicketMessagesAsRead(ticketDetails);
       
-          await ticketDetails.update({
-            lastMessage: bodyFila
-          });
+          await ticketDetails.update({ lastMessage: bodyFila });
+      
+          // Encontrar a próxima conexão, mas não avançar para ela ainda
+          const nextConnection = connects.find(connect => connect.source === nodeSelected.id);
+          const nextNodeId = nextConnection ? nextConnection.target : null;
       
           await ticket.update({
             userId: null,
-            companyId: companyId,
+            companyId,
             lastFlowId: nodeSelected.id,
+            nextFlowId: nextNodeId,
             hashFlowId: hashWebhookId,
-            flowStopped: idFlowDb.toString()
+            flowStopped: idFlowDb.toString(),
+            awaitingResponse: true // Marcando que estamos aguardando resposta
           });
+          
+          // Interromper o processamento aqui para aguardar a resposta do usuário
+          break;
+        } else {
+          // Esta pergunta já foi respondida, podemos prosseguir para o próximo nó
+          const nextConnection = connects.find(connect => connect.source === nodeSelected.id);
+          if (nextConnection) {
+            next = nextConnection.target;
+            // Continuar o processamento para o próximo nó
+          } else {
+            break;
+          }
         }
-        return;
       }
-
       if (nodeSelected.type === "ticket") {
         const queueId = nodeSelected.data?.data?.id || nodeSelected.data?.id;
         const queue = await ShowQueueService(queueId, companyId);
+
+        ticket = ticket || (await Ticket.findOne({ where: { id: idTicket, companyId } }));
+        if (!ticket) {
+          logger.error(`Ticket não encontrado para id: ${idTicket}`);
+          continue;
+        }
 
         await ticket.update({
           status: "pending",
           queueId: queue.id,
           userId: ticket.userId,
-          companyId: companyId,
+          companyId,
           flowWebhook: true,
           lastFlowId: nodeSelected.id,
           hashFlowId: hashWebhookId,
@@ -379,68 +372,35 @@ export const ActionsWebhookService = async (
         });
 
         await UpdateTicketService({
-          ticketData: {
-            status: "pending",
-            queueId: queue.id
-          },
+          ticketData: { status: "pending", queueId: queue.id },
           ticketId: ticket.id,
           companyId
         });
 
-        await CreateLogTicketService({
-          ticketId: ticket.id,
-          type: "queue",
-          queueId: queue.id
-        });
+        await CreateLogTicketService({ ticketId: ticket.id, type: "queue", queueId: queue.id });
 
-        let settings = await CompaniesSettings.findOne({
-          where: {
-            companyId: companyId
-          }
-        });
-
-        const enableQueuePosition = settings.sendQueuePosition === "enabled";
+        const settings = await CompaniesSettings.findOne({ where: { companyId } });
+        const enableQueuePosition = settings?.sendQueuePosition === "enabled";
 
         if (enableQueuePosition) {
           const count = await Ticket.findAndCountAll({
-            where: {
-              userId: null,
-              status: "pending",
-              companyId,
-              queueId: queue.id,
-              whatsappId: whatsapp.id,
-              isGroup: false
-            }
+            where: { userId: null, status: "pending", companyId, queueId: queue.id, whatsappId: whatsapp.id, isGroup: false }
           });
-
-          // Lógica para enviar posição da fila de atendimento
           const qtd = count.count === 0 ? 1 : count.count;
-
           const msgFila = `${settings.sendQueuePositionMessage} *${qtd}*`;
-
           const ticketDetails = await ShowTicketService(ticket.id, companyId);
-
           const bodyFila = formatBody(`${msgFila}`, ticket.contact);
 
           await delay(3000);
           await typeSimulation(ticket, "composing");
-
-          await SendWhatsAppMessage({
-            body: bodyFila,
-            ticket: ticketDetails,
-            quotedMsg: null
-          });
-
+          await SendWhatsAppMessage({ body: bodyFila, ticket: ticketDetails, quotedMsg: null });
           SetTicketMessagesAsRead(ticketDetails);
-
-          await ticketDetails.update({
-            lastMessage: bodyFila
-          });
+          await ticketDetails.update({ lastMessage: bodyFila });
         }
       }
 
       if (nodeSelected.type === "singleBlock") {
-        for (var iLoc = 0; iLoc < nodeSelected.data.seq.length; iLoc++) {
+        for (let iLoc = 0; iLoc < nodeSelected.data.seq.length; iLoc++) {
           const elementNowSelected = nodeSelected.data.seq[iLoc];
 
           ticket = await Ticket.findOne({
@@ -455,7 +415,6 @@ export const ActionsWebhookService = async (
             const ticketDetails = await ShowTicketService(idTicket, companyId);
 
             let msg;
-
             const webhook = ticket.dataWebhook;
 
             if (webhook && webhook.hasOwnProperty("variables")) {
@@ -540,7 +499,6 @@ export const ActionsWebhookService = async (
                 item => item.number === elementNowSelected
               )[0].record
             });
-            //fs.unlinkSync(mediaDirectory.split('.')[0] + 'A.mp3');
             await intervalWhats("1");
           }
           if (elementNowSelected.includes("video")) {
@@ -566,7 +524,6 @@ export const ActionsWebhookService = async (
               media: mediaDirectory,
               ticket: ticketInt
             });
-            //fs.unlinkSync(mediaDirectory.split('.')[0] + 'A.mp3');
             await intervalWhats("1");
           }
         }
@@ -609,11 +566,6 @@ export const ActionsWebhookService = async (
           } else {
             execFn = undefined;
           }
-          // execFn =
-          //   connectStatic
-          //     .filter(confil => confil.source === next)
-          //     .filter(filt2 => filt2.sourceHandle === "a" + pressKey)[0]?.target ??
-          //   undefined;
           if (execFn === undefined) {
             break;
           }
@@ -661,15 +613,6 @@ export const ActionsWebhookService = async (
             fromMe: true,
             read: true
           };
-
-          //await CreateMessageService({ messageData: messageData, companyId });
-
-          //await SendWhatsAppMessage({ body: bodyFor, ticket: ticketDetails, quotedMsg: null })
-
-          // await SendMessage(whatsapp, {
-          //   number: numberClient,
-          //   body: msg.body
-          // });
 
           await typeSimulation(ticket, "composing");
 
@@ -746,7 +689,7 @@ export const ActionsWebhookService = async (
           isRandomizer = false;
           result = next;
         } else {
-          result = connects.filter(connect => connect.source === next)[0];
+          result = connects.filter(connect => connect.source === nodeSelected.id)[0];
         }
 
         if (typeof result === "undefined") {
@@ -784,8 +727,12 @@ export const ActionsWebhookService = async (
 
       isContinue = false;
 
-      if (next === "") {
-        break;
+      if (next === "" || next === null) {
+        if (i + 1 < nodes.length) {
+          next = nodes[i + 1].id;
+        } else {
+          break;
+        }
       }
 
       console.log(678, "ActionsWebhookService");
@@ -795,10 +742,8 @@ export const ActionsWebhookService = async (
         where: { id: idTicket, whatsappId, companyId: companyId }
       });
 
-      if (ticket.status === "closed") {
+      if (ticket && ticket.status === "closed") {
         io.of(String(companyId))
-          // .to(oldStatus)
-          // .to(ticketId.toString())
           .emit(`company-${ticket.companyId}-ticket`, {
             action: "delete",
             ticketId: ticket.id
@@ -806,16 +751,19 @@ export const ActionsWebhookService = async (
       }
 
       console.log("UPDATE12...");
-      await ticket.update({
-        whatsappId: whatsappId,
-        queueId: ticket?.queueId,
-        userId: null,
-        companyId: companyId,
-        flowWebhook: true,
-        lastFlowId: nodeSelected.id,
-        hashFlowId: hashWebhookId,
-        flowStopped: idFlowDb.toString()
-      });
+      if (ticket) {
+        await ticket.update({
+          whatsappId: whatsappId,
+          queueId: ticket?.queueId,
+          userId: null,
+          companyId: companyId,
+          flowWebhook: true,
+          lastFlowId: nodeSelected.id,
+          nextFlowId: next, // Garante que o próximo nó seja salvo
+          hashFlowId: hashWebhookId,
+          flowStopped: idFlowDb.toString()
+        });
+      }
 
       noAlterNext = false;
       execCount++;
@@ -824,6 +772,7 @@ export const ActionsWebhookService = async (
     return "ds";
   } catch (error) {
     logger.error(error);
+    return "error";
   }
 };
 
@@ -842,7 +791,6 @@ const constructJsonLine = (line: string, json: any) => {
 };
 
 function removerNaoLetrasNumeros(texto: string) {
-  // Substitui todos os caracteres que não são letras ou números por vazio
   return texto.replace(/[^a-zA-Z0-9]/g, "");
 }
 

@@ -1,60 +1,161 @@
 import React, { useState, useEffect, useReducer, useContext } from "react";
 import { toast } from "react-toastify";
-import { Search, Edit, Trash2, CheckCircle } from "lucide-react";
-import { isArray } from "lodash";
+import { makeStyles } from "@material-ui/core/styles";
+import {
+  Paper,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  IconButton,
+  TextField,
+  InputAdornment,
+  Grid,
+} from "@material-ui/core";
+import SearchIcon from "@material-ui/icons/Search";
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
+import EditIcon from "@material-ui/icons/Edit";
+import AddIcon from "@material-ui/icons/Add";
 
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
-import QuickMessageDialog from "../../components/QuickMessageDialog";
-import ConfirmationModal from "../../components/ConfirmationModal";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
-
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
+import TableRowSkeleton from "../../components/TableRowSkeleton";
+import QuickMessageDialog from "../../components/QuickMessageDialog";
+import ConfirmationModal from "../../components/ConfirmationModal";
 import toastError from "../../errors/toastError";
+import { isArray } from "lodash";
 import { AuthContext } from "../../context/Auth/AuthContext";
 
 const reducer = (state, action) => {
-  switch (action.type) {
-    case "LOAD_QUICKMESSAGES":
-      const quickmessages = action.payload;
-      const newQuickmessages = [];
-      if (isArray(quickmessages)) {
-        quickmessages.forEach((quickmessage) => {
-          const quickmessageIndex = state.findIndex((u) => u.id === quickmessage.id);
-          if (quickmessageIndex !== -1) {
-            state[quickmessageIndex] = quickmessage;
-          } else {
-            newQuickmessages.push(quickmessage);
-          }
-        });
-      }
-      return [...state, ...newQuickmessages];
-    case "UPDATE_QUICKMESSAGES":
-      const quickmessage = action.payload;
-      const quickmessageIndex = state.findIndex((u) => u.id === quickmessage.id);
-      if (quickmessageIndex !== -1) {
-        state[quickmessageIndex] = quickmessage;
-        return [...state];
-      }
-      return [quickmessage, ...state];
-    case "DELETE_QUICKMESSAGE":
-      return state.filter((u) => u.id !== action.payload);
-    case "RESET":
-      return [];
-    default:
-      return state;
+  if (action.type === "LOAD_QUICKMESSAGES") {
+    const quickmessages = action.payload;
+    const newQuickmessages = [];
+
+    if (isArray(quickmessages)) {
+      quickmessages.forEach((quickemessage) => {
+        const quickemessageIndex = state.findIndex(
+          (u) => u.id === quickemessage.id
+        );
+        if (quickemessageIndex !== -1) {
+          state[quickemessageIndex] = quickemessage;
+        } else {
+          newQuickmessages.push(quickemessage);
+        }
+      });
+    }
+    return [...state, ...newQuickmessages];
+  }
+
+  if (action.type === "UPDATE_QUICKMESSAGES") {
+    const quickemessage = action.payload;
+    const quickemessageIndex = state.findIndex((u) => u.id === quickemessage.id);
+    if (quickemessageIndex !== -1) {
+      state[quickemessageIndex] = quickemessage;
+      return [...state];
+    } else {
+      return [quickemessage, ...state];
+    }
+  }
+
+  if (action.type === "DELETE_QUICKMESSAGE") {
+    const quickemessageId = action.payload;
+    const quickemessageIndex = state.findIndex((u) => u.id === quickemessageId);
+    if (quickemessageIndex !== -1) {
+      state.splice(quickemessageIndex, 1);
+    }
+    return [...state];
+  }
+
+  if (action.type === "RESET") {
+    return [];
   }
 };
 
+const useStyles = makeStyles((theme) => ({
+  mainContainer: {
+    background: "#f0f2f5",
+    minHeight: "100vh",
+  },
+  mainPaper: {
+    flex: 1,
+    padding: theme.spacing(2),
+    margin: theme.spacing(2),
+    borderRadius: "12px",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+    background: "white",
+    overflowY: "auto",
+    "&::-webkit-scrollbar": {
+      width: "8px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      background: "#bdbdbd",
+      borderRadius: "4px",
+    },
+  },
+  headerGrid: {
+    padding: theme.spacing(2),
+  },
+  searchField: {
+    background: "white",
+    borderRadius: "8px",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
+    "& .MuiOutlinedInput-root": {
+      "&:hover fieldset": {
+        borderColor: theme.palette.primary.main,
+      },
+    },
+  },
+  addButton: {
+    borderRadius: "8px",
+    padding: theme.spacing(1, 2),
+    textTransform: "none",
+    fontWeight: 500,
+    background: theme.palette.primary.main,
+    color: "white",
+    "&:hover": {
+      background: theme.palette.primary.dark,
+      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+    },
+  },
+  table: {
+    borderCollapse: "separate",
+    borderSpacing: "0 4px",
+  },
+  tableRow: {
+    background: "#fff",
+    borderRadius: "8px",
+    "&:hover": {
+      background: "#f8f9fa",
+    },
+  },
+  tableCell: {
+    border: "none",
+    padding: theme.spacing(1.5),
+    color: "#444",
+  },
+  actionButton: {
+    margin: theme.spacing(0, 0.5),
+    "&:hover": {
+      background: "#e9ecef",
+      borderRadius: "50%",
+    },
+  },
+}));
+
 const QuickMessages = () => {
+  const classes = useStyles();
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [selectedQuickMessage, setSelectedQuickMessage] = useState(null);
   const [deletingQuickMessage, setDeletingQuickMessage] = useState(null);
-  const [quickMessageModalOpen, setQuickMessageModalOpen] = useState(false);
+  const [quickMessageModalOpen, setQuickMessageDialogOpen] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [searchParam, setSearchParam] = useState("");
   const [quickMessages, dispatch] = useReducer(reducer, []);
@@ -84,11 +185,14 @@ const QuickMessages = () => {
       }
     };
     socket.on(`company-${companyId}-quickemessage`, onQuickMessageEvent);
-    return () => socket.off(`company-${companyId}-quickemessage`, onQuickMessageEvent);
-  }, [socket, user.companyId]);
+    return () => {
+      socket.off(`company-${companyId}-quickemessage`, onQuickMessageEvent);
+    };
+  }, [socket]);
 
   const fetchQuickMessages = async () => {
     try {
+      const companyId = user.companyId;
       const { data } = await api.get("/quick-messages", {
         params: { searchParam, pageNumber },
       });
@@ -102,12 +206,12 @@ const QuickMessages = () => {
 
   const handleOpenQuickMessageDialog = () => {
     setSelectedQuickMessage(null);
-    setQuickMessageModalOpen(true);
+    setQuickMessageDialogOpen(true);
   };
 
   const handleCloseQuickMessageDialog = () => {
     setSelectedQuickMessage(null);
-    setQuickMessageModalOpen(false);
+    setQuickMessageDialogOpen(false);
     fetchQuickMessages();
   };
 
@@ -117,21 +221,21 @@ const QuickMessages = () => {
 
   const handleEditQuickMessage = (quickMessage) => {
     setSelectedQuickMessage(quickMessage);
-    setQuickMessageModalOpen(true);
+    setQuickMessageDialogOpen(true);
   };
 
   const handleDeleteQuickMessage = async (quickMessageId) => {
     try {
       await api.delete(`/quick-messages/${quickMessageId}`);
-      toast.success(i18n.t("quickemessages.toasts.deleted"));
-      fetchQuickMessages();
-      dispatch({ type: "RESET" });
+      toast.success(i18n.t("quickMessages.toasts.deleted"));
     } catch (err) {
       toastError(err);
     }
     setDeletingQuickMessage(null);
     setSearchParam("");
     setPageNumber(1);
+    fetchQuickMessages();
+    dispatch({ type: "RESET" });
   };
 
   const loadMore = () => {
@@ -147,19 +251,20 @@ const QuickMessages = () => {
   };
 
   return (
-    <MainContainer className="bg-gray-100 min-h-screen p-4">
+    <MainContainer className={classes.mainContainer}>
       <ConfirmationModal
         title={
           deletingQuickMessage &&
-          `${i18n.t("quickMessages.confirmationModal.deleteTitle")} ${deletingQuickMessage.shortcode}?`
+          `${i18n.t("quickMessages.confirmationModal.deleteTitle")} ${
+            deletingQuickMessage.shortcode
+          }?`
         }
         open={confirmModalOpen}
-        onClose={() => setConfirmModalOpen(false)}
+        onClose={setConfirmModalOpen}
         onConfirm={() => handleDeleteQuickMessage(deletingQuickMessage.id)}
       >
         {i18n.t("quickMessages.confirmationModal.deleteMessage")}
       </ConfirmationModal>
-
       <QuickMessageDialog
         resetPagination={() => {
           setPageNumber(1);
@@ -167,102 +272,112 @@ const QuickMessages = () => {
         }}
         open={quickMessageModalOpen}
         onClose={handleCloseQuickMessageDialog}
-        quickemessageId={selectedQuickMessage?.id}
+        aria-labelledby="form-dialog-title"
+        quickMessageId={selectedQuickMessage && selectedQuickMessage.id}
       />
-
-      <MainHeader className="mb-6">
-        <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4">
-          <Title>{i18n.t("quickMessages.title")}</Title>
-          <div className="flex items-center gap-4 w-full sm:w-auto">
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="search"
-                value={searchParam}
-                onChange={handleSearch}
-                placeholder={i18n.t("quickMessages.searchPlaceholder")}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
-              />
-            </div>
-            <button
-              onClick={handleOpenQuickMessageDialog}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all shadow-md w-full sm:w-auto"
-            >
-              {i18n.t("quickMessages.buttons.add")}
-            </button>
-          </div>
-        </div>
+      <MainHeader>
+        <Grid container className={classes.headerGrid}>
+          <Grid item xs={12} sm={8}>
+            <Title>{i18n.t("quickMessages.title")}</Title>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={6}>
+                <TextField
+                  className={classes.searchField}
+                  fullWidth
+                  variant="outlined"
+                  size="small"
+                  placeholder={i18n.t("quickMessages.searchPlaceholder")}
+                  value={searchParam}
+                  onChange={handleSearch}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  className={classes.addButton}
+                  fullWidth
+                  variant="contained"
+                  onClick={handleOpenQuickMessageDialog}
+                  startIcon={<AddIcon />}
+                >
+                  {i18n.t("quickMessages.buttons.add")}
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
       </MainHeader>
-
-      <div
-        className="flex-1 bg-white rounded-xl shadow-lg overflow-hidden max-h-[calc(100vh-200px)]"
+      <Paper
+        className={classes.mainPaper}
+        variant="outlined"
         onScroll={handleScroll}
       >
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b sticky top-0">
-              <tr>
-                <th className="p-4 text-center text-gray-600 font-semibold">
-                  {i18n.t("quickMessages.table.shortcode")}
-                </th>
-                <th className="p-4 text-center text-gray-600 font-semibold">
-                  {i18n.t("quickMessages.table.mediaName")}
-                </th>
-                <th className="p-4 text-center text-gray-600 font-semibold">
-                  {i18n.t("quickMessages.table.status")}
-                </th>
-                <th className="p-4 text-center text-gray-600 font-semibold">
-                  {i18n.t("quickMessages.table.actions")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {quickMessages.map((quickMessage) => (
-                <tr
-                  key={quickMessage.id}
-                  className="hover:bg-gray-50 transition-colors border-b"
-                >
-                  <td className="p-4 text-center text-gray-800 font-medium">
-                    {quickMessage.shortcode}
-                  </td>
-                  <td className="p-4 text-center text-gray-600">
-                    {quickMessage.mediaName ?? i18n.t("quickMessages.noAttachment")}
-                  </td>
-                  <td className="p-4 text-center">
-                    {quickMessage.geral ? (
-                      <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </td>
-                  <td className="p-4 text-center">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => handleEditQuickMessage(quickMessage)}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                        title={i18n.t("quickMessages.buttons.edit")}
-                      >
-                        <Edit className="w-5 h-5 text-blue-500" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setConfirmModalOpen(true);
-                          setDeletingQuickMessage(quickMessage);
-                        }}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                        title={i18n.t("quickMessages.buttons.delete")}
-                      >
-                        <Trash2 className="w-5 h-5 text-red-500" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {loading && <TableRowSkeleton columns={4} />}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        <Table size="small" className={classes.table}>
+          <TableHead>
+            <TableRow>
+              <TableCell align="center" className={classes.tableCell}>
+                {i18n.t("quickMessages.table.shortcode")}
+              </TableCell>
+              <TableCell align="center" className={classes.tableCell}>
+                {i18n.t("quickMessages.table.mediaName")}
+              </TableCell>
+              <TableCell align="center" className={classes.tableCell}>
+                {i18n.t("quickMessages.table.status")}
+              </TableCell>
+              <TableCell align="center" className={classes.tableCell}>
+                {i18n.t("quickMessages.table.actions")}
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {quickMessages.map((quickMessage) => (
+              <TableRow key={quickMessage.id} className={classes.tableRow}>
+                <TableCell align="center" className={classes.tableCell}>
+                  {quickMessage.shortcode}
+                </TableCell>
+                <TableCell align="center" className={classes.tableCell}>
+                  {quickMessage.mediaName ?? i18n.t("quickMessages.noAttachment")}
+                </TableCell>
+                <TableCell align="center" className={classes.tableCell}>
+                  {quickMessage.geral === true ? (
+                    <CheckCircleIcon style={{ color: "#28a745" }} />
+                  ) : (
+                    ""
+                  )}
+                </TableCell>
+                <TableCell align="center" className={classes.tableCell}>
+                  <IconButton
+                    className={classes.actionButton}
+                    size="small"
+                    onClick={() => handleEditQuickMessage(quickMessage)}
+                  >
+                    <EditIcon color="primary" />
+                  </IconButton>
+                  <IconButton
+                    className={classes.actionButton}
+                    size="small"
+                    onClick={() => {
+                      setConfirmModalOpen(true);
+                      setDeletingQuickMessage(quickMessage);
+                    }}
+                  >
+                    <DeleteOutlineIcon color="secondary" />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+            {loading && <TableRowSkeleton columns={4} />}
+          </TableBody>
+        </Table>
+      </Paper>
     </MainContainer>
   );
 };
