@@ -81,6 +81,9 @@ class Company extends Model<Company> {
   folderSize: string;
 
   @Column
+  language: string;
+
+  @Column
   numberFileFolder: string;
 
   @Column

@@ -119,8 +119,8 @@ const WhatsAppModalCompany = ({
   filteredWhatsapps,
   companyInfos
 }) => {
-  //console.log(filteredWhatsapps,"teste")
-  //console.log(companyInfos,"testeeeee")
+  console.log(filteredWhatsapps,"teste")
+  console.log(companyInfos,"testeeeee")
   const classes = useStyles();
   const { user, socket } = useContext(AuthContext);
   const { list } = useCompanies();

@@ -3575,27 +3575,7 @@ const flowbuilderIntegration = async (
         email: contact.email
       };
 
-      // const worker = new Worker("./src/services/WebhookService/WorkerAction.ts");
-
-      // // Enviar as variáveis como parte da mensagem para o Worker
-      // console.log('DISPARO1')
-      // const data = {
-      //   idFlowDb: flowUse.flowIdWelcome,
-      //   companyId: ticketUpdate.companyId,
-      //   nodes: nodes,
-      //   connects: connections,
-      //   nextStage: flow.flow["nodes"][0].id,
-      //   dataWebhook: null,
-      //   details: "",
-      //   hashWebhookId: "",
-      //   pressKey: null,
-      //   idTicket: ticketUpdate.id,
-      //   numberPhrase: mountDataContact
-      // };
-      // worker.postMessage(data);
-      // worker.on("message", message => {
-      //   console.log(`Mensagem do worker: ${message}`);
-      // });
+      
 
       await ActionsWebhookService(
         whatsapp.id,
@@ -3682,28 +3662,6 @@ const flowbuilderIntegration = async (
       email: contact.email
     };
 
-    //const worker = new Worker("./src/services/WebhookService/WorkerAction.ts");
-
-    //console.log('DISPARO3')
-    // Enviar as variáveis como parte da mensagem para o Worker
-    // const data = {
-    //   idFlowDb: flowDispar.flowId,
-    //   companyId: ticketUpdate.companyId,
-    //   nodes: nodes,
-    //   connects: connections,
-    //   nextStage: flow.flow["nodes"][0].id,
-    //   dataWebhook: null,
-    //   details: "",
-    //   hashWebhookId: "",
-    //   pressKey: null,
-    //   idTicket: ticketUpdate.id,
-    //   numberPhrase: mountDataContact
-    // };
-    // worker.postMessage(data);
-
-    // worker.on("message", message => {
-    //   console.log(`Mensagem do worker: ${message}`);
-    // });
 
     await ActionsWebhookService(
       whatsapp.id,
@@ -3739,28 +3697,6 @@ const flowbuilderIntegration = async (
       const nodes: INodes[] = flow.flow["nodes"];
       const connections: IConnections[] = flow.flow["connections"];
 
-      // const worker = new Worker("./src/services/WebhookService/WorkerAction.ts");
-
-      // console.log('DISPARO4')
-      // // Enviar as variáveis como parte da mensagem para o Worker
-      // const data = {
-      //   idFlowDb: webhook.config["details"].idFlow,
-      //   companyId: ticketUpdate.companyId,
-      //   nodes: nodes,
-      //   connects: connections,
-      //   nextStage: ticketUpdate.lastFlowId,
-      //   dataWebhook: ticketUpdate.dataWebhook,
-      //   details: webhook.config["details"],
-      //   hashWebhookId: ticketUpdate.hashFlowId,
-      //   pressKey: body,
-      //   idTicket: ticketUpdate.id,
-      //   numberPhrase: ""
-      // };
-      // worker.postMessage(data);
-
-      // worker.on("message", message => {
-      //   console.log(`Mensagem do worker: ${message}`);
-      // });
 
       await ActionsWebhookService(
         whatsapp.id,
@@ -3795,27 +3731,6 @@ const flowbuilderIntegration = async (
         email: contact.email
       };
 
-      // const worker = new Worker("./src/services/WebhookService/WorkerAction.ts");
-
-      // console.log('DISPARO5')
-      // // Enviar as variáveis como parte da mensagem para o Worker
-      // const data = {
-      //   idFlowDb: parseInt(ticketUpdate.flowStopped),
-      //   companyId: ticketUpdate.companyId,
-      //   nodes: nodes,
-      //   connects: connections,
-      //   nextStage: ticketUpdate.lastFlowId,
-      //   dataWebhook: null,
-      //   details: "",
-      //   hashWebhookId: "",
-      //   pressKey: body,
-      //   idTicket: ticketUpdate.id,
-      //   numberPhrase: mountDataContact
-      // };
-      // worker.postMessage(data);
-      // worker.on("message", message => {
-      //   console.log(`Mensagem do worker: ${message}`);
-      // });
 
       await ActionsWebhookService(
         whatsapp.id,
@@ -4529,44 +4444,57 @@ const handleMessage = async (
       );
       const body = getBodyMessage(msg);
       if (body) {
-        const nodes: INodes[] = flow.flow["nodes"];
+        const nodes = flow.flow["nodes"];
+        const connections = flow.flow["connections"];
         const nodeSelected = flow.flow["nodes"].find(
-          (node: any) => node.id === ticket.lastFlowId
+          (node) => node.id === ticket.lastFlowId
         );
-
-        const connections: IConnections[] = flow.flow["connections"];
-
+    
         const { message, answerKey } = nodeSelected.data.typebotIntegration;
-        const oldDataWebhook = ticket.dataWebhook;
-
-        const nodeIndex = nodes.findIndex(node => node.id === nodeSelected.id);
-
-        const lastFlowId = nodes[nodeIndex + 1].id;
-         await ticket.update({
+        
+        // Encontrar a próxima conexão direta a partir deste nó
+        const nextConnection = connections.find(conn => conn.source === nodeSelected.id);
+        const lastFlowId = nextConnection ? nextConnection.target : null;
+        
+        // Criar objeto de dataWebhook com a resposta atual
+        const currentWebhook = ticket.dataWebhook || {};
+        const currentVariables = {};
+        
+        // Atualizar o ticket com a resposta do usuário
+        await ticket.update({
           lastFlowId: lastFlowId,
           dataWebhook: {
+            ...currentWebhook,
             variables: {
+              ...currentVariables,
               [answerKey]: body
             }
-          }
+          },
+          awaitingResponse: false // Marcar que recebemos uma resposta
         });
-
+    
         await ticket.save();
-
+    
         const mountDataContact = {
           number: contact.number,
           name: contact.name,
           email: contact.email
         };
-
+    
+        // Processar o próximo nó imediatamente
         await ActionsWebhookService(
           whatsapp.id,
           parseInt(ticket.flowStopped),
           ticket.companyId,
           nodes,
           connections,
-          lastFlowId,
-          null,
+          lastFlowId, // ID do próximo nó
+          {
+            variables: {
+              ...currentVariables,
+              [answerKey]: body
+            }
+          },
           "",
           "",
           "",
@@ -4575,10 +4503,9 @@ const handleMessage = async (
           msg
         );
       }
-
+    
       return;
     }
-
     
     if (isOpenai && !isNil(flow) && !ticket.queue) {
       const nodeSelected = flow.flow["nodes"].find(
