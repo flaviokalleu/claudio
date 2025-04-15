@@ -16,96 +16,53 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    padding: theme.spacing(2),
-    background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-    minHeight: "100vh",
+    padding: theme.spacing(1),
   },
   kanbanContainer: {
     width: "100%",
-    maxWidth: "1400px",
+    maxWidth: "1200px",
     margin: "0 auto",
-    backgroundColor: "#ffffff",
-    borderRadius: "12px",
-    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-    overflow: "hidden",
   },
   connectionTag: {
-    background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
+    background: "green",
     color: "#FFF",
-    marginRight: 4,
-    padding: "2px 8px",
+    marginRight: 1,
+    padding: 1,
     fontWeight: 'bold',
-    borderRadius: "12px",
-    fontSize: "0.7em",
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    borderRadius: 3,
+    fontSize: "0.6em",
   },
   lastMessageTime: {
     justifySelf: "flex-end",
     textAlign: "right",
     position: "relative",
     marginLeft: "auto",
-    color: theme.palette.grey[600],
-    fontSize: "0.8em",
-    fontStyle: "italic",
+    color: theme.palette.text.secondary,
   },
   lastMessageTimeUnread: {
     justifySelf: "flex-end",
     textAlign: "right",
     position: "relative",
-    color: "#00C853",
+    color: theme.palette.success.main,
     fontWeight: "bold",
-    marginLeft: "auto",
-    fontSize: "0.8em",
+    marginLeft: "auto"
   },
   cardButton: {
-    marginTop: theme.spacing(1),
-    padding: "6px 16px",
-    borderRadius: "20px",
-    color: "#ffffff",
-    background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
-    textTransform: "none",
-    fontWeight: 600,
+    marginRight: theme.spacing(1),
+    color: theme.palette.common.white,
+    backgroundColor: theme.palette.primary.main,
     "&:hover": {
-      background: "linear-gradient(45deg, #FF8E53 30%, #FE6B8B 90%)",
-      boxShadow: "0 3px 15px rgba(254, 107, 139, 0.3)",
+      backgroundColor: theme.palette.primary.dark,
     },
-    transition: "all 0.3s ease",
   },
   dateInput: {
     marginRight: theme.spacing(2),
-    "& .MuiOutlinedInput-root": {
-      borderRadius: "8px",
-      backgroundColor: "#fff",
-      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
-    },
-  },
-  searchButton: {
-    borderRadius: "8px",
-    padding: "8px 24px",
-    background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
-    color: "#fff",
-    textTransform: "none",
-    fontWeight: 600,
-    "&:hover": {
-      background: "linear-gradient(45deg, #21CBF3 30%, #2196F3 90%)",
-    },
-  },
-  addColumnButton: {
-    borderRadius: "8px",
-    padding: "8px 24px",
-    background: "linear-gradient(45deg, #4CAF50 30%, #81C784 90%)",
-    color: "#fff",
-    textTransform: "none",
-    fontWeight: 600,
-    "&:hover": {
-      background: "linear-gradient(45deg, #81C784 30%, #4CAF50 90%)",
-    },
   },
 }));
 
 const Kanban = () => {
   const classes = useStyles();
-  const theme = useTheme();
+  const theme = useTheme(); // Obter o tema atual
   const history = useHistory();
   const { user, socket } = useContext(AuthContext);
   const [tags, setTags] = useState([]);
@@ -179,11 +136,11 @@ const Kanban = () => {
   const IconChannel = (channel) => {
     switch (channel) {
       case "facebook":
-        return <Facebook style={{ color: "#3b5998", verticalAlign: "middle", fontSize: "18px" }} />;
+        return <Facebook style={{ color: "#3b5998", verticalAlign: "middle", fontSize: "16px" }} />;
       case "instagram":
-        return <Instagram style={{ color: "#e1306c", verticalAlign: "middle", fontSize: "18px" }} />;
+        return <Instagram style={{ color: "#e1306c", verticalAlign: "middle", fontSize: "16px" }} />;
       case "whatsapp":
-        return <WhatsApp style={{ color: "#25d366", verticalAlign: "middle", fontSize: "18px" }} />;
+        return <WhatsApp style={{ color: "#25d366", verticalAlign: "middle", fontSize: "16px" }} />
       default:
         return "error";
     }
@@ -201,9 +158,9 @@ const Kanban = () => {
           id: ticket.id.toString(),
           label: "Ticket nº " + ticket.id.toString(),
           description: (
-            <div style={{ padding: "8px" }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontWeight: 500, color: "#333" }}>{ticket.contact.number}</span>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>{ticket.contact.number}</span>
                 <Typography
                   className={Number(ticket.unreadMessages) > 0 ? classes.lastMessageTimeUnread : classes.lastMessageTime}
                   component="span"
@@ -216,28 +173,22 @@ const Kanban = () => {
                   )}
                 </Typography>
               </div>
-              <div style={{ textAlign: 'left', color: "#666", margin: "8px 0" }}>{ticket.lastMessage || " "}</div>
+              <div style={{ textAlign: 'left' }}>{ticket.lastMessage || " "}</div>
               <Button
-                className={classes.cardButton}
-                onClick={() => handleCardClick(ticket.uuid)}
-              >
+                className={`${classes.button} ${classes.cardButton}`}
+                onClick={() => {
+                  handleCardClick(ticket.uuid)
+                }}>
                 Ver Ticket
               </Button>
-              {ticket?.user && (
-                <Badge style={{ marginTop: "8px" }} className={classes.connectionTag}>
-                  {ticket.user?.name.toUpperCase()}
-                </Badge>
-              )}
+              <span style={{ marginRight: '8px' }} />
+              {ticket?.user && (<Badge style={{ backgroundColor: "#000000" }} className={classes.connectionTag}>{ticket.user?.name.toUpperCase()}</Badge>)}
             </div>
           ),
-          title: (
-            <div style={{ display: "flex", alignItems: "center", fontWeight: 600, color: "#222" }}>
-              <Tooltip title={ticket.whatsapp?.name}>
-                {IconChannel(ticket.channel)}
-              </Tooltip>
-              <span style={{ marginLeft: "8px" }}>{ticket.contact.name}</span>
-            </div>
-          ),
+          title: <>
+            <Tooltip title={ticket.whatsapp?.name}>
+              {IconChannel(ticket.channel)}
+            </Tooltip> {ticket.contact.name}</>,
           draggable: true,
           href: "/tickets/" + ticket.uuid,
         })),
@@ -256,40 +207,34 @@ const Kanban = () => {
             id: ticket.id.toString(),
             label: "Ticket nº " + ticket.id.toString(),
             description: (
-              <div style={{ padding: "8px" }}>
-                <div style={{ fontWeight: 500, color: "#333" }}>{ticket.contact.number}</div>
-                <div style={{ textAlign: 'left', color: "#666", margin: "8px 0" }}>{ticket.lastMessage || " "}</div>
+              <div>
+                <p>
+                  {ticket.contact.number}
+                  <br />
+                  {ticket.lastMessage || " "}
+                </p>
                 <Button
-                  className={classes.cardButton}
-                  onClick={() => handleCardClick(ticket.uuid)}
-                >
+                  className={`${classes.button} ${classes.cardButton}`}
+                  onClick={() => {
+                    handleCardClick(ticket.uuid)
+                  }}>
                   Ver Ticket
                 </Button>
-                {ticket?.user && (
-                  <Badge style={{ marginTop: "8px" }} className={classes.connectionTag}>
-                    {ticket.user?.name.toUpperCase()}
-                  </Badge>
-                )}
+                <span style={{ marginRight: '8px' }} />
+                <p>
+                  {ticket?.user && (<Badge style={{ backgroundColor: "#000000" }} className={classes.connectionTag}>{ticket.user?.name.toUpperCase()}</Badge>)}
+                </p>
               </div>
             ),
-            title: (
-              <div style={{ display: "flex", alignItems: "center", fontWeight: 600, color: "#222" }}>
-                <Tooltip title={ticket.whatsapp?.name}>
-                  {IconChannel(ticket.channel)}
-                </Tooltip>
-                <span style={{ marginLeft: "8px" }}>{ticket.contact.name}</span>
-              </div>
-            ),
+            title: <>
+              <Tooltip title={ticket.whatsapp?.name}>
+                {IconChannel(ticket.channel)}
+              </Tooltip> {ticket.contact.name}
+            </>,
             draggable: true,
             href: "/tickets/" + ticket.uuid,
           })),
-          style: { 
-            background: `linear-gradient(135deg, ${tag.color} 0%, ${theme.palette.grey[100]} 100%)`,
-            color: "#fff",
-            borderRadius: "8px",
-            padding: "10px",
-            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-          },
+          style: { backgroundColor: tag.color, color: "white" }
         };
       }),
     ];
@@ -324,25 +269,16 @@ const Kanban = () => {
 
   return (
     <div className={classes.root}>
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between', 
-        marginBottom: '30px', 
-        width: '100%', 
-        maxWidth: '1400px',
-        background: "#fff",
-        padding: "20px",
-        borderRadius: "12px",
-        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
-      }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', width: '100%', maxWidth: '1200px' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <TextField
             label="Data de início"
             type="date"
             value={startDate}
             onChange={handleStartDateChange}
-            InputLabelProps={{ shrink: true }}
+            InputLabelProps={{
+              shrink: true,
+            }}
             variant="outlined"
             className={classes.dateInput}
           />
@@ -352,14 +288,16 @@ const Kanban = () => {
             type="date"
             value={endDate}
             onChange={handleEndDateChange}
-            InputLabelProps={{ shrink: true }}
+            InputLabelProps={{
+              shrink: true,
+            }}
             variant="outlined"
             className={classes.dateInput}
           />
           <Box mx={1} />
           <Button
             variant="contained"
-            className={classes.searchButton}
+            color="primary"
             onClick={handleSearchClick}
           >
             Buscar
@@ -368,10 +306,10 @@ const Kanban = () => {
         <Can role={user.profile} perform="dashboard:view" yes={() => (
           <Button
             variant="contained"
-            className={classes.addColumnButton}
+            color="primary"
             onClick={handleAddConnectionClick}
           >
-            + Adicionar Colunas
+            {'+ Adicionar colunas'}
           </Button>
         )} />
       </div>
@@ -379,10 +317,7 @@ const Kanban = () => {
         <Board
           data={file}
           onCardMoveAcrossLanes={handleCardMove}
-          style={{ 
-            backgroundColor: 'transparent',
-            padding: "20px",
-          }}
+          style={{ backgroundColor: 'rgba(252, 252, 252, 0.03)' }}
         />
       </div>
     </div>

@@ -243,8 +243,7 @@ const WhatsAppModalCompany = ({
   const handleSubmitConfirmationModal = async () => {
     if (confirmModalInfo.action === "disconnect") {
       try {
-        await api.delete(`/whatsappsession/admin/${confirmModalInfo.whatsAppId}`);
-        toast.success(i18n.t("connections.toasts.disconnected"));
+        await api.delete(`/whatsappsession/${confirmModalInfo.whatsAppId}`);
       } catch (err) {
         toastError(err);
       }

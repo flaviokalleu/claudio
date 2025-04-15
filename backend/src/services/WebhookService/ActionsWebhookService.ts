@@ -448,50 +448,57 @@ export const ActionsWebhookService = async (
             );
           }
 
+          const getBaseDir = (): string => {
+            // Check if we're in development or production mode
+            const isDev = process.env.NODE_ENV !== 'production';
+            
+            if (isDev) {
+              // In development, return path without 'src'
+              return path.resolve(__dirname, '..', '..').replace(/[\\\/]src$/, '');
+            } else {
+              // In production, the code is running from dist
+              return path.resolve(__dirname, '..', '..', '..').replace(/[\\\/]src$/, '');
+            }
+          };
+          
+          // Helper function to correct paths
+          const correctMediaPath = (pathToCorrect: string): string => {
+            return pathToCorrect.replace(/[\\\/]src[\\\/]public/, '/public');
+          };
+          
+          // Updated media path handling in the if blocks for img, audio, and video
           if (elementNowSelected.includes("img")) {
             await typeSimulation(ticket, "composing");
-
+            // Correct path for images
+            const mediaPath = path.join(
+              getBaseDir(),
+              "public",
+              nodeSelected.data.elements.filter(
+                item => item.number === elementNowSelected
+              )[0].value
+            );
             await SendMessage(whatsapp, {
               number: numberClient,
               body: "",
-              mediaPath:
-                process.env.BACKEND_URL === "https://localhost:8090"
-                  ? `${__dirname.split("src")[0].split("\\").join("/")}public/${
-                      nodeSelected.data.elements.filter(
-                        item => item.number === elementNowSelected
-                      )[0].value
-                    }`
-                  : `${__dirname
-                      .split("dist")[0]
-                      .split("\\")
-                      .join("/")}public/${
-                      nodeSelected.data.elements.filter(
-                        item => item.number === elementNowSelected
-                      )[0].value
-                    }`
+              mediaPath
             });
             await intervalWhats("1");
           }
-
+          
           if (elementNowSelected.includes("audio")) {
-            const mediaDirectory =
-              process.env.BACKEND_URL === "https://localhost:8090"
-                ? `${__dirname.split("src")[0].split("\\").join("/")}public/${
-                    nodeSelected.data.elements.filter(
-                      item => item.number === elementNowSelected
-                    )[0].value
-                  }`
-                : `${__dirname.split("dist")[0].split("\\").join("/")}public/${
-                    nodeSelected.data.elements.filter(
-                      item => item.number === elementNowSelected
-                    )[0].value
-                  }`;
+            // Correct path for audio
+            const mediaDirectory = path.join(
+              getBaseDir(),
+              "public",
+              nodeSelected.data.elements.filter(
+                item => item.number === elementNowSelected
+              )[0].value
+            );
+            
             const ticketInt = await Ticket.findOne({
               where: { id: ticket.id }
             });
-
             await typeSimulation(ticket, "recording");
-
             await SendWhatsAppMediaFlow({
               media: mediaDirectory,
               ticket: ticketInt,
@@ -499,31 +506,29 @@ export const ActionsWebhookService = async (
                 item => item.number === elementNowSelected
               )[0].record
             });
+            
             await intervalWhats("1");
           }
+          
           if (elementNowSelected.includes("video")) {
-            const mediaDirectory =
-              process.env.BACKEND_URL === "https://localhost:8090"
-                ? `${__dirname.split("src")[0].split("\\").join("/")}public/${
-                    nodeSelected.data.elements.filter(
-                      item => item.number === elementNowSelected
-                    )[0].value
-                  }`
-                : `${__dirname.split("dist")[0].split("\\").join("/")}public/${
-                    nodeSelected.data.elements.filter(
-                      item => item.number === elementNowSelected
-                    )[0].value
-                  }`;
+            // Correct path for video
+            const mediaDirectory = path.join(
+              getBaseDir(),
+              "public",
+              nodeSelected.data.elements.filter(
+                item => item.number === elementNowSelected
+              )[0].value
+            );
+            
             const ticketInt = await Ticket.findOne({
               where: { id: ticket.id }
             });
-
             await typeSimulation(ticket, "recording");
-
             await SendWhatsAppMediaFlow({
               media: mediaDirectory,
               ticket: ticketInt
             });
+            
             await intervalWhats("1");
           }
         }

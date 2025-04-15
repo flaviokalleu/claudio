@@ -8,11 +8,14 @@ import React, {
 import { SiOpenai } from "react-icons/si";
 import typebotIcon from "../../assets/typebot-ico.png";
 import { HiOutlinePuzzle } from "react-icons/hi";
+
 import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
+
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
+
 import audioNode from "./nodes/audioNode";
 import typebotNode from "./nodes/typebotNode";
 import openaiNode from "./nodes/openaiNode";
@@ -24,7 +27,9 @@ import imgNode from "./nodes/imgNode";
 import randomizerNode from "./nodes/randomizerNode";
 import videoNode from "./nodes/videoNode";
 import questionNode from "./nodes/questionNode";
+
 import api from "../../services/api";
+
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
@@ -40,8 +45,10 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router-dom/cjs/react-router-dom.min";
 import { Box, CircularProgress } from "@material-ui/core";
-import BallotIcon from "@mui/icons-material/Ballot";
+import BallotIcon from '@mui/icons-material/Ballot';
+
 import "reactflow/dist/style.css";
+
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -49,6 +56,8 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   addEdge,
+  onElementsRemove,
+  useReactFlow,
 } from "react-flow-renderer";
 import FlowBuilderAddTextModal from "../../components/FlowBuilderAddTextModal";
 import FlowBuilderIntervalModal from "../../components/FlowBuilderIntervalModal";
@@ -70,6 +79,7 @@ import RemoveEdge from "./nodes/removeEdge";
 import FlowBuilderAddImgModal from "../../components/FlowBuilderAddImgModal";
 import FlowBuilderTicketModal from "../../components/FlowBuilderAddTicketModal";
 import FlowBuilderAddAudioModal from "../../components/FlowBuilderAddAudioModal";
+
 import { useNodeStorage } from "../../stores/useNodeStorage";
 import FlowBuilderRandomizerModal from "../../components/FlowBuilderRandomizerModal";
 import FlowBuilderAddVideoModal from "../../components/FlowBuilderAddVideoModal";
@@ -82,40 +92,17 @@ import FlowBuilderTypebotModal from "../../components/FlowBuilderAddTypebotModal
 import FlowBuilderOpenAIModal from "../../components/FlowBuilderAddOpenAIModal";
 import FlowBuilderAddQuestionModal from "../../components/FlowBuilderAddQuestionModal";
 
-// Estilos futuristas
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
     padding: theme.spacing(1),
     position: "relative",
-    background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)", // Fundo gradiente escuro
+    backgroundColor: "#F8F9FA",
     overflowY: "scroll",
-    borderRadius: "15px",
-    boxShadow: "0 0 20px rgba(0, 255, 255, 0.3)", // Efeito neon
     ...theme.scrollbarStyles,
   },
   speeddial: {
-    "& .MuiSpeedDial-fab": {
-      backgroundColor: "#00d42f", // Cor neon
-      borderRadius: "50%", // Botão completamente arredondado
-      boxShadow: "0 0 15px rgba(0, 212, 255, 0.7)",
-      "&:hover": {
-        backgroundColor: "#00b4d8",
-        boxShadow: "0 0 25px rgba(0, 212, 255, 1)",
-        transition: "all 0.3s ease",
-      },
-    },
-  },
-  button: {
-    borderRadius: "25px", // Botões arredondados
-    backgroundColor: "#0f3460", // Cor escura com tom futurista
-    color: "#e94560", // Texto neon
-    boxShadow: "0 0 10px rgba(0, 0, 0, 0.5)",
-    "&:hover": {
-      backgroundColor: "#1f5a92",
-      boxShadow: "0 0 20px rgba(26, 26, 26, 0.8)",
-      transition: "all 0.3s ease",
-    },
+    backgroundColor: "red",
   },
 }));
 
@@ -157,12 +144,6 @@ const initialNodes = [
     position: { x: 250, y: 100 },
     data: { label: "Inicio do fluxo" },
     type: "start",
-    style: {
-      backgroundColor: "#0f3460",
-      borderRadius: "12px",
-      boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)",
-      padding: 10,
-    },
   },
 ];
 
@@ -174,6 +155,7 @@ export const FlowBuilderConfig = () => {
   const { id } = useParams();
 
   const storageItems = useNodeStorage();
+
   const { user } = useContext(AuthContext);
 
   const [loading, setLoading] = useState(false);
@@ -193,32 +175,21 @@ export const FlowBuilderConfig = () => {
   const [modalAddOpenAI, setModalAddOpenAI] = useState(null);
   const [modalAddQuestion, setModalAddQuestion] = useState(null);
 
-  const connectionLineStyle = {
-    stroke: "url(#electric-gradient)", // Gradiente simulando eletricidade
-    strokeWidth: "4px",
-    animation: "electricFlow 2s infinite linear",
-  };
+  const connectionLineStyle = { stroke: "#2b2b2b", strokeWidth: "6px" };
 
   const addNode = (type, data) => {
     const posY = nodes[nodes.length - 1].position.y;
     const posX =
       nodes[nodes.length - 1].position.x + nodes[nodes.length - 1].width + 40;
-    const nodeStyle = {
-      backgroundColor: "#0f3460",
-      borderRadius: "12px",
-      boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)",
-      padding: 10,
-    };
-
     if (type === "start") {
       return setNodes((old) => {
         return [
+        //  ...old.filter((item) => item.id !== "1"),
           {
             id: "1",
             position: { x: posX, y: posY },
             data: { label: "Inicio do fluxo" },
             type: "start",
-            style: nodeStyle,
           },
         ];
       });
@@ -232,7 +203,6 @@ export const FlowBuilderConfig = () => {
             position: { x: posX, y: posY },
             data: { label: data.text },
             type: "message",
-            style: nodeStyle,
           },
         ];
       });
@@ -246,7 +216,6 @@ export const FlowBuilderConfig = () => {
             position: { x: posX, y: posY },
             data: { label: `Intervalo ${data.sec} seg.`, sec: data.sec },
             type: "interval",
-            style: nodeStyle,
           },
         ];
       });
@@ -264,7 +233,6 @@ export const FlowBuilderConfig = () => {
               value: data.value,
             },
             type: "condition",
-            style: nodeStyle,
           },
         ];
       });
@@ -281,7 +249,6 @@ export const FlowBuilderConfig = () => {
               arrayOption: data.arrayOption,
             },
             type: "menu",
-            style: nodeStyle,
           },
         ];
       });
@@ -295,7 +262,6 @@ export const FlowBuilderConfig = () => {
             position: { x: posX, y: posY },
             data: { url: data.url },
             type: "img",
-            style: nodeStyle,
           },
         ];
       });
@@ -309,7 +275,6 @@ export const FlowBuilderConfig = () => {
             position: { x: posX, y: posY },
             data: { url: data.url, record: data.record },
             type: "audio",
-            style: nodeStyle,
           },
         ];
       });
@@ -323,7 +288,6 @@ export const FlowBuilderConfig = () => {
             position: { x: posX, y: posY },
             data: { percent: data.percent },
             type: "randomizer",
-            style: nodeStyle,
           },
         ];
       });
@@ -337,7 +301,6 @@ export const FlowBuilderConfig = () => {
             position: { x: posX, y: posY },
             data: { url: data.url },
             type: "video",
-            style: nodeStyle,
           },
         ];
       });
@@ -351,11 +314,11 @@ export const FlowBuilderConfig = () => {
             position: { x: posX, y: posY },
             data: { ...data },
             type: "singleBlock",
-            style: nodeStyle,
           },
         ];
       });
     }
+
     if (type === "ticket") {
       return setNodes((old) => {
         return [
@@ -365,11 +328,11 @@ export const FlowBuilderConfig = () => {
             position: { x: posX, y: posY },
             data: { ...data },
             type: "ticket",
-            style: nodeStyle,
           },
         ];
       });
     }
+
     if (type === "typebot") {
       return setNodes((old) => {
         return [
@@ -379,11 +342,11 @@ export const FlowBuilderConfig = () => {
             position: { x: posX, y: posY },
             data: { ...data },
             type: "typebot",
-            style: nodeStyle,
           },
         ];
       });
     }
+
     if (type === "openai") {
       return setNodes((old) => {
         return [
@@ -393,11 +356,11 @@ export const FlowBuilderConfig = () => {
             position: { x: posX, y: posY },
             data: { ...data },
             type: "openai",
-            style: nodeStyle,
           },
         ];
       });
     }
+
     if (type === "question") {
       return setNodes((old) => {
         return [
@@ -407,7 +370,6 @@ export const FlowBuilderConfig = () => {
             position: { x: posX, y: posY },
             data: { ...data },
             type: "question",
-            style: nodeStyle,
           },
         ];
       });
@@ -473,16 +435,12 @@ export const FlowBuilderConfig = () => {
         try {
           const { data } = await api.get(`/flowbuilder/flow/${id}`);
           if (data.flow.flow !== null) {
-            const flowNodes = data.flow.flow.nodes;
+            const flowNodes = data.flow.flow.nodes
             setNodes(flowNodes);
             setEdges(data.flow.flow.connections);
-            const filterVariables = flowNodes.filter(
-              (nd) => nd.type === "question"
-            );
-            const variables = filterVariables.map(
-              (variable) => variable.data.typebotIntegration.answerKey
-            );
-            localStorage.setItem("variables", JSON.stringify(variables));
+            const filterVariables = flowNodes.filter(nd  => nd.type === "question")
+            const variables = filterVariables.map(variable => variable.data.typebotIntegration.answerKey)
+            localStorage.setItem('variables', JSON.stringify(variables))
           }
           setLoading(false);
         } catch (err) {
@@ -522,12 +480,7 @@ export const FlowBuilderConfig = () => {
           y: finalY,
         },
         selected: false,
-        style: {
-          backgroundColor: "#0f3460",
-          padding: 10,
-          borderRadius: "12px",
-          boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)",
-        },
+        style: { backgroundColor: "#555555", padding: 0, borderRadius: 8 },
       };
       setNodes((old) => [...old, nodeNew]);
       storageItems.setNodesStorage("");
@@ -551,10 +504,7 @@ export const FlowBuilderConfig = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const onConnect = useCallback(
-    (params) =>
-      setEdges((eds) =>
-        addEdge({ ...params, type: "buttonedge", style: connectionLineStyle }, eds)
-      ),
+    (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
 
@@ -571,6 +521,7 @@ export const FlowBuilderConfig = () => {
   };
 
   const doubleClick = (event, node) => {
+    console.log("NODE", node);
     setDataNode(node);
     if (node.type === "message") {
       setModalAddText("edit");
@@ -578,6 +529,7 @@ export const FlowBuilderConfig = () => {
     if (node.type === "interval") {
       setModalAddInterval("edit");
     }
+
     if (node.type === "menu") {
       setModalAddMenu("edit");
     }
@@ -613,38 +565,22 @@ export const FlowBuilderConfig = () => {
         if (item.id === node.id) {
           return {
             ...item,
-            style: {
-              backgroundColor: "#1f5a92",
-              padding: 10,
-              borderRadius: "12px",
-              boxShadow: "0 0 20px rgba(0, 212, 255, 0.8)",
-            },
+            style: { backgroundColor: "#0000FF", padding: 1, borderRadius: 8 },
           };
         }
         return {
           ...item,
-          style: {
-            backgroundColor: "#0f3460",
-            padding: 10,
-            borderRadius: "12px",
-            boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)",
-          },
+          style: { backgroundColor: "#13111C", padding: 0, borderRadius: 8 },
         };
       })
     );
   };
-
   const clickEdge = (event, node) => {
     setNodes((old) =>
       old.map((item) => {
         return {
           ...item,
-          style: {
-            backgroundColor: "#0f3460",
-            padding: 10,
-            borderRadius: "12px",
-            boxShadow: "0 0 15px rgba(0, 255, 255, 0.5)",
-          },
+          style: { backgroundColor: "#13111C", padding: 0, borderRadius: 8 },
         };
       })
     );
@@ -668,32 +604,68 @@ export const FlowBuilderConfig = () => {
 
   const actions = [
     {
-      icon: <RocketLaunch sx={{ color: "#3ABA38" }} />,
+      icon: (
+        <RocketLaunch
+          sx={{
+            color: "#3ABA38",
+          }}
+        />
+      ),
       name: "Inicio",
       type: "start",
     },
     {
-      icon: <LibraryBooks sx={{ color: "#EC5858" }} />,
+      icon: (
+        <LibraryBooks
+          sx={{
+            color: "#EC5858",
+          }}
+        />
+      ),
       name: "Conteúdo",
       type: "content",
     },
     {
-      icon: <DynamicFeed sx={{ color: "#683AC8" }} />,
+      icon: (
+        <DynamicFeed
+          sx={{
+            color: "#683AC8",
+          }}
+        />
+      ),
       name: "Menu",
       type: "menu",
     },
     {
-      icon: <CallSplit sx={{ color: "#1FBADC" }} />,
+      icon: (
+        <CallSplit
+          sx={{
+            color: "#1FBADC",
+          }}
+        />
+      ),
       name: "Randomizador",
       type: "random",
     },
     {
-      icon: <AccessTime sx={{ color: "#F7953B" }} />,
+      icon: (
+        <AccessTime
+          sx={{
+            color: "#F7953B",
+          }}
+        />
+      ),
       name: "Intervalo",
       type: "interval",
     },
     {
-      icon: <ConfirmationNumber sx={{ color: "#F7953B" }} />,
+      icon: (
+        <ConfirmationNumber
+          sx={{
+            color: "#F7953B",
+          }}
+        />
+      ),
       name: "Ticket",
       type: "ticket",
     },
@@ -701,7 +673,11 @@ export const FlowBuilderConfig = () => {
       icon: (
         <Box
           component="img"
-          sx={{ width: 24, height: 24, color: "#3aba38" }}
+          sx={{
+            width: 24,
+            height: 24,
+            color: "#3aba38",
+          }}
           src={typebotIcon}
           alt="icon"
         />
@@ -710,12 +686,24 @@ export const FlowBuilderConfig = () => {
       type: "typebot",
     },
     {
-      icon: <SiOpenai sx={{ color: "#F7953B" }} />,
+      icon: (
+        <SiOpenai
+          sx={{
+            color: "#F7953B",
+          }}
+        />
+      ),
       name: "OpenAI",
       type: "openai",
     },
     {
-      icon: <BallotIcon sx={{ color: "#F7953B" }} />,
+      icon: (
+        <BallotIcon
+          sx={{
+            color: "#F7953B",
+          }}
+        />
+      ),
       name: "Pergunta",
       type: "question",
     },
@@ -749,9 +737,7 @@ export const FlowBuilderConfig = () => {
         break;
       case "question":
         setModalAddQuestion("create");
-        break;
       default:
-        break;
     }
   };
 
@@ -820,6 +806,7 @@ export const FlowBuilderConfig = () => {
         onUpdate={updateNode}
         close={setModalAddTicket}
       />
+
       <FlowBuilderOpenAIModal
         open={modalAddOpenAI}
         onSave={openaiAdd}
@@ -827,6 +814,7 @@ export const FlowBuilderConfig = () => {
         onUpdate={updateNode}
         close={setModalAddOpenAI}
       />
+
       <FlowBuilderTypebotModal
         open={modalAddTypebot}
         onSave={typebotAdd}
@@ -834,6 +822,7 @@ export const FlowBuilderConfig = () => {
         onUpdate={updateNode}
         close={setModalAddTypebot}
       />
+
       <FlowBuilderAddQuestionModal
         open={modalAddQuestion}
         onSave={questionAdd}
@@ -843,14 +832,7 @@ export const FlowBuilderConfig = () => {
       />
 
       <MainHeader>
-        <Title
-          style={{
-            color: "#00d4ff",
-            textShadow: "0 0 10px rgba(0, 212, 255, 0.7)",
-          }}
-        >
-          Desenhe seu fluxo
-        </Title>
+        <Title>Desenhe seu fluxo</Title>
       </MainHeader>
       {!loading && (
         <Paper
@@ -858,20 +840,20 @@ export const FlowBuilderConfig = () => {
           variant="outlined"
           onScroll={handleScroll}
         >
-          <svg style={{ position: "absolute", width: 0, height: 0 }}>
-            <defs>
-              <linearGradient id="electric-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style={{ stopColor: "#00d4ff", stopOpacity: 1 }} />
-                <stop offset="50%" style={{ stopColor: "#e94560", stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: "#00d4ff", stopOpacity: 1 }} />
-              </linearGradient>
-            </defs>
-          </svg>
           <Stack>
             <SpeedDial
-              ariaLabel="SpeedDial futuristic"
-              sx={{ position: "absolute", top: 16, left: 16 }}
-              className={classes.speeddial}
+              ariaLabel="SpeedDial basic example"
+              sx={{
+                position: "absolute",
+                top: 16,
+                left: 16,
+                ".MuiSpeedDial-fab": {
+                  backgroundColor: colorPrimary(),
+                  "&:hover": {
+                    backgroundColor: colorPrimary(),
+                  },
+                },
+              }}
               icon={<SpeedDialIcon />}
               direction={"down"}
             >
@@ -882,7 +864,10 @@ export const FlowBuilderConfig = () => {
                   tooltipTitle={action.name}
                   tooltipOpen
                   tooltipPlacement={"right"}
-                  onClick={() => clickActions(action.type)}
+                  onClick={() => {
+                    console.log(action.type);
+                    clickActions(action.type);
+                  }}
                 />
               ))}
             </SpeedDial>
@@ -896,18 +881,16 @@ export const FlowBuilderConfig = () => {
             }}
           >
             <Typography
-              style={{
-                color: "#00d4ff",
-                textShadow: "0 0 10px rgba(0, 212, 255, 0.7)",
-              }}
+              style={{ color: "#010101", textShadow: "#010101 1px 0 10px" }}
             >
               Não se esqueça de salvar seu fluxo!
             </Typography>
           </Stack>
           <Stack direction={"row"} justifyContent={"end"}>
             <Button
-              className={classes.button}
+              sx={{ textTransform: "none" }}
               variant="contained"
+              color="primary"
               onClick={() => saveFlow()}
             >
               Salvar
@@ -936,20 +919,26 @@ export const FlowBuilderConfig = () => {
               nodeTypes={nodeTypes}
               fitView
               connectionLineStyle={connectionLineStyle}
+              style={{
+                //backgroundImage: `url(${imgBackground})`,
+                //backgroundSize: "cover"
+                backgroundColor: "#F8F9FA",
+              }}
               edgeTypes={edgeTypes}
+              variant={"cross"}
               defaultEdgeOptions={{
-                style: connectionLineStyle,
-                animated: true,
+                style: { color: "#ff0000", strokeWidth: "6px" },
+                animated: false,
               }}
             >
               <Controls />
               <MiniMap />
-              <Background variant="dots" gap={12} size={1} color="#00d4ff" />
+              <Background variant="dots" gap={12} size={-1} />
             </ReactFlow>
 
             <Stack
               style={{
-                backgroundColor: "#1a1a2e",
+                backgroundColor: "#FAFAFA",
                 height: "20px",
                 width: "58px",
                 position: "absolute",
@@ -958,6 +947,218 @@ export const FlowBuilderConfig = () => {
                 zIndex: 1111,
               }}
             />
+            {/* <Stack
+                style={{
+                  backgroundColor: "#1B1B1B",
+                  height: "70%",
+                  width: "150px",
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  zIndex: 1111,
+                  borderRadius: 3,
+                  padding: 8
+                }}
+                spacing={1}
+              >
+                <Typography style={{ color: "#ffffff", textAlign: "center" }}>
+                  Adicionar
+                </Typography>
+                <Button
+                  onClick={() => addNode("start")}
+                  variant="contained"
+                  style={{
+                    backgroundColor: "#3ABA38",
+                    color: "#ffffff",
+                    padding: 8,
+                    "&:hover": {
+                      backgroundColor: "#3e3b7f"
+                    },
+                    textTransform: "none"
+                  }}
+                >
+                  <RocketLaunch
+                    sx={{
+                      width: "16px",
+                      height: "16px",
+                      marginRight: "4px"
+                    }}
+                  />
+                  Inicio
+                </Button>
+                <Button
+                  onClick={() => setModalAddText("create")}
+                  variant="contained"
+                  style={{
+                    backgroundColor: "#6865A5",
+                    color: "#ffffff",
+                    padding: 8,
+                    textTransform: "none"
+                  }}
+                >
+                  <Message
+                    sx={{
+                      width: "16px",
+                      height: "16px",
+                      marginRight: "4px"
+                    }}
+                  />
+                  Texto
+                </Button>
+                <Button
+                  onClick={() => setModalAddInterval("create")}
+                  variant="contained"
+                  style={{
+                    backgroundColor: "#F7953B",
+                    color: "#ffffff",
+                    padding: 8,
+                    textTransform: "none"
+                  }}
+                >
+                  <AccessTime
+                    sx={{
+                      width: "16px",
+                      height: "16px",
+                      marginRight: "4px"
+                    }}
+                  />
+                  Intervalo
+                </Button>
+                <Button
+                  onClick={() => setModalAddCondition("create")}
+                  variant="contained"
+                  disabled
+                  style={{
+                    backgroundColor: "#524d4d",
+                    color: "#cccaed",
+                    padding: 8,
+                    textTransform: "none"
+                  }}
+                >
+                  <ImportExport
+                    sx={{
+                      width: "16px",
+                      height: "16px",
+                      marginRight: "4px"
+                    }}
+                  />
+                  Condição
+                </Button>
+                <Button
+                  onClick={() => setModalAddMenu("create")}
+                  variant="contained"
+                  style={{
+                    backgroundColor: "#683AC8",
+                    color: "#ffffff",
+                    padding: 8,
+                    textTransform: "none"
+                  }}
+                >
+                  <DynamicFeed
+                    sx={{
+                      width: "16px",
+                      height: "16px",
+                      marginRight: "4px"
+                    }}
+                  />
+                  Menu
+                </Button>
+                <Button
+                  onClick={() => setModalAddAudio("create")}
+                  variant="contained"
+                  style={{
+                    backgroundColor: "#6865A5",
+                    color: "#ffffff",
+                    padding: 8,
+                    textTransform: "none"
+                  }}
+                >
+                  <MicNone
+                    sx={{
+                      width: "16px",
+                      height: "16px",
+                      marginRight: "4px"
+                    }}
+                  />
+                  Audio
+                </Button>
+                <Button
+                  onClick={() => setModalAddVideo("create")}
+                  variant="contained"
+                  style={{
+                    backgroundColor: "#6865A5",
+                    color: "#ffffff",
+                    padding: 8,
+                    textTransform: "none"
+                  }}
+                >
+                  <Videocam
+                    sx={{
+                      width: "16px",
+                      height: "16px",
+                      marginRight: "4px"
+                    }}
+                  />
+                  Video
+                </Button>
+                <Button
+                  onClick={() => setModalAddImg("create")}
+                  variant="contained"
+                  style={{
+                    backgroundColor: "#6865A5",
+                    color: "#ffffff",
+                    padding: 8,
+                    textTransform: "none"
+                  }}
+                >
+                  <Image
+                    sx={{
+                      width: "16px",
+                      height: "16px",
+                      marginRight: "4px"
+                    }}
+                  />
+                  Imagem
+                </Button>
+                <Button
+                  onClick={() => setModalAddRandomizer("create")}
+                  variant="contained"
+                  style={{
+                    backgroundColor: "#1FBADC",
+                    color: "#ffffff",
+                    padding: 8,
+                    textTransform: "none"
+                  }}
+                >
+                  <CallSplit
+                    sx={{
+                      width: "16px",
+                      height: "16px",
+                      marginRight: "4px"
+                    }}
+                  />
+                  Randomizador
+                </Button>
+                <Button
+                  onClick={() => setModalAddSingleBlock("create")}
+                  variant="contained"
+                  style={{
+                    backgroundColor: "#EC5858",
+                    color: "#ffffff",
+                    padding: 8,
+                    textTransform: "none"
+                  }}
+                >
+                  <LibraryBooks
+                    sx={{
+                      width: "16px",
+                      height: "16px",
+                      marginRight: "4px"
+                    }}
+                  />
+                  Conteúdo
+                </Button>
+              </Stack> */}
           </Stack>
         </Paper>
       )}
@@ -966,14 +1167,6 @@ export const FlowBuilderConfig = () => {
           <CircularProgress />
         </Stack>
       )}
-      <style>
-        {`
-          @keyframes electricFlow {
-            0% { stroke-dashoffset: 0; }
-            100% { stroke-dashoffset: 100; }
-          }
-        `}
-      </style>
     </Stack>
   );
 };

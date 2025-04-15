@@ -21,7 +21,8 @@ import User from "../models/User";
 import { head } from "lodash";
 import ToggleChangeWidthService from "../services/UserServices/ToggleChangeWidthService";
 import APIShowEmailUserService from "../services/UserServices/APIShowEmailUserService";
-import SetLanguageCompanyService from "../services/UserServices/SetLanguageCompanyService";
+import Setting from "../models/Setting";
+
 
 type IndexQuery = {
   searchParam: string;
@@ -91,15 +92,16 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     throw new AppError("ERR_NO_PERMISSION", 403);
   }
 
-  // const companyUser = bodyCompanyId || userCompanyId;
-  const companyUser = userCompanyId;
+  const companyUser = bodyCompanyId || userCompanyId;
 
   if (!companyUser) {
 
-    const dataNowMoreTwoDays = new Date();
-    dataNowMoreTwoDays.setDate(dataNowMoreTwoDays.getDate() + 3);
+    const trialDays = parseInt(process.env.APP_TRIALEXPIRATION || "3", 10);
 
-    const date = dataNowMoreTwoDays.toISOString().split("T")[0];
+    const dataNowMoreTrialDays = new Date();
+    dataNowMoreTrialDays.setDate(dataNowMoreTrialDays.getDate() + trialDays);
+
+    const date = dataNowMoreTrialDays.toISOString().split("T")[0];
 
     const companyData = {
       name: companyName,
@@ -149,7 +151,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
         const whatsappId = whatsappCompany.whatsapps[0].id
         const wbot = getWbot(whatsappId);
 
-        const body = `Olá ${name}, essa é uma mensagem sobre o cadastro da ${companyName}!\n\nSegue os dados da sua empresa:\n\nNome: ${companyName}\nEmail: ${email}\nSenha: ${password}\nData Vencimento Trial: ${dateToClient(date)}`
+        const body = `Olá ${name}, este é uma mensagem sobre o cadastro da ${companyName}!\n\nSegue os dados da sua empresa:\n\nNome: ${companyName}\nEmail: ${email}\nSenha: ${password}\nData Vencimento Trial: ${dateToClient(date)}`
 
         await wbot.sendMessage(`55${phone}@s.whatsapp.net`, { text: body });
       }
@@ -385,15 +387,48 @@ export const toggleChangeWidht = async (req: Request, res: Response): Promise<Re
 
   return res.status(200).json(user);
 };
+export const getUserCreationStatus = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const setting = await Setting.findOne({
+      where: {
+        companyId: 1,
+        key: "userCreation",
+      },
+    });
 
-export const setLanguage = async (req: Request, res: Response): Promise<Response> => {
-  const { companyId } = req.user;
-  const {newLanguage} = req.params;
+    if (!setting) {
+      return res.status(200).json({ userCreation: "disabled" }); // Valor padrão
+    }
 
-  if( newLanguage !== "pt" && newLanguage !== "en" && newLanguage !== "es" )
-    throw new AppError("ERR_INTERNAL_SERVER_ERROR", 500);
+    return res.status(200).json({ userCreation: setting.value });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: "Failed to fetch user creation status" });
+  }
+};
+export const updateLanguage = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const { userId } = req.params;
+    const { language } = req.body;
 
-  await SetLanguageCompanyService( companyId, newLanguage );
+    // Validação básica do idioma
+    const validLanguages = ["pt-BR", "en", "es", "tr"];
+    if (!language || !validLanguages.includes(language)) {
+      return res.status(400).json({ error: "Invalid language. Must be one of: pt-BR, en, es, tr" });
+    }
 
-  return res.status(200).json({message: "Language updated successfully"});
-}
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    await user.update({ language });
+    return res.status(200).json({ id: user.id, language: user.language });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};

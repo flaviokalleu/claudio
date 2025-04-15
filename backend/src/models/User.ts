@@ -47,12 +47,6 @@ class User extends Model<User> {
   @Default(0)
   @Column
   tokenVersion: number;
-  
-  @Column(DataType.STRING)
-  passwordResetToken: string | null;
-
-  @Column(DataType.DATE)
-  passwordResetExpires: Date | null;
 
   @Default("admin")
   @Column
@@ -61,14 +55,14 @@ class User extends Model<User> {
   @Default(null)
   @Column
   profileImage: string;
-  
+
   @ForeignKey(() => Whatsapp)
   @Column
   whatsappId: number;
 
   @BelongsTo(() => Whatsapp)
   whatsapp: Whatsapp;
-  
+
   @Column
   super: boolean;
 
@@ -180,9 +174,15 @@ class User extends Model<User> {
   @Column
   allowConnections: string;
 
+  // Nova coluna para armazenar o idioma do usuário
+  @Default("pt-BR")
+  @Column(DataType.STRING)
+  language: string;
+  passwordResetToken: any;
+  passwordResetExpires: Date;
+
   @BeforeDestroy
   static async updateChatbotsUsersReferences(user: User) {
-    // Atualizar os registros na tabela Chatbots onde optQueueId é igual ao ID da fila que será excluída
     await Chatbot.update({ optUserId: null }, { where: { optUserId: user.id } });
   }
 }

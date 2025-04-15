@@ -11,14 +11,15 @@ import {
   makeStyles,
   Paper,
   Hidden,
+  Menu,
   MenuItem,
   Tooltip,
   Fab,
-  Drawer,
 } from "@material-ui/core";
 import {
   blue,
   green,
+  pink,
   grey,
 } from "@material-ui/core/colors";
 import {
@@ -40,7 +41,6 @@ import {
   Timer,
 } from "@material-ui/icons";
 import AddIcon from "@material-ui/icons/Add";
-import BoltIcon from '@mui/icons-material/FlashOn';
 import { CameraAlt } from "@material-ui/icons";
 import MicRecorder from "mic-recorder-to-mp3";
 import clsx from "clsx";
@@ -50,159 +50,121 @@ import { i18n } from "../../translate/i18n";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import RecordingTimer from "./RecordingTimer";
+
 import useQuickMessages from "../../hooks/useQuickMessages";
 import { isString, isEmpty } from "lodash";
 import ContactSendModal from "../ContactSendModal";
 import CameraModal from "../CameraModal";
 import axios from "axios";
-import ButtonModal from "../ButtonModal";
+
 import useCompanySettings from "../../hooks/useSettings/companySettings";
 import { ForwardMessageContext } from "../../context/ForwarMessage/ForwardMessageContext";
 import MessageUploadMedias from "../MessageUploadMedias";
 import { EditMessageContext } from "../../context/EditingMessage/EditingMessageContext";
 import ScheduleModal from "../ScheduleModal";
+import { useParams } from "react-router-dom/cjs/react-router-dom.min";
+
 
 const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
 const useStyles = makeStyles((theme) => ({
   mainWrapper: {
-    background: theme.palette.background.paper,
+    background: "#eee",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    borderTop: `1px solid ${grey[200]}`,
-    padding: theme.spacing(2),
-    position: "relative",
-    zIndex: 1000,
-    boxShadow: "0 -2px 10px rgba(0, 0, 0, 0.05)",
+    borderTop: "1px solid rgba(255, 0, 0, 0.12)",
     [theme.breakpoints.down("sm")]: {
-      position: "sticky",
+      position: "fixed",
       bottom: 0,
       width: "100%",
-      padding: theme.spacing(1),
     },
+  },
+  avatar: {
+    width: "50px",
+    height: "50px",
+    borderRadius: "25%",
+  },
+  dropInfo: {
+    background: "#eee",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    width: "100%",
+    padding: 15,
+    left: 0,
+    right: 0,
+  },
+  dropInfoOut: {
+    display: "none",
+  },
+  gridFiles: {
+    maxHeight: "100%",
+    overflow: "scroll",
   },
   newMessageBox: {
-    background: theme.palette.background.paper,
+    background: theme.palette.background.default,
     width: "100%",
     display: "flex",
-    padding: "12px",
+    padding: "7px",
     alignItems: "center",
-    gap: theme.spacing(1),
-    [theme.breakpoints.down("sm")]: {
-      padding: "8px",
-      flexWrap: "wrap",
-      gap: theme.spacing(0.5),
-    },
   },
   messageInputWrapper: {
-    padding: "10px 14px",
-    background: grey[100],
+    padding: 6,
+    marginRight: 7,
+    background: theme.palette.background.paper,
     display: "flex",
-    borderRadius: "20px",
+    borderRadius: 20,
     flex: 1,
-    border: `1px solid ${grey[300]}`,
-    transition: "border-color 0.2s",
-    "&:focus-within": {
-      borderColor: theme.palette.primary.main,
-    },
-    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-    [theme.breakpoints.down("sm")]: {
-      width: "100%",
-      marginBottom: theme.spacing(1),
-    },
+    position: "relative",
   },
   messageInputWrapperPrivate: {
-    padding: "10px 14px",
-    background: "#FFF8E1",
+    padding: 6,
+    marginRight: 7,
+    background: "#F0E68C",
     display: "flex",
-    borderRadius: "20px",
+    borderRadius: 20,
     flex: 1,
-    border: `1px solid ${grey[300]}`,
-    transition: "border-color 0.2s",
-    "&:focus-within": {
-      borderColor: theme.palette.warning.main,
-    },
-    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-    [theme.breakpoints.down("sm")]: {
-      width: "100%",
-      marginBottom: theme.spacing(1),
-    },
+    position: "relative",
   },
   messageInput: {
     paddingLeft: 10,
     flex: 1,
     border: "none",
-    fontSize: "14px",
-    color: grey[900],
-    "&::placeholder": {
-      color: grey[500],
-    },
+
   },
   messageInputPrivate: {
     paddingLeft: 10,
     flex: 1,
     border: "none",
-    fontSize: "14px",
     color: grey[800],
-    "&::placeholder": {
-      color: grey[600],
-    },
+
   },
   sendMessageIcons: {
-    color: grey[600],
-    fontSize: "20px",
-    "&:hover": {
-      color: theme.palette.primary.main,
-    },
-    [theme.breakpoints.down("sm")]: {
-      fontSize: "18px",
-    },
+    color: grey[700],
   },
   ForwardMessageIcons: {
-    color: grey[600],
-    fontSize: "20px",
-    transform: 'scaleX(-1)',
-    "&:hover": {
-      color: theme.palette.primary.main,
-    },
+    color: grey[700],
+    transform: 'scaleX(-1)'
   },
   uploadInput: {
     display: "none",
   },
   viewMediaInputWrapper: {
+    maxHeight: "100%",
     display: "flex",
     padding: "10px 13px",
     position: "relative",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: theme.palette.background.paper,
-    borderTop: `1px solid ${grey[200]}`,
-    [theme.breakpoints.down("sm")]: {
-      position: "sticky",
-      bottom: 0,
-      width: "100%",
-    },
+    backgroundColor: theme.mode === 'light' ? "#ffffff" : "#202c33",
+    borderTop: "1px solid rgba(0, 0, 0, 0.12)",
   },
   emojiBox: {
     position: "absolute",
-    bottom: 60,
-    width: 320,
-    border: `1px solid ${grey[200]}`,
-    borderRadius: "4px",
-    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-    background: theme.palette.background.paper,
-    opacity: 0,
-    transform: "translateY(10px)",
-    transition: "opacity 0.2s ease-in-out, transform 0.2s ease-in-out",
-    "&.open": {
-      opacity: 1,
-      transform: "translateY(0)",
-    },
-    [theme.breakpoints.down("sm")]: {
-      width: "100%",
-      bottom: 50,
-    },
+    bottom: 63,
+    width: 40,
+    borderTop: "1px solid #e8e8e8",
   },
   circleLoading: {
     color: green[500],
@@ -219,35 +181,32 @@ const useStyles = makeStyles((theme) => ({
   recorderWrapper: {
     display: "flex",
     alignItems: "center",
-    gap: theme.spacing(1),
+    alignContent: "middle",
   },
   cancelAudioIcon: {
-    color: theme.palette.error.main,
-    fontSize: "20px",
+    color: "red",
   },
   sendAudioIcon: {
-    color: theme.palette.success.main,
-    fontSize: "20px",
+    color: "green",
   },
   replyginMsgWrapper: {
     display: "flex",
     width: "100%",
     alignItems: "center",
-    padding: "8px 12px",
-    backgroundColor: grey[100],
-    borderBottom: `1px solid ${grey[200]}`,
-    [theme.breakpoints.down("sm")]: {
-      padding: "6px 8px",
-    },
+    justifyContent: "center",
+    paddingTop: 8,
+    paddingLeft: 73,
+    paddingRight: 7,
+    backgroundColor: theme.palette.optionsBackground,
   },
   replyginMsgContainer: {
     flex: 1,
     marginRight: 5,
-    backgroundColor: theme.palette.background.paper,
-    borderRadius: "4px",
+    overflowY: "hidden",
+    backgroundColor: theme.mode === "light" ? "#f0f0f0" : "#1d282f", //"rgba(0, 0, 0, 0.05)",
+    borderRadius: "7.5px",
     display: "flex",
     position: "relative",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
   },
   replyginMsgBody: {
     padding: 10,
@@ -259,28 +218,27 @@ const useStyles = makeStyles((theme) => ({
   replyginContactMsgSideColor: {
     flex: "none",
     width: "4px",
-    backgroundColor: theme.palette.success.main,
+    backgroundColor: "#35cd96",
   },
   replyginSelfMsgSideColor: {
     flex: "none",
     width: "4px",
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: "#6bcbef",
   },
   messageContactName: {
     display: "flex",
-    color: theme.palette.primary.main,
+    color: "#6bcbef",
     fontWeight: 500,
   },
   messageQuickAnswersWrapper: {
+    margin: 0,
     position: "absolute",
     bottom: "50px",
-    background: theme.palette.background.paper,
-    border: `1px solid ${grey[200]}`,
-    borderRadius: "4px",
-    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+    background: theme.palette.background.default,
+    padding: 0,
+    border: "none",
+    left: 0,
     width: "100%",
-    maxHeight: "200px",
-    overflowY: "auto",
     "& li": {
       listStyle: "none",
       "& a": {
@@ -295,18 +253,100 @@ const useStyles = makeStyles((theme) => ({
         },
       },
     },
-    [theme.breakpoints.down("sm")]: {
-      bottom: "40px",
+  },
+  invertedFabMenu: {
+    border: "none",
+    borderRadius: 50, // Define o raio da borda para 0 para remover qualquer borda
+    boxShadow: "none", // Remove a sombra
+    padding: theme.spacing(1),
+    backgroundColor: "transparent",
+    color: "grey",
+    "&:hover": {
+      backgroundColor: "transparent",
     },
+    "&:disabled": {
+      backgroundColor: "transparent !important",
+    },
+  },
+  invertedFabMenuMP: {
+    border: "none",
+    borderRadius: 0, // Define o raio da borda para 0 para remover qualquer borda
+    boxShadow: "none", // Remove a sombra
+    width: theme.spacing(4), // Ajuste o tamanho de acordo com suas preferências
+    height: theme.spacing(4),
+    backgroundColor: "transparent",
+    color: blue[800],
+    "&:hover": {
+      backgroundColor: "transparent",
+    },
+  },
+  invertedFabMenuCont: {
+    border: "none",
+    borderRadius: 0, // Define o raio da borda para 0 para remover qualquer borda
+    boxShadow: "none", // Remove a sombra
+    minHeight: "auto",
+    width: theme.spacing(4), // Ajuste o tamanho de acordo com suas preferências
+    height: theme.spacing(4),
+    backgroundColor: "transparent",
+    color: blue[500],
+    "&:hover": {
+      backgroundColor: "transparent",
+    },
+  },
+  invertedFabMenuMeet: {
+    border: "none",
+    borderRadius: 0, // Define o raio da borda para 0 para remover qualquer borda
+    boxShadow: "none", // Remove a sombra
+    minHeight: "auto",
+    width: theme.spacing(4), // Ajuste o tamanho de acordo com suas preferências
+    height: theme.spacing(4),
+    backgroundColor: "transparent",
+    color: green[500],
+    "&:hover": {
+      backgroundColor: "transparent",
+    },
+  },
+  invertedFabMenuDoc: {
+    border: "none",
+    borderRadius: 0, // Define o raio da borda para 0 para remover qualquer borda
+    boxShadow: "none", // Remove a sombra
+    width: theme.spacing(4), // Ajuste o tamanho de acordo com suas preferências
+    height: theme.spacing(4),
+    backgroundColor: "transparent",
+    color: "#7f66ff",
+    "&:hover": {
+      backgroundColor: "transparent",
+    },
+  },
+  invertedFabMenuCamera: {
+    border: "none",
+    borderRadius: 0, // Define o raio da borda para 0 para remover qualquer borda
+    boxShadow: "none", // Remove a sombra
+    width: theme.spacing(4), // Ajuste o tamanho de acordo com suas preferências
+    height: theme.spacing(4),
+    backgroundColor: "transparent",
+    color: pink[500],
+    "&:hover": {
+      backgroundColor: "transparent",
+    },
+  },
+  flexContainer: {
+    display: "flex",
+    flex: 1,
+    flexDirection: "column",
+  },
+  flexItem: {
+    flex: 1,
   },
 }));
 
 const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketChannel }) => {
+
   const classes = useStyles();
   const theme = useTheme();
   const [mediasUpload, setMediasUpload] = useState([]);
   const isMounted = useRef(true);
-  const [buttonModalOpen, setButtonModalOpen] = useState(false);
+
   const [inputMessage, setInputMessage] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -315,10 +355,12 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
   const [typeBar, setTypeBar] = useState(false);
   const inputRef = useRef();
   const [onDragEnter, setOnDragEnter] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const { setReplyingMessage, replyingMessage } = useContext(ReplyMessageContext);
   const { setEditingMessage, editingMessage } = useContext(EditMessageContext);
   const { user } = useContext(AuthContext);
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
+
   const [signMessagePar, setSignMessagePar] = useState(false);
   const { get: getSetting } = useCompanySettings();
   const [signMessage, setSignMessage] = useState(true);
@@ -326,24 +368,33 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
   const [privateMessageInputVisible, setPrivateMessageInputVisible] = useState(false);
   const [senVcardModalOpen, setSenVcardModalOpen] = useState(false);
   const [showModalMedias, setShowModalMedias] = useState(false);
+
   const { list: listQuickMessages } = useQuickMessages();
-  const isMobile = useMediaQuery('(max-width: 767px)');
+
+
+  const isMobile = useMediaQuery('(max-width: 767px)'); // Ajuste o valor conforme necessário
   const [placeholderText, setPlaceHolderText] = useState("");
-  const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
 
-  const { selectedMessages, setForwardMessageModalOpen, showSelectMessageCheckbox } = useContext(ForwardMessageContext);
-
+  // Determine o texto do placeholder com base no ticketStatus
   useEffect(() => {
     if (ticketStatus === "open" || ticketStatus === "group") {
       setPlaceHolderText(i18n.t("messagesInput.placeholderOpen"));
     } else {
       setPlaceHolderText(i18n.t("messagesInput.placeholderClosed"));
     }
-    const maxLength = isMobile ? 20 : Infinity;
+
+    // Limitar o comprimento do texto do placeholder apenas em ambientes mobile
+    const maxLength = isMobile ? 20 : Infinity; // Define o limite apenas em mobile
+
     if (isMobile && placeholderText.length > maxLength) {
       setPlaceHolderText(placeholderText.substring(0, maxLength) + "...");
     }
-  }, [ticketStatus, isMobile, placeholderText]);
+  }, [ticketStatus])
+
+  const {
+    selectedMessages,
+    setForwardMessageModalOpen,
+    showSelectMessageCheckbox } = useContext(ForwardMessageContext);
 
   useEffect(() => {
     if (droppedFiles && droppedFiles.length > 0) {
@@ -373,27 +424,36 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
       setShowEmoji(false);
       setMediasUpload([]);
       setReplyingMessage(null);
+      //setSignMessage(true);
       setPrivateMessage(false);
-      setPrivateMessageInputVisible(false);
+      setPrivateMessageInputVisible(false)
       setEditingMessage(null);
     };
   }, [ticketId, setReplyingMessage, setEditingMessage]);
 
   useEffect(() => {
     setTimeout(() => {
-      if (isMounted.current) setOnDragEnter(false);
+      if (isMounted.current)
+        setOnDragEnter(false);
     }, 1000);
-  }, [onDragEnter]);
+    // eslint-disable-next-line
+  }, [onDragEnter === true]);
 
+  //permitir ativar/desativar firma
   useEffect(() => {
     const fetchSettings = async () => {
-      const setting = await getSetting({ "column": "sendSignMessage" });
+      const setting = await getSetting({
+        "column": "sendSignMessage"
+      });
+
       if (isMounted.current) {
         if (setting.sendSignMessage === "enabled") {
           setSignMessagePar(true);
-          const signMessageStorage = JSON.parse(localStorage.getItem("persistentSignMessage"));
+          const signMessageStorage = JSON.parse(
+            localStorage.getItem("persistentSignMessage")
+          );
           if (isNil(signMessageStorage)) {
-            setSignMessage(true);
+            setSignMessage(true)
           } else {
             setSignMessage(signMessageStorage);
           }
@@ -405,41 +465,48 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
     fetchSettings();
   }, []);
 
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   const handleSendLinkVideo = async () => {
     const link = `https://meet.jit.si/${ticketId}`;
     setInputMessage(link);
-  };
+  }
 
   const handleChangeInput = (e) => {
     setInputMessage(e.target.value);
   };
 
-  const handlePrivateMessage = () => {
+  const handlePrivateMessage = (e) => {
     setPrivateMessage(!privateMessage);
     setPrivateMessageInputVisible(!privateMessageInputVisible);
-  };
-
-  const handleButtonModalOpen = () => {
-    setButtonModalOpen(true);
   };
 
   const handleQuickAnswersClick = async (value) => {
     if (value.mediaPath) {
       try {
-        const { data } = await axios.get(value.mediaPath, { responseType: "blob" });
+        const { data } = await axios.get(value.mediaPath, {
+          responseType: "blob",
+        });
+
         handleUploadQuickMessageMedia(data, value.value);
         setInputMessage("");
         return;
+        //  handleChangeMedias(response)
       } catch (err) {
         toastError(err);
       }
     }
+
+    setInputMessage("");
     setInputMessage(value.value);
     setTypeBar(false);
   };
 
   const handleAddEmoji = (e) => {
-    setInputMessage((prevState) => prevState + e.native);
+    let emoji = e.native;
+    setInputMessage((prevState) => prevState + emoji);
   };
 
   const [modalCameraOpen, setModalCameraOpen] = useState(false);
@@ -451,14 +518,32 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
   };
 
   const handleChangeMedias = (e) => {
-    if (!e.target.files) return;
+    if (!e.target.files) {
+      return;
+    }
     const selectedMedias = Array.from(e.target.files);
     setMediasUpload(selectedMedias);
     setShowModalMedias(true);
   };
 
-  const handleChangeSign = () => {
-    const signMessageStorage = JSON.parse(localStorage.getItem("persistentSignMessage"));
+  const handleChangeSign = (e) => {
+    getStatusSingMessageLocalstogare();
+  };
+
+  const handleOpenModalForward = () => {
+    if (selectedMessages.length === 0) {
+      setForwardMessageModalOpen(false)
+      toastError(i18n.t("messagesList.header.notMessage"));
+      return;
+    }
+    setForwardMessageModalOpen(true);
+  }
+
+  const getStatusSingMessageLocalstogare = () => {
+    const signMessageStorage = JSON.parse(
+      localStorage.getItem("persistentSignMessage")
+    );
+    //si existe uma chave "sendSingMessage"
     if (signMessageStorage !== null) {
       if (signMessageStorage) {
         localStorage.setItem("persistentSignMessage", false);
@@ -471,15 +556,6 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
       localStorage.setItem("persistentSignMessage", false);
       setSignMessage(false);
     }
-  };
-
-  const handleOpenModalForward = () => {
-    if (selectedMessages.length === 0) {
-      setForwardMessageModalOpen(false);
-      toastError(i18n.t("messagesList.header.notMessage"));
-      return;
-    }
-    setForwardMessageModalOpen(true);
   };
 
   const handleInputPaste = (e) => {
@@ -501,10 +577,15 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
 
   const handleUploadMedia = async (mediasUpload) => {
     setLoading(true);
+    // e.preventDefault();
+
+    // Certifique-se de que a variável medias esteja preenchida antes de continuar
     if (!mediasUpload.length) {
+      console.log("Nenhuma mídia selecionada.");
       setLoading(false);
       return;
     }
+
     const formData = new FormData();
     formData.append("fromMe", true);
     formData.append("isPrivate", privateMessage ? "true" : "false");
@@ -512,25 +593,29 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
       formData.append("body", media.caption);
       formData.append("medias", media.file);
     });
+
     try {
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
       toastError(err);
     }
+
     setLoading(false);
     setMediasUpload([]);
     setShowModalMedias(false);
     setPrivateMessage(false);
-    setPrivateMessageInputVisible(false);
+    setPrivateMessageInputVisible(false)
   };
 
   const handleSendContatcMessage = async (vcard) => {
     setSenVcardModalOpen(false);
     setLoading(true);
+
     if (isNil(vcard)) {
       setLoading(false);
       return;
     }
+
     const message = {
       read: 1,
       fromMe: true,
@@ -545,6 +630,7 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
     } catch (err) {
       toastError(err);
     }
+
     setInputMessage("");
     setShowEmoji(false);
     setLoading(false);
@@ -555,10 +641,16 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
   };
 
   const handleSendMessage = async () => {
+
     if (inputMessage.trim() === "") return;
     setLoading(true);
-    const userName = privateMessage ? `${user.name} - Mensagem Privada` : user.name;
+
+    const userName = privateMessage
+      ? `${user.name} - Mensagem Privada`
+      : user.name;
+
     const sendMessage = inputMessage.trim();
+
     const message = {
       read: 1,
       fromMe: true,
@@ -569,6 +661,7 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
       quotedMsg: replyingMessage,
       isPrivate: privateMessage ? "true" : "false",
     };
+
     try {
       if (editingMessage !== null) {
         await api.post(`/messages/edit/${editingMessage.id}`, message);
@@ -578,13 +671,15 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
     } catch (err) {
       toastError(err);
     }
+
     setInputMessage("");
     setShowEmoji(false);
     setLoading(false);
     setReplyingMessage(null);
     setPrivateMessage(false);
     setEditingMessage(null);
-    setPrivateMessageInputVisible(false);
+    setPrivateMessageInputVisible(false)
+    handleMenuItemClick();
   };
 
   const handleStartRecording = async () => {
@@ -616,17 +711,25 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
         };
       });
       if (isMounted.current) {
+
         setQuickAnswer(options);
       }
     }
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (isString(inputMessage) && !isEmpty(inputMessage) && inputMessage.length >= 1) {
+    if (
+      isString(inputMessage) &&
+      !isEmpty(inputMessage) &&
+      inputMessage.length >= 1
+    ) {
       const firstWord = inputMessage.charAt(0);
+
       if (firstWord === "/") {
         setTypeBar(firstWord.indexOf("/") > -1);
+
         const filteredOptions = quickAnswers.filter(
           (m) => m.label.toLowerCase().indexOf(inputMessage.toLowerCase()) > -1
         );
@@ -637,7 +740,8 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
     } else {
       setTypeBar(false);
     }
-  }, [inputMessage, quickAnswers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputMessage]);
 
   const disableOption = () => {
     return (
@@ -655,9 +759,11 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
       formData.append("medias", blob, filename);
       formData.append("body", privateMessage ? `\u200d` : "");
       formData.append("fromMe", true);
+
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
       toastError(err);
+      setLoading(false);
     }
     setLoading(false);
   };
@@ -666,11 +772,13 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
     setLoading(true);
     try {
       const extension = blob.type.split("/")[1];
+
       const formData = new FormData();
       const filename = `${new Date().getTime()}.${extension}`;
       formData.append("medias", blob, filename);
       formData.append("body", privateMessage ? `\u200d${message}` : message);
       formData.append("fromMe", true);
+
       if (isMounted.current) {
         await api.post(`/messages/${ticketId}`, formData);
       }
@@ -683,7 +791,9 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
     }
   };
 
+
   const handleUploadAudio = async () => {
+
     setLoading(true);
     try {
       const [, blob] = await Mp3Recorder.stop().getMp3();
@@ -692,11 +802,13 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
         setRecording(false);
         return;
       }
+
       const formData = new FormData();
       const filename = ticketChannel === "whatsapp" ? `${new Date().getTime()}.mp3` : `${new Date().getTime()}.m4a`;
       formData.append("medias", blob, filename);
       formData.append("body", filename);
       formData.append("fromMe", true);
+
       if (isMounted.current) {
         await api.post(`/messages/${ticketId}`, formData);
       }
@@ -713,7 +825,6 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
   const handleCloseModalMedias = () => {
     setShowModalMedias(false);
   };
-
   const handleCancelAudio = async () => {
     try {
       await Mp3Recorder.stop().getMp3();
@@ -723,11 +834,21 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
     }
   };
 
-  const handleSendContactModalOpen = () => {
+  const handleOpenMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuItemClick = (event) => {
+    setAnchorEl(null);
+  };
+
+  const handleSendContactModalOpen = async () => {
+    handleMenuItemClick();
     setSenVcardModalOpen(true);
   };
 
-  const handleCameraModalOpen = () => {
+  const handleCameraModalOpen = async () => {
+    handleMenuItemClick();
     setModalCameraOpen(true);
   };
 
@@ -754,7 +875,8 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
               )}
               {message.body}
             </div>
-          )}
+          )
+          }
         </div>
         <IconButton
           aria-label="showRecorder"
@@ -774,6 +896,7 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
 
   if (mediasUpload.length > 0) {
     return (
+
       <Paper
         elevation={0}
         square
@@ -790,9 +913,11 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
             onCancelSelection={handleCancelSelection}
           />
         )}
+
       </Paper>
-    );
-  } else {
+    )
+  }
+  else {
     return (
       <>
         {modalCameraOpen && (
@@ -805,7 +930,9 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
         {senVcardModalOpen && (
           <ContactSendModal
             modalOpen={senVcardModalOpen}
-            onClose={(c) => handleSendContatcMessage(c)}
+            onClose={(c) => {
+              handleSendContatcMessage(c);
+            }}
           />
         )}
         <Paper
@@ -826,12 +953,12 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
               >
                 <Mood className={classes.sendMessageIcons} />
               </IconButton>
-              {showEmoji && (
-                <div className={`${classes.emojiBox} ${showEmoji ? 'open' : ''}`}>
-                  <ClickAwayListener onClickAway={() => setShowEmoji(false)}>
+              {showEmoji ? (
+                <div className={classes.emojiBox}>
+                  <ClickAwayListener onClickAway={(e) => setShowEmoji(true)}>
                     <Picker
                       perLine={16}
-                      theme={"light"}
+                      theme={"dark"}
                       i18n={i18n}
                       showPreview={true}
                       showSkinTones={false}
@@ -839,79 +966,92 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
                     />
                   </ClickAwayListener>
                 </div>
-              )}
-              <IconButton
-                aria-label="moreOptions"
+              ) : null}
+
+              <Fab
+                disabled={disableOption()}
+                aria-label="uploadMedias"
                 component="span"
-                onClick={() => setBottomSheetOpen(true)}
+                className={classes.invertedFabMenu}
+                onClick={handleOpenMenuClick}
               >
-                <MoreVert className={classes.sendMessageIcons} />
-              </IconButton>
-              <Drawer
-                anchor="bottom"
-                open={bottomSheetOpen}
-                onClose={() => setBottomSheetOpen(false)}
-                PaperProps={{
-                  style: {
-                    borderRadius: "16px 16px 0 0",
-                    padding: theme.spacing(2),
-                    backgroundColor: theme.palette.background.paper,
-                  },
-                }}
+                <AddIcon />
+              </Fab>
+              <Menu
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleMenuItemClick}
+                id="simple-menu"
               >
-                <div>
-                  <MenuItem onClick={handleCameraModalOpen}>
-                    <Fab>
-                      <CameraAlt style={{ fontSize: 16 }} />
+                <MenuItem onClick={handleMenuItemClick}>
+                  <input
+                    multiple
+                    type="file"
+                    id="upload-img-button"
+                    accept="image/*, video/*, audio/* "
+                    // disabled={disableOption()}
+                    className={classes.uploadInput}
+                    onChange={handleChangeMedias}
+                  />
+                  <label htmlFor="upload-img-button">
+                    <Fab
+                      aria-label="upload-img"
+                      component="span"
+                      className={classes.invertedFabMenuMP}
+                    >
+                      <PermMedia />
                     </Fab>
-                    {i18n.t("messageInput.type.cam")}
-                  </MenuItem>
-                  <MenuItem onClick={handleSendContactModalOpen}>
-                    <Fab>
-                      <Person style={{ fontSize: 16 }} />
+                    {i18n.t("messageInput.type.imageVideo")}
+                  </label>
+                </MenuItem>
+                <MenuItem onClick={handleCameraModalOpen}>
+                  <Fab className={classes.invertedFabMenuCamera}>
+                    <CameraAlt />
+                  </Fab>
+                  {i18n.t("messageInput.type.cam")}
+                </MenuItem>
+                <MenuItem onClick={handleMenuItemClick}>
+                  <input
+                    multiple
+                    type="file"
+                    id="upload-doc-button"
+                    accept="application/*, text/*"
+                    // disabled={disableOption()}
+                    className={classes.uploadInput}
+                    onChange={handleChangeMedias}
+                  />
+                  <label htmlFor="upload-doc-button">
+                    <Fab aria-label="upload-img"
+                      component="span" className={classes.invertedFabMenuDoc}>
+                      <Description />
                     </Fab>
-                    {i18n.t("messageInput.type.contact")}
-                  </MenuItem>
-                  <MenuItem onClick={handleSendLinkVideo}>
-                    <Fab>
-                      <Duo style={{ fontSize: 16 }} />
-                    </Fab>
-                    {i18n.t("messageInput.type.meet")}
-                  </MenuItem>
-                  <MenuItem>
-                    <input
-                      multiple
-                      type="file"
-                      id="upload-img-button"
-                      accept="image/*, video/*, audio/* "
-                      className={classes.uploadInput}
-                      onChange={handleChangeMedias}
-                    />
-                    <label htmlFor="upload-img-button">
-                      <Fab component="span">
-                        <PermMedia style={{ fontSize: 16 }} />
-                      </Fab>
-                      {i18n.t("messageInput.type.imageVideo")}
-                    </label>
-                  </MenuItem>
-                  <MenuItem>
-                    <input
-                      multiple
-                      type="file"
-                      id="upload-doc-button"
-                      accept="application/*, text/*"
-                      className={classes.uploadInput}
-                      onChange={handleChangeMedias}
-                    />
-                    <label htmlFor="upload-doc-button">
-                      <Fab component="span">
-                        <Description style={{ fontSize: 16 }} />
-                      </Fab>
-                      Documento
-                    </label>
-                  </MenuItem>
-                </div>
-              </Drawer>
+                    Documento
+                  </label>
+                </MenuItem>
+                <MenuItem onClick={handleSendContactModalOpen}>
+                  <Fab className={classes.invertedFabMenuCont}>
+                    <Person />
+                  </Fab>
+                  {i18n.t("messageInput.type.contact")}
+                </MenuItem>
+                <MenuItem onClick={handleSendLinkVideo}>
+                  <Fab className={classes.invertedFabMenuMeet}>
+                    <Duo />
+                  </Fab>
+                  {i18n.t("messageInput.type.meet")}
+                </MenuItem>
+              </Menu>
+              {/* <IconButton
+				  aria-label="upload"
+				  component="span"
+				  disabled={disableOption()}
+				  onMouseOver={() => setOnDragEnter(true)}
+				>
+				  <AttachFile className={classes.sendMessageIcons} />
+				</IconButton> */}
+
+              {/* </label> */}
               {signMessagePar && (
                 <Tooltip title={i18n.t("messageInput.tooltip.signature")}>
                   <IconButton
@@ -919,10 +1059,10 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
                     component="span"
                     onClick={handleChangeSign}
                   >
-                    {signMessage ? (
-                      <Create style={{ color: theme.palette.primary.main }} />
+                    {signMessage === true ? (
+                      <Create style={{ color: theme.mode === "light" ? theme.palette.primary.main : "#EEE" }} />
                     ) : (
-                      <Create style={{ color: grey[400] }} />
+                      <Create style={{ color: "grey" }} />
                     )}
                   </IconButton>
                 </Tooltip>
@@ -933,121 +1073,202 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
                   component="span"
                   onClick={handlePrivateMessage}
                 >
-                  {privateMessage ? (
-                    <Comment style={{ color: theme.palette.warning.main }} />
+                  {privateMessage === true ? (
+                    <Comment style={{ color: theme.mode === "light" ? theme.palette.primary.main : "#EEE" }} />
                   ) : (
-                    <Comment style={{ color: grey[400] }} />
+                    <Comment style={{ color: "grey" }} />
                   )}
                 </IconButton>
               </Tooltip>
+              {/* <Tooltip title={i18n.t("messageInput.tooltip.meet")}>
+                <IconButton
+                  aria-label="send-upload"
+                  component="span"
+                  onClick={handleSendLinkVideo}
+                >
+                  <Duo style={{ color: "grey" }} />
+                </IconButton>
+              </Tooltip> */}
             </Hidden>
             <Hidden only={["md", "lg", "xl"]}>
               <IconButton
-                aria-label="moreOptions"
-                component="span"
-                onClick={() => setBottomSheetOpen(true)}
+                aria-controls="simple-menu"
+                aria-haspopup="true"
+                onClick={handleOpenMenuClick}
               >
-                <MoreVert className={classes.sendMessageIcons} />
+                <MoreVert></MoreVert>
               </IconButton>
-              <Drawer
-                anchor="bottom"
-                open={bottomSheetOpen}
-                onClose={() => setBottomSheetOpen(false)}
-                PaperProps={{
-                  style: {
-                    borderRadius: "16px 16px 0 0",
-                    padding: theme.spacing(2),
-                    backgroundColor: theme.palette.background.paper,
-                  },
-                }}
+              <Menu
+                id="simple-menu"
+                keepMounted
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuItemClick}
               >
-                <div>
-                  <MenuItem onClick={() => setShowEmoji((prevState) => !prevState)}>
-                    <IconButton aria-label="emojiPicker" component="span" disabled={disableOption()}>
-                      <Mood className={classes.sendMessageIcons} />
-                    </IconButton>
-                  </MenuItem>
-                  <MenuItem>
-                    <input
-                      multiple
-                      type="file"
-                      id="upload-button"
+                <MenuItem onClick={handleMenuItemClick}>
+                  <IconButton
+                    aria-label="emojiPicker"
+                    component="span"
+                    disabled={disableOption()}
+                    onClick={(e) => setShowEmoji((prevState) => !prevState)}
+                  >
+                    <Mood className={classes.sendMessageIcons} />
+                  </IconButton>
+                </MenuItem>
+                <MenuItem onClick={handleMenuItemClick}>
+                  <input
+                    multiple
+                    type="file"
+                    id="upload-button"
+                    disabled={disableOption()}
+                    className={classes.uploadInput}
+                    onChange={handleChangeMedias}
+                  />
+                  <label htmlFor="upload-button">
+                    <IconButton
+                      aria-label="upload"
+                      component="span"
                       disabled={disableOption()}
-                      className={classes.uploadInput}
-                      onChange={handleChangeMedias}
-                    />
-                    <label htmlFor="upload-button">
-                      <IconButton aria-label="upload" component="span" disabled={disableOption()}>
-                        <AttachFile className={classes.sendMessageIcons} />
-                      </IconButton>
-                    </label>
-                  </MenuItem>
-                  {signMessagePar && (
-                    <Tooltip title="Habilitar/Desabilitar Assinatura">
-                      <IconButton aria-label="send-upload" component="span" onClick={handleChangeSign}>
-                        {signMessage ? (
-                          <Create style={{ color: theme.palette.primary.main }} />
-                        ) : (
-                          <Create style={{ color: grey[400] }} />
-                        )}
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  <Tooltip title="Habilitar/Desabilitar Comentários">
-                    <IconButton aria-label="send-upload" component="span" onClick={handlePrivateMessage}>
-                      {privateMessage ? (
-                        <Comment style={{ color: theme.palette.warning.main }} />
+                    >
+                      <AttachFile className={classes.sendMessageIcons} />
+                    </IconButton>
+                  </label>
+                </MenuItem>
+                {signMessagePar && (
+                  <Tooltip title="Habilitar/Desabilitar Assinatura">
+                    <IconButton
+                      aria-label="send-upload"
+                      component="span"
+                      onClick={handleChangeSign}
+                    >
+                      {signMessage === true ? (
+                        <Create style={{ color: theme.mode === "light" ? theme.palette.primary.main : "#EEE" }} />
                       ) : (
-                        <Comment style={{ color: grey[400] }} />
+                        <Create style={{ color: "grey" }} />
                       )}
                     </IconButton>
                   </Tooltip>
-                </div>
-              </Drawer>
-            </Hidden>
-            <div className={classes.messageInputWrapper}>
-              <InputBase
-                inputRef={inputRef}
-                className={privateMessage ? classes.messageInputPrivate : classes.messageInput}
-                placeholder={privateMessage ? i18n.t("messagesInput.placeholderPrivateMessage") : placeholderText}
-                multiline
-                maxRows={5}
-                value={inputMessage}
-                onChange={handleChangeInput}
-                disabled={disableOption()}
-                onPaste={(e) => {
-                  (ticketStatus === "open" || ticketStatus === "group") && handleInputPaste(e);
-                }}
-                onKeyPress={(e) => {
-                  if (loading || e.shiftKey) return;
-                  else if (e.key === "Enter") {
-                    handleSendMessage();
-                  }
-                }}
-              />
-              {typeBar && (
-                <ul className={classes.messageQuickAnswersWrapper}>
-                  {typeBar.map((value, index) => (
-                    <li className={classes.messageQuickAnswersWrapperItem} key={index}>
-                      <a onClick={() => handleQuickAnswersClick(value)}>
-                        {`${value.label} - ${value.value}`}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            {!privateMessage && (
-              <>
-                <Tooltip title={i18n.t("tickets.buttons.quickmessageflash")}>
+                )}
+                <Tooltip title="Habilitar/Desabilitar Comentários">
                   <IconButton
-                    aria-label="flash"
+                    aria-label="send-upload"
                     component="span"
-                    onClick={() => setInputMessage('/')}
+                    onClick={handlePrivateMessage}
                   >
-                    <BoltIcon className={classes.sendMessageIcons} />
+                    {privateMessage === true ? (
+                      <Comment style={{ color: theme.mode === "light" ? theme.palette.primary.main : "#EEE" }} />
+                    ) : (
+                      <Comment style={{ color: "grey" }} />
+                    )}
                   </IconButton>
                 </Tooltip>
+              </Menu>
+            </Hidden>
+            <div className={classes.flexContainer}>
+              {privateMessageInputVisible && (
+                <div className={classes.flexItem}>
+                  <div className={classes.messageInputWrapperPrivate}>
+                    <InputBase
+                      inputRef={(input) => {
+                        input && input.focus();
+                        input && (inputRef.current = input);
+                      }}
+                      className={classes.messageInputPrivate}
+                      placeholder={
+                        ticketStatus === "open" || ticketStatus === "group"
+                          ? i18n.t("messagesInput.placeholderPrivateMessage")
+                          : i18n.t("messagesInput.placeholderClosed")
+                      }
+                      multiline
+                      maxRows={5}
+                      value={inputMessage}
+                      onChange={handleChangeInput}
+                      disabled={disableOption()}
+                      onPaste={(e) => {
+                        (ticketStatus === "open" || ticketStatus === "group") &&
+                          handleInputPaste(e);
+                      }}
+                      onKeyPress={(e) => {
+                        if (loading || e.shiftKey) return;
+                        else if (e.key === "Enter") {
+                          handleSendMessage();
+                        }
+                      }}
+
+                    />
+                    {typeBar ? (
+                      <ul className={classes.messageQuickAnswersWrapper}>
+                        {typeBar.map((value, index) => {
+                          return (
+                            <li
+                              className={classes.messageQuickAnswersWrapperItem}
+                              key={index}
+                            >
+                              {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+                              <a onClick={() => handleQuickAnswersClick(value)}>
+                                {`${value.label} - ${value.value}`}
+                              </a>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <div></div>
+                    )}
+                  </div>
+                </div>
+              )}
+              {!privateMessageInputVisible && (
+                <div className={classes.flexItem}>
+                  <div className={classes.messageInputWrapper}>
+                    <InputBase
+                      inputRef={(input) => {
+                        input && input.focus();
+                        input && (inputRef.current = input);
+                      }}
+                      className={classes.messageInput}
+                      placeholder={placeholderText}
+                      multiline
+                      maxRows={5}
+                      value={inputMessage}
+                      onChange={handleChangeInput}
+                      disabled={disableOption()}
+                      onPaste={(e) => {
+                        (ticketStatus === "open" || ticketStatus === "group") &&
+                          handleInputPaste(e);
+                      }}
+                      onKeyPress={(e) => {
+                        if (loading || e.shiftKey) return;
+                        else if (e.key === "Enter") {
+                          handleSendMessage();
+                        }
+                      }}
+                    />
+                    {typeBar ? (
+                      <ul className={classes.messageQuickAnswersWrapper}>
+                        {typeBar.map((value, index) => {
+                          return (
+                            <li
+                              className={classes.messageQuickAnswersWrapperItem}
+                              key={index}
+                            >
+                              {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+                              <a onClick={() => handleQuickAnswersClick(value)}>
+                                {`${value.label} - ${value.value}`}
+                              </a>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : (
+                      <div></div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+            {!privateMessageInputVisible && (
+              <>
                 <Tooltip title={i18n.t("tickets.buttons.scredule")}>
                   <IconButton
                     aria-label="scheduleMessage"
@@ -1059,30 +1280,36 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
                   </IconButton>
                 </Tooltip>
                 {inputMessage || showSelectMessageCheckbox ? (
-                  <IconButton
-                    aria-label="sendMessage"
-                    component="span"
-                    onClick={showSelectMessageCheckbox ? handleOpenModalForward : handleSendMessage}
-                    disabled={loading}
-                  >
-                    {showSelectMessageCheckbox ?
-                      <Reply className={classes.ForwardMessageIcons} /> : <Send className={classes.sendMessageIcons} />}
-                  </IconButton>
+                  <>
+                    <IconButton
+                      aria-label="sendMessage"
+                      component="span"
+                      onClick={showSelectMessageCheckbox ? handleOpenModalForward : handleSendMessage}
+                      disabled={loading}
+                    >
+                      {showSelectMessageCheckbox ?
+                        <Reply className={classes.ForwardMessageIcons} /> : <Send className={classes.sendMessageIcons} />}
+                    </IconButton>
+                  </>
                 ) : recording ? (
                   <div className={classes.recorderWrapper}>
                     <IconButton
                       aria-label="cancelRecording"
                       component="span"
+                      fontSize="large"
                       disabled={loading}
                       onClick={handleCancelAudio}
                     >
                       <HighlightOff className={classes.cancelAudioIcon} />
                     </IconButton>
                     {loading ? (
-                      <CircularProgress className={classes.audioLoading} />
+                      <div>
+                        <CircularProgress className={classes.audioLoading} />
+                      </div>
                     ) : (
                       <RecordingTimer />
                     )}
+
                     <IconButton
                       aria-label="sendRecordedAudio"
                       component="span"
@@ -1104,16 +1331,19 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
                 )}
               </>
             )}
-            {privateMessage && (
-              <IconButton
-                aria-label="sendMessage"
-                component="span"
-                onClick={showSelectMessageCheckbox ? handleOpenModalForward : handleSendMessage}
-                disabled={loading}
-              >
-                {showSelectMessageCheckbox ?
-                  <Reply className={classes.ForwardMessageIcons} /> : <Send className={classes.sendMessageIcons} />}
-              </IconButton>
+
+            {privateMessageInputVisible && (
+              <>
+                <IconButton
+                  aria-label="sendMessage"
+                  component="span"
+                  onClick={showSelectMessageCheckbox ? handleOpenModalForward : handleSendMessage}
+                  disabled={loading}
+                >
+                  {showSelectMessageCheckbox ?
+                    <Reply className={classes.ForwardMessageIcons} /> : <Send className={classes.sendMessageIcons} />}
+                </IconButton>
+              </>
             )}
             {appointmentModalOpen && (
               <ScheduleModal
@@ -1131,3 +1361,4 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
 };
 
 export default MessageInput;
+

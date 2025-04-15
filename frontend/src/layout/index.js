@@ -307,7 +307,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
       }
     };
 
- //   getSetting();
+    getSetting();
   });
 
   
@@ -500,10 +500,10 @@ const LoggedInLayout = ({ children, themeToggle }) => {
               label={i18n.t("mainDrawer.appBar.user.token")}
             />
           )}
-         
+          <VersionControl />
 
           {/* DESABILITADO POIS TEM BUGS */}
-          { <UserLanguageSelector /> }
+          {<UserLanguageSelector /> }
           {/* <SoftPhone
             callVolume={33} //Set Default callVolume
             ringVolume={44} //Set Default ringVolume

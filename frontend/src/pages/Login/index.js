@@ -1,6 +1,6 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Button, TextField, Box, Typography, Container } from "@material-ui/core";
+import { Button, TextField, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { IconButton, InputAdornment, Switch } from "@mui/material";
 import Visibility from "@material-ui/icons/Visibility";
@@ -15,174 +15,123 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     width: "100vw",
     height: "100vh",
-    background: "linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%)",
-    overflow: "hidden",
     [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
     },
   },
   imageSide: {
     flex: 1,
-    background: `url('https://wallpapercave.com/wp/wp12255781.jpg') no-repeat center center`,
+    background: `url('https://siteconnect.com.br/wp-content/uploads/2025/02/capazapflow.webp') no-repeat center center`,
     backgroundSize: "cover",
     height: "100%",
-    position: "relative",
-    "&:after": {
-      content: '""',
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      background: "rgba(0, 0, 0, 0.3)",
-    },
-    [theme.breakpoints.down("sm")]: {
-      height: "30vh",
-    },
   },
   formSide: {
     flex: 1,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    padding: theme.spacing(4),
+    padding: "40px",
     [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(2),
+      padding: "20px",
     },
   },
   formContainer: {
     width: "100%",
-    maxWidth: "420px",
-    background: "rgba(255, 255, 255, 0.95)",
-    borderRadius: "16px",
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
-    padding: theme.spacing(4),
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(255, 255, 255, 0.3)",
-    transition: "all 0.3s ease",
-    "&:hover": {
-      boxShadow: "0 12px 40px rgba(0, 0, 0, 0.15)",
-    },
+    maxWidth: "400px",
+    background: "#fff",
+    borderRadius: "12px",
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+    padding: "30px",
   },
   logoImg: {
     display: "block",
-    margin: "0 auto 24px",
-    maxWidth: "160px",
+    margin: "0 auto 20px",
+    maxWidth: "150px",
     height: "auto",
-    filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
-  },
-  textField: {
-    "& .MuiOutlinedInput-root": {
-      borderRadius: "8px",
-      background: "rgba(255, 255, 255, 0.8)",
-      "&:hover fieldset": {
-        borderColor: "#2196f3",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#2196f3",
-      },
-    },
-    "& .MuiInputLabel-outlined": {
-      color: "#666",
-      fontWeight: 500,
-    },
   },
   submitBtn: {
-    marginTop: theme.spacing(3),
-    background: "linear-gradient(45deg, #2196f3 30%, #42a5f5 90%)",
+    marginTop: "20px",
+    backgroundColor: "#10aa62",
     color: "#fff",
-    borderRadius: "10px",
+    borderRadius: "8px",
     padding: "12px",
-    fontWeight: 600,
-    fontSize: "1rem",
-    textTransform: "none",
+    fontWeight: "bold",
     width: "100%",
-    boxShadow: "0 4px 15px rgba(33, 150, 243, 0.4)",
+    cursor: "pointer",
     transition: "all 0.3s ease",
     "&:hover": {
-      background: "linear-gradient(45deg, #1976d2 30%, #2196f3 90%)",
-      boxShadow: "0 6px 20px rgba(33, 150, 243, 0.6)",
-      transform: "translateY(-2px)",
+      backgroundColor: "#10aa62",
+      boxShadow: "0px 4px 12px #10aa62",
     },
   },
   registerBtn: {
-    background: "linear-gradient(45deg, #66bb6a 30%, #81c784 90%)",
+    backgroundColor: "#10aa62",
     color: "#fff",
-    borderRadius: "10px",
+    borderRadius: "8px",
     padding: "12px",
-    fontWeight: 600,
-    fontSize: "1rem",
-    textTransform: "none",
+    fontWeight: "bold",
     width: "100%",
-    marginTop: theme.spacing(1),
-    boxShadow: "0 4px 15px rgba(102, 187, 106, 0.4)",
+    cursor: "pointer",
     transition: "all 0.3s ease",
+    marginTop: "10px",
     "&:hover": {
-      background: "linear-gradient(45deg, #4caf50 30%, #66bb6a 90%)",
-      boxShadow: "0 6px 20px rgba(102, 187, 106, 0.6)",
-      transform: "translateY(-2px)",
+      backgroundColor: "#10aa62",
+      boxShadow: "0px 4px 12px #044012",
     },
   },
   forgotPassword: {
-    marginTop: theme.spacing(2),
+    marginTop: "15px",
     textAlign: "center",
   },
   forgotPasswordLink: {
-    color: "#2196f3",
+    color: theme.palette.primary.main,
     textDecoration: "none",
-    fontWeight: 500,
-    transition: "all 0.3s ease",
+    fontWeight: "500",
     "&:hover": {
       textDecoration: "underline",
-      color: "#1976d2",
     },
   },
   rememberMeContainer: {
     display: "flex",
     alignItems: "center",
-    marginTop: theme.spacing(2),
-    color: "#666",
+    marginTop: "10px",
   },
   whatsappButton: {
     position: "fixed",
-    bottom: theme.spacing(3),
-    right: theme.spacing(3),
-    background: "linear-gradient(45deg, #25d366 30%, #2ecc71 90%)",
+    bottom: "20px",
+    right: "20px",
+    backgroundColor: "#10aa62",
     borderRadius: "50%",
-    width: "64px",
-    height: "64px",
+    width: "60px",
+    height: "60px",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    boxShadow: "0 6px 20px rgba(37, 211, 102, 0.4)",
+    boxShadow: "0 4px 12px #044012",
     transition: "all 0.3s ease",
+    animation: "$bounce 1s infinite",
     cursor: "pointer",
     zIndex: 999,
-    animation: "$pulse 1.5s infinite",
     "&:hover": {
-      background: "linear-gradient(45deg, #20b85a 30%, #27ae60 90%)",
+      backgroundColor: "#10aa62",
       transform: "scale(1.1)",
-      boxShadow: "0 8px 24px rgba(37, 211, 102, 0.6)",
+      boxShadow: "0 8px 16px #05491c",
     },
   },
   whatsappIcon: {
-    width: "36px",
-    height: "36px",
+    width: "64px",
+    height: "64px",
     objectFit: "contain",
-    filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))",
   },
-  "@keyframes pulse": {
+  "@keyframes bounce": {
     "0%": {
-      transform: "scale(1)",
-      boxShadow: "0 6px 20px rgba(37, 211, 102, 0.4)",
+      transform: "translateY(0)",
     },
     "50%": {
-      transform: "scale(1.05)",
-      boxShadow: "0 8px 24px rgba(37, 211, 102, 0.6)",
+      transform: "translateY(-10px)",
     },
     "100%": {
-      transform: "scale(1)",
-      boxShadow: "0 6px 20px rgba(37, 211, 102, 0.4)",
+      transform: "translateY(0)",
     },
   },
 }));
@@ -193,6 +142,39 @@ const Login = () => {
   const [user, setUser] = useState({ email: "", password: "", remember: false });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [userCreationEnabled, setUserCreationEnabled] = useState(true);
+
+  // Determinar a URL do backend
+  const backendUrl =
+    process.env.REACT_APP_BACKEND_URL === "https://localhost:8090"
+      ? "https://localhost:8090"
+      : process.env.REACT_APP_BACKEND_URL;
+
+  // Verificar status de userCreation ao carregar o componente
+  useEffect(() => {
+    const fetchUserCreationStatus = async () => {
+      try {
+        const response = await fetch(`${backendUrl}/settings/userCreation`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user creation status");
+        }
+
+        const data = await response.json();
+        setUserCreationEnabled(data.userCreation === "enabled");
+      } catch (err) {
+        console.error("Erro ao verificar userCreation:", err);
+        setUserCreationEnabled(false); // Esconder botão em caso de erro
+      }
+    };
+
+    fetchUserCreationStatus();
+  }, [backendUrl]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -210,11 +192,7 @@ const Login = () => {
         <div className={classes.formSide}>
           <form className={classes.formContainer} onSubmit={handleSubmit}>
             <img src="/logo.png" alt="Logo" className={classes.logoImg} />
-            {error && (
-              <Typography color="error" align="center" style={{ marginBottom: "16px" }}>
-                {error}
-              </Typography>
-            )}
+            {error && <Typography color="error">{error}</Typography>}
             <TextField
               label="Email"
               variant="outlined"
@@ -223,28 +201,26 @@ const Login = () => {
               type="email"
               value={user.email}
               onChange={(e) => setUser({ ...user, email: e.target.value })}
-              className={classes.textField}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <EmailIcon style={{ color: "#666" }} />
+                    <EmailIcon />
                   </InputAdornment>
                 ),
               }}
             />
             <TextField
-              label="Senha"
+              label="Password"
               variant="outlined"
               fullWidth
               margin="normal"
               type={showPassword ? "text" : "password"}
               value={user.password}
               onChange={(e) => setUser({ ...user, password: e.target.value })}
-              className={classes.textField}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <LockIcon style={{ color: "#666" }} />
+                    <LockIcon />
                   </InputAdornment>
                 ),
                 endAdornment: (
@@ -263,36 +239,46 @@ const Login = () => {
                 name="remember"
                 sx={{
                   "& .MuiSwitch-thumb": {
-                    backgroundColor: user.remember ? "#2196f3" : "#ccc",
+                    backgroundColor: user.remember ? "#4F0F96" : "#C3C3C3",
                   },
                   "& .Mui-checked": {
-                    color: "#2196f3",
+                    color: "#4F0F96",
                   },
                   "& .Mui-checked + .MuiSwitch-track": {
-                    backgroundColor: "#2196f3",
+                    backgroundColor: "#4F0F96",
                   },
                   "& .MuiSwitch-track": {
-                    backgroundColor: "#ccc",
+                    backgroundColor: user.remember ? "#4F0F96" : "#C3C3C3",
                   },
                 }}
               />
               <Typography>Lembrar de mim</Typography>
             </div>
             <div>
-              <Button type="submit" variant="contained" className={classes.submitBtn}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                className={classes.submitBtn}
+              >
                 Entrar
               </Button>
-              <Button
-                component={RouterLink}
-                to="/signup"
-                variant="contained"
-                className={classes.registerBtn}
-              >
-                Cadastre-se
-              </Button>
+              {userCreationEnabled && (
+                <Button
+                  component={RouterLink}
+                  to="/signup"
+                  variant="contained"
+                  className={classes.registerBtn}
+                >
+                  Cadastre-se
+                </Button>
+              )}
             </div>
             <div className={classes.forgotPassword}>
-              <RouterLink to="/forgot-password" className={classes.forgotPasswordLink}>
+              <RouterLink
+                to="/forgot-password"
+                className={classes.forgotPasswordLink}
+              >
                 Esqueceu a senha?
               </RouterLink>
             </div>
@@ -300,7 +286,7 @@ const Login = () => {
         </div>
         <div
           className={classes.whatsappButton}
-          onClick={() => window.open("https://wa.me/556196080740")}
+          onClick={() => window.open("https://wa.me/5541992098329")}
         >
           <img
             src="https://i.ibb.co/1p43y88/iconzapzap.png"

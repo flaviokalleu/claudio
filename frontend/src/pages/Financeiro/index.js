@@ -586,7 +586,7 @@ const Invoices = () => {
                       style={rowStyle(invoice)} 
                       className={classes.tableRow}
                     >
-                      <TableCell className={classes.tableCell}>{invoice.detail}</TableCell>
+                      <TableCell className={classes.tableCell}>{companyPlan.name}</TableCell>
                       <TableCell className={classes.tableCell} align="center">{companyPlan && companyPlan.users}</TableCell>
                       <TableCell className={classes.tableCell} align="center">{companyPlan && companyPlan.connections}</TableCell>
                       <TableCell className={classes.tableCell} align="center">{companyPlan && companyPlan.queues}</TableCell>
