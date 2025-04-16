@@ -27,15 +27,17 @@ export const forgotPassword = async (req: Request, res: Response): Promise<Respo
   await user.save();
 
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_SECURE === 'true',
     auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
   });
 
   await transporter.sendMail({
-    from: process.env.MAIL_USER,
+    from: process.env.SMTP_FROM || process.env.SMTP_USER,
     to: email,
     subject: "Redefinição de Senha",
     text: `Clique no link para redefinir sua senha: ${resetUrl}`,
@@ -119,6 +121,7 @@ export const remove = async (
 
   return res.send();
 };
+
 export const resetPassword = async (req: Request, res: Response): Promise<Response> => {
   const { token, newPassword } = req.body;
 
