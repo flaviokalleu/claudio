@@ -119,3 +119,24 @@ export const remove = async (
 
   return res.send();
 };
+export const resetPassword = async (req: Request, res: Response): Promise<Response> => {
+  const { token, newPassword } = req.body;
+
+  const user = await User.findOne({
+    where: {
+      passwordResetToken: token,
+      passwordResetExpires: { [Op.gt]: new Date() },
+    },
+  });
+
+  if (!user) {
+    throw new AppError("Token inválido ou expirado.", 400);
+  }
+
+  user.password = newPassword;
+  user.passwordResetToken = null;
+  user.passwordResetExpires = null;
+  await user.save();
+
+  return res.status(200).json({ message: "Senha redefinida com sucesso." });
+};

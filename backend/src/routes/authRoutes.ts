@@ -15,5 +15,8 @@ authRoutes.post("/forgot-password", (req, res) => {
     console.log("Rota /forgot-password chamada com body:", req.body);
     return SessionController.forgotPassword(req, res);
   });
-
+authRoutes.post("/reset-password", (req, res) => {
+    console.log("Rota /reset-password chamada com body:", req.body);
+    return SessionController.resetPassword(req, res);
+  });
 export default authRoutes;

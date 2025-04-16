@@ -48,6 +48,8 @@ import ToDoList from "../pages/ToDoList";
 import Kanban from "../pages/Kanban";
 import TagsKanban from "../pages/TagsKanban";
 import ForgotPassword from "../pages/ForgetPassWord";
+import ResetPassword from "../pages/ResetPassword";
+
 
 const Routes = () => {
   const [showCampaigns, setShowCampaigns] = useState(false);
@@ -67,6 +69,7 @@ const Routes = () => {
             <Route exact path="/login" component={Login} />
             <Route exact path="/signup" component={Signup} />
             <Route exact path="/forgot-password" component={ForgotPassword} />
+            <Route exact path="/reset-password" component={ResetPassword} />
             <WhatsAppsProvider>
               <LoggedInLayout>
                 <Route exact path="/financeiro" component={Financeiro} isPrivate />
