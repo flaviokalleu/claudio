@@ -174,12 +174,15 @@ class User extends Model<User> {
   @Column
   allowConnections: string;
 
-  // Nova coluna para armazenar o idioma do usuário
   @Default("pt-BR")
   @Column(DataType.STRING)
   language: string;
-  passwordResetToken: any;
-  passwordResetExpires: Date;
+
+  @Column(DataType.STRING(64)) // Added for password reset token
+  passwordResetToken: string | null;
+
+  @Column(DataType.DATE) // Added for password reset expiration
+  passwordResetExpires: Date | null;
 
   @BeforeDestroy
   static async updateChatbotsUsersReferences(user: User) {

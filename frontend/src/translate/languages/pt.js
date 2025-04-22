@@ -1,6 +1,7 @@
 const messages = {
   pt: {
     translations: {
+
       signup: {
         title: "Cadastre-se",
         toasts: {
@@ -54,12 +55,16 @@ const messages = {
         token: "Token",
       },
       dashboard: {
+        title:"Dashboard",
         tabs: {
           indicators: "Indicadores",
           assessments: "NPS",
           attendants: "Atendentes",
+          performance:"Peformaces"
         },
         charts: {
+          performance:"Graficos",
+          userPerformance:"Grafico dos Usuarios",
           perDay: {
             title: "Atendimentos hoje: ",
           },
