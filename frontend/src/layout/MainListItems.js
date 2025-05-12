@@ -535,14 +535,14 @@ const MainListItems = ({ collapsed, drawerClose }) => {
         primary={i18n.t("ToDoList")}
         icon={<EventAvailableIcon />}
       /> */}
-      {hasHelps && (
+      
         <ListItemLink
           to="/helps"
           primary={i18n.t("mainDrawer.listItems.helps")}
           icon={<HelpOutlineIcon />}
           tooltip={collapsed}
         />
-      )}
+      
       <Can
         role={user.profile === "user" && user.allowConnections === "enabled" ? "admin" : user.profile}
         perform="dashboard:view"
