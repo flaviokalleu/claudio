@@ -453,17 +453,12 @@ export const ActionsWebhookService = async (
             const isDev = process.env.NODE_ENV !== 'production';
             
             if (isDev) {
-              // In development, return path without 'src'
-              return path.resolve(__dirname, '..', '..').replace(/[\\\/]src$/, '');
-            } else {
-              // In production, the code is running from dist
+              // In development, return path to backend directory
               return path.resolve(__dirname, '..', '..', '..').replace(/[\\\/]src$/, '');
+            } else {
+              // In production, return path to backend directory
+              return path.resolve(__dirname, '..', '..', '..', '..').replace(/[\\\/]dist$/, '');
             }
-          };
-          
-          // Helper function to correct paths
-          const correctMediaPath = (pathToCorrect: string): string => {
-            return pathToCorrect.replace(/[\\\/]src[\\\/]public/, '/public');
           };
           
           // Updated media path handling in the if blocks for img, audio, and video
@@ -472,6 +467,7 @@ export const ActionsWebhookService = async (
             // Correct path for images
             const mediaPath = path.join(
               getBaseDir(),
+
               "public",
               nodeSelected.data.elements.filter(
                 item => item.number === elementNowSelected
@@ -489,6 +485,7 @@ export const ActionsWebhookService = async (
             // Correct path for audio
             const mediaDirectory = path.join(
               getBaseDir(),
+
               "public",
               nodeSelected.data.elements.filter(
                 item => item.number === elementNowSelected
@@ -514,6 +511,7 @@ export const ActionsWebhookService = async (
             // Correct path for video
             const mediaDirectory = path.join(
               getBaseDir(),
+
               "public",
               nodeSelected.data.elements.filter(
                 item => item.number === elementNowSelected
