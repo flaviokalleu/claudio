@@ -38,7 +38,7 @@ const server = app.listen(process.env.PORT, async () => {
 process.on("uncaughtException", err => {
   console.error(`${new Date().toUTCString()} uncaughtException:`, err.message);
   console.error(err.stack);
-  process.exit(1);
+  
 });
 
 process.on("unhandledRejection", (reason, p) => {
@@ -46,8 +46,7 @@ process.on("unhandledRejection", (reason, p) => {
     `${new Date().toUTCString()} unhandledRejection:`,
     reason,
     p
-  );
-  process.exit(1);
+  );  
 });
 
 // cron.schedule("* * * * * *", async () => {

@@ -46,6 +46,8 @@ import useCompanySettings from "../../hooks/useSettings/companySettings";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { QueueSelectedContext } from "../../context/QueuesSelected/QueuesSelectedContext";
 import AudioModal from "../AudioModal";
+import AdMetaPreview from "../AdMetaPreview"; // Adicionado componente de preview de anúncio
+
 import { messages } from "../../translate/languages";
 import { useParams, useHistory } from 'react-router-dom';
 
@@ -650,7 +652,11 @@ const checkMessageMedia = (message) => {
       }
       // console.log(message)
       return <VcardPreview contact={contact} numbers={obj[0]?.number} queueId={message?.ticket?.queueId} whatsappId={message?.ticket?.whatsappId} />
-    } else
+    } else if (message.mediaType === "adMetaPreview") { // Adicionado para renderizar o componente de preview de anúncio
+      console.log("Entrou no MetaPreview");
+      let [image, sourceUrl, title, body, messageUser] = message.body.split('|');
+      return <AdMetaPreview image={image} sourceUrl={sourceUrl} title={title} body={body} messageUser={messageUser} />;
+  } else
 
       if (message.mediaType === "image") {
         return <ModalImageCors imageUrl={message.mediaUrl} />;
@@ -1028,7 +1034,7 @@ const renderMessages = () => {
                 </div>
               )}
 
-              {(message.mediaUrl || message.mediaType === "locationMessage" || message.mediaType === "contactMessage"
+               {(message.mediaUrl || message.mediaType === "locationMessage" || message.mediaType === "contactMessage" || message.mediaType === "template" || message.mediaType === "adMetaPreview" // Adicionado para aceitar o componente de preview de anúncio
                 //|| message.mediaType === "multi_vcard" 
               ) && checkMessageMedia(message)}
 
@@ -1125,7 +1131,7 @@ const renderMessages = () => {
                   </span>
                 </div>
               )}
-              {(message.mediaUrl || message.mediaType === "locationMessage" || message.mediaType === "contactMessage"
+              {(message.mediaUrl || message.mediaType === "locationMessage" || message.mediaType === "contactMessage" || message.mediaType === "template" || message.mediaType === "adMetaPreview" // Adicionado para aceitar o componente de preview de anúncio
                 //|| message.mediaType === "multi_vcard" 
               ) && checkMessageMedia(message)}
               <div

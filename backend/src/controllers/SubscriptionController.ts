@@ -1,19 +1,13 @@
 import { Request, Response } from "express";
 import express from "express";
 import * as Yup from "yup";
-import * as dotenv from 'dotenv';
-import mercadopago from 'mercadopago'; // Remover se não estiver sendo usado
+import mercadopago from 'mercadopago'; // Mantenha se necessário para outras funções
 import AppError from "../errors/AppError";
 import Company from "../models/Company";
 import Invoices from "../models/Invoices";
 import Setting from "../models/Setting";
 import { getIO } from "../libs/socket";
 import axios from 'axios';
-
-dotenv.config();
-
-// Configure Mercado Pago
-const accessToken = process.env.MP_ACCESS_TOKEN;
 
 // Endpoint para criar uma nova assinatura
 export const createSubscription = async (
@@ -37,6 +31,18 @@ export const createSubscription = async (
   const { price, invoiceId } = req.body;
   const unitPrice = parseFloat(price);
 
+  // Buscar o accessToken da tabela Settings
+  const setting = await Setting.findOne({
+    where: { companyId, key: 'mpaccesstoken' },
+    attributes: ['value'] // Buscar apenas a coluna value
+  });
+
+  if (!setting || !setting.value) {
+    throw new AppError("Mercado Pago access token not found in settings", 400);
+  }
+
+  const accessToken = setting.value;
+
   // Dados para criar a preferência de pagamento
   const data = {
     back_urls: {
@@ -59,7 +65,7 @@ export const createSubscription = async (
     const response = await axios.post('https://api.mercadopago.com/checkout/preferences', data, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}` // Usando accessToken aqui
+        'Authorization': `Bearer ${accessToken}`
       }
     });
     
@@ -86,10 +92,22 @@ export const webhook = async (
 
   if (data && data.id) {
     try {
+      // Buscar o accessToken da tabela Settings
+      const setting = await Setting.findOne({
+        where: { key: 'mpaccesstoken' }, // Ajuste companyId se necessário
+        attributes: ['value'] // Buscar apenas a coluna value
+      });
+
+      if (!setting || !setting.value) {
+        throw new AppError("Mercado Pago access token not found in settings", 400);
+      }
+
+      const accessToken = setting.value;
+
       const paymentResponse = await axios.get(`https://api.mercadopago.com/v1/payments/${data.id}`, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}` // Usando accessToken aqui
+          'Authorization': `Bearer ${accessToken}`
         }
       });
 
@@ -130,7 +148,7 @@ export const webhook = async (
 
   return res.json({ ok: true });
 };
-export function createWebhook(arg0: string, createWebhook: any) {
-    throw new Error("Function not implemented.");
-}
 
+export function createWebhook(arg0: string, createWebhook: any) {
+  throw new Error("Function not implemented.");
+}

@@ -8,7 +8,7 @@ import {
   Model,
   PrimaryKey,
   Table,
-  UpdatedAt
+  UpdatedAt,
 } from "sequelize-typescript";
 import Queue from "./Queue";
 import Company from "./Company";
@@ -56,11 +56,15 @@ class Prompt extends Model<Prompt> {
 
   @AllowNull(true)
   @Column
-  voiceKey:string;
+  voiceKey: string;
 
   @AllowNull(true)
   @Column
-  voiceRegion:string;
+  voiceRegion: string;
+
+  @AllowNull(false)
+  @Column
+  model: string; // Added model as a STRING column
 
   @AllowNull
   @ForeignKey(() => Queue)

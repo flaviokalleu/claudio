@@ -21,6 +21,7 @@
     "@adiwajshing/keyed-db": "^0.2.4",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@google-cloud/dialogflow": "^5.9.0",
+    "@google/generative-ai": "^0.24.1",
     "@hapi/boom": "^9.1.4",
     "@sentry/node": "^6.18.1",
     "@socket.io/admin-ui": "0.5.1",

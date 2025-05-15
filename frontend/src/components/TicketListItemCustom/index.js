@@ -698,7 +698,9 @@ const TicketListItemCustom = ({ setTabOpen, ticket }) => {
                             >
                                 {ticket.lastMessage ? (
                                     <>
-                                        {ticket.lastMessage.includes('data:image/png;base64') ?
+                                        {ticket.lastMessage.includes('fb.me') ? (
+                        <MarkdownWrapper>Clique de Anúncio</MarkdownWrapper> //Clique de Anúncio adicionado
+                      ) : ticket.lastMessage.includes('data:image/png;base64') ?
                                             <MarkdownWrapper>Localização</MarkdownWrapper> :
                                             <> {ticket.lastMessage.includes('BEGIN:VCARD') ?
                                                 <MarkdownWrapper>Contato</MarkdownWrapper> :

@@ -51,6 +51,16 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+// Alinhar a lista de modelos com o backend
+const allowedModels = [
+  "gpt-3.5-turbo-1106",
+  "gpt-4o",
+  "gemini-1.5-flash",
+  "gemini-1.5-pro",
+  "gemini-2.0-flash",
+  "gemini-2.0-pro",
+];
+
 const PromptSchema = Yup.object().shape({
   name: Yup.string()
     .min(5, "Muito curto!")
@@ -59,33 +69,34 @@ const PromptSchema = Yup.object().shape({
   prompt: Yup.string()
     .min(50, "Muito curto!")
     .required("Descreva o treinamento para Inteligência Artificial"),
-  model: Yup.string().required("Informe o modelo"),
-  maxTokens: Yup.number().required("Informe o número máximo de tokens"),
-  temperature: Yup.number().required("Informe a temperatura"),
+  model: Yup.string()
+    .oneOf(allowedModels, "Modelo inválido")
+    .required("Informe o modelo"),
+  maxTokens: Yup.number()
+    .min(10, "Mínimo 10 tokens")
+    .max(4096, "Máximo 4096 tokens")
+    .required("Informe o número máximo de tokens"),
+  temperature: Yup.number()
+    .min(0, "Mínimo 0")
+    .max(1, "Máximo 1")
+    .required("Informe a temperatura"),
   apiKey: Yup.string().required("Informe a API Key"),
   queueId: Yup.number().required("Informe a fila"),
-  maxMessages: Yup.number().required("Informe o número máximo de mensagens"),
+  maxMessages: Yup.number()
+    .min(1, "Mínimo 1 mensagem")
+    .max(50, "Máximo 50 mensagens")
+    .required("Informe o número máximo de mensagens"),
   voice: Yup.string().when("model", {
     is: "gpt-3.5-turbo-1106",
     then: Yup.string().required("Informe o modo para Voz"),
     otherwise: Yup.string().notRequired(),
   }),
-  voiceKey: Yup.string().when("model", {
-    is: "gpt-3.5-turbo-1106",
-    then: Yup.string().notRequired(),
-    otherwise: Yup.string().notRequired(),
-  }),
-  voiceRegion: Yup.string().when("model", {
-    is: "gpt-3.5-turbo-1106",
-    then: Yup.string().notRequired(),
-    otherwise: Yup.string().notRequired(),
-  }),
+  voiceKey: Yup.string().notRequired(),
+  voiceRegion: Yup.string().notRequired(),
 });
 
 const PromptModal = ({ open, onClose, promptId }) => {
   const classes = useStyles();
-  const [selectedModel, setSelectedModel] = useState("gpt-3.5-turbo-1106");
-  const [selectedVoice, setSelectedVoice] = useState("texto");
   const [showApiKey, setShowApiKey] = useState(false);
 
   const handleToggleApiKey = () => {
@@ -112,15 +123,16 @@ const PromptModal = ({ open, onClose, promptId }) => {
     const fetchPrompt = async () => {
       if (!promptId) {
         setPrompt(initialState);
-        setSelectedModel("gpt-3.5-turbo-1106");
-        setSelectedVoice("texto");
         return;
       }
       try {
         const { data } = await api.get(`/prompt/${promptId}`);
-        setPrompt(prevState => ({ ...prevState, ...data }));
-        setSelectedModel(data.model || "gpt-3.5-turbo-1106");
-        setSelectedVoice(data.voice || "texto");
+        setPrompt({
+          ...initialState,
+          ...data,
+          queueId: data.queueId || null, // Garantir que queueId seja definido
+          model: allowedModels.includes(data.model) ? data.model : "gpt-3.5-turbo-1106", // Validação de modelo
+        });
       } catch (err) {
         toastError(err);
       }
@@ -131,63 +143,62 @@ const PromptModal = ({ open, onClose, promptId }) => {
 
   const handleClose = () => {
     setPrompt(initialState);
-    setSelectedModel("gpt-3.5-turbo-1106");
-    setSelectedVoice("texto");
     onClose();
   };
 
-  const handleChangeModel = e => {
-    setSelectedModel(e.target.value);
-    if (e.target.value === "gpt-4o") {
-      setSelectedVoice("texto");
-    }
-  };
-
-  const handleChangeVoice = e => {
-    setSelectedVoice(e.target.value);
-  };
-
-  const handleSavePrompt = async values => {
-    const promptData = {
-      ...values,
-      model: selectedModel,
-      voice: selectedModel === "gpt-3.5-turbo-1106" ? selectedVoice : "texto",
-    };
-    if (!values.queueId) {
-      toastError("Informe o setor");
-      return;
-    }
+  const handleSavePrompt = async (values, { setSubmitting, setErrors }) => {
     try {
+      const promptData = {
+        ...values,
+        voice: values.model === "gpt-3.5-turbo-1106" ? values.voice : "texto",
+      };
       if (promptId) {
         await api.put(`/prompt/${promptId}`, promptData);
       } else {
         await api.post("/prompt", promptData);
       }
       toast.success(i18n.t("promptModal.success"));
+      handleClose();
     } catch (err) {
-      toastError(err);
+      const errorMessage = err.response?.data?.message || "Erro ao salvar o prompt";
+      toastError(errorMessage);
+      try {
+        const parsedError = JSON.parse(errorMessage);
+        if (parsedError.errors) {
+          const fieldErrors = {};
+          parsedError.errors.forEach(error => {
+            if (error.includes("NAME")) fieldErrors.name = error;
+            if (error.includes("PROMPT")) fieldErrors.prompt = error;
+            if (error.includes("MODEL")) fieldErrors.model = error;
+            if (error.includes("TOKENS")) fieldErrors.maxTokens = error;
+            if (error.includes("TEMPERATURE")) fieldErrors.temperature = error;
+            if (error.includes("APIKEY")) fieldErrors.apiKey = error;
+            if (error.includes("QUEUEID")) fieldErrors.queueId = error;
+            if (error.includes("MESSAGES")) fieldErrors.maxMessages = error;
+            if (error.includes("VOICE")) fieldErrors.voice = error;
+          });
+          setErrors(fieldErrors);
+        }
+      } catch (jsonError) {
+        // Se não for um JSON, apenas exibir o erro genérico
+      }
+      setSubmitting(false);
     }
-    handleClose();
   };
 
   return (
     <div className={classes.root}>
       <Dialog open={open} onClose={handleClose} maxWidth="md" scroll="paper" fullWidth>
         <DialogTitle id="form-dialog-title">
-          {promptId ? `${i18n.t("promptModal.title.edit")}` : `${i18n.t("promptModal.title.add")}`}
+          {promptId ? i18n.t("promptModal.title.edit") : i18n.t("promptModal.title.add")}
         </DialogTitle>
         <Formik
           initialValues={prompt}
           enableReinitialize={true}
           validationSchema={PromptSchema}
-          onSubmit={(values, actions) => {
-            setTimeout(() => {
-              handleSavePrompt(values);
-              actions.setSubmitting(false);
-            }, 400);
-          }}
+          onSubmit={handleSavePrompt}
         >
-          {({ touched, errors, isSubmitting, values }) => (
+          {({ touched, errors, isSubmitting, values, setFieldValue }) => (
             <Form style={{ width: "100%" }}>
               <DialogContent dividers>
                 <Field
@@ -235,93 +246,79 @@ const PromptModal = ({ open, onClose, promptId }) => {
                   fullWidth
                   required
                   rows={10}
-                  multiline={true}
+                  multiline
                 />
-                <QueueSelectSingle />
+                <Field
+                  name="queueId"
+                  component={({ field, form }) => (
+                    <QueueSelectSingle
+                      selectedQueueId={field.value}
+                      onChange={value => form.setFieldValue("queueId", value)}
+                    />
+                  )}
+                />
                 <div className={classes.multFieldLine}>
-                  <FormControl fullWidth margin="dense" variant="outlined">
+                  <FormControl fullWidth margin="dense" variant="outlined" error={touched.model && Boolean(errors.model)}>
                     <InputLabel>{i18n.t("promptModal.form.model")}</InputLabel>
-                    <Select
-                      id="model-select"
+                    <Field
+                      as={Select}
                       label={i18n.t("promptModal.form.model")}
                       name="model"
-                      value={selectedModel}
-                      onChange={handleChangeModel}
-                      multiple={false}
+                      onChange={e => {
+                        setFieldValue("model", e.target.value);
+                        if (e.target.value !== "gpt-3.5-turbo-1106") {
+                          setFieldValue("voice", "texto");
+                        }
+                      }}
                     >
-                      <MenuItem key={"gpt-3.5"} value={"gpt-3.5-turbo-1106"}>
-                        GPT 3.5 Turbo
-                      </MenuItem>
-                      <MenuItem key={"gpt-4"} value={"gpt-4o"}>
-                        GPT 4
-                      </MenuItem>
-                    </Select>
+                      {allowedModels.map(model => (
+                        <MenuItem key={model} value={model}>
+                          {model === "gpt-3.5-turbo-1106" && "GPT 3.5 Turbo"}
+                          {model === "gpt-4o" && "GPT 4o"}
+                          {model === "gemini-1.5-flash" && "Gemini 1.5 Flash"}
+                          {model === "gemini-1.5-pro" && "Gemini 1.5 Pro"}
+                          {model === "gemini-2.0-flash" && "Gemini 2.0 Flash"}
+                          {model === "gemini-2.0-pro" && "Gemini 2.0 Pro"}
+                        </MenuItem>
+                      ))}
+                    </Field>
+                    {touched.model && errors.model && (
+                      <div style={{ color: "red", fontSize: "12px" }}>{errors.model}</div>
+                    )}
                   </FormControl>
                   <FormControl
                     fullWidth
                     margin="dense"
                     variant="outlined"
-                    disabled={selectedModel === "gpt-4o"}
+                    disabled={values.model !== "gpt-3.5-turbo-1106"}
+                    error={touched.voice && Boolean(errors.voice)}
                   >
                     <InputLabel>{i18n.t("promptModal.form.voice")}</InputLabel>
-                    <Select
-                      id="voice-select"
+                    <Field
+                      as={Select}
                       label={i18n.t("promptModal.form.voice")}
                       name="voice"
-                      value={selectedVoice}
-                      onChange={handleChangeVoice}
-                      multiple={false}
-                      disabled={selectedModel === "gpt-4o"}
                     >
-                      <MenuItem key={"texto"} value={"texto"}>
-                        Texto
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-FranciscaNeural"} value={"pt-BR-FranciscaNeural"}>
-                        Francisca
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-AntonioNeural"} value={"pt-BR-AntonioNeural"}>
-                        Antônio
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-BrendaNeural"} value={"pt-BR-BrendaNeural"}>
-                        Brenda
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-DonatoNeural"} value={"pt-BR-DonatoNeural"}>
-                        Donato
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-ElzaNeural"} value={"pt-BR-ElzaNeural"}>
-                        Elza
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-FabioNeural"} value={"pt-BR-FabioNeural"}>
-                        Fábio
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-GiovannaNeural"} value={"pt-BR-GiovannaNeural"}>
-                        Giovanna
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-HumbertoNeural"} value={"pt-BR-HumbertoNeural"}>
-                        Humberto
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-JulioNeural"} value={"pt-BR-JulioNeural"}>
-                        Julio
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-LeilaNeural"} value={"pt-BR-LeilaNeural"}>
-                        Leila
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-LeticiaNeural"} value={"pt-BR-LeticiaNeural"}>
-                        Letícia
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-ManuelaNeural"} value={"pt-BR-ManuelaNeural"}>
-                        Manuela
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-NicolauNeural"} value={"pt-BR-NicolauNeural"}>
-                        Nicolau
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-ValerioNeural"} value={"pt-BR-ValerioNeural"}>
-                        Valério
-                      </MenuItem>
-                      <MenuItem key={"pt-BR-YaraNeural"} value={"pt-BR-YaraNeural"}>
-                        Yara
-                      </MenuItem>
-                    </Select>
+                      <MenuItem value="texto">Texto</MenuItem>
+                      <MenuItem value="pt-BR-FranciscaNeural">Francisca</MenuItem>
+                      <MenuItem value="pt-BR-AntonioNeural">Antônio</MenuItem>
+                      <MenuItem value="pt-BR-BrendaNeural">Brenda</MenuItem>
+                      <MenuItem value="pt-BR-DonatoNeural">Donato</MenuItem>
+                      <MenuItem value="pt-BR-ElzaNeural">Elza</MenuItem>
+                      <MenuItem value="pt-BR-FabioNeural">Fábio</MenuItem>
+                      <MenuItem value="pt-BR-GiovannaNeural">Giovanna</MenuItem>
+                      <MenuItem value="pt-BR-HumbertoNeural">Humberto</MenuItem>
+                      <MenuItem value="pt-BR-JulioNeural">Julio</MenuItem>
+                      <MenuItem value="pt-BR-LeilaNeural">Leila</MenuItem>
+                      <MenuItem value="pt-BR-LeticiaNeural">Letícia</MenuItem>
+                      <MenuItem value="pt-BR-ManuelaNeural">Manuela</MenuItem>
+                      <MenuItem value="pt-BR-NicolauNeural">Nicolau</MenuItem>
+                      <MenuItem value="pt-BR-ValerioNeural">Valério</MenuItem>
+                      <MenuItem value="pt-BR-YaraNeural">Yara</MenuItem>
+                    </Field>
+                    {touched.voice && errors.voice && (
+                      <div style={{ color: "red", fontSize: "12px" }}>{errors.voice}</div>
+                    )}
                   </FormControl>
                 </div>
                 <div className={classes.multFieldLine}>
@@ -334,7 +331,7 @@ const PromptModal = ({ open, onClose, promptId }) => {
                     variant="outlined"
                     margin="dense"
                     fullWidth
-                    disabled={selectedModel === "gpt-4o"}
+                    disabled={values.model !== "gpt-3.5-turbo-1106"}
                   />
                   <Field
                     as={TextField}
@@ -345,7 +342,7 @@ const PromptModal = ({ open, onClose, promptId }) => {
                     variant="outlined"
                     margin="dense"
                     fullWidth
-                    disabled={selectedModel === "gpt-4o"}
+                    disabled={values.model !== "gpt-3.5-turbo-1106"}
                   />
                 </div>
                 <div className={classes.multFieldLine}>
@@ -405,9 +402,7 @@ const PromptModal = ({ open, onClose, promptId }) => {
                   variant="contained"
                   className={classes.btnWrapper}
                 >
-                  {promptId
-                    ? `${i18n.t("promptModal.buttons.okEdit")}`
-                    : `${i18n.t("promptModal.buttons.okAdd")}`}
+                  {promptId ? i18n.t("promptModal.buttons.okEdit") : i18n.t("promptModal.buttons.okAdd")}
                   {isSubmitting && (
                     <CircularProgress size={24} className={classes.buttonProgress} />
                   )}

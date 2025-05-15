@@ -1,40 +1,43 @@
 import React, { useState, useEffect, useRef } from "react";
-
 import * as Yup from "yup";
 import { Formik, Form, Field } from "formik";
 import { makeStyles } from "@material-ui/core/styles";
 import { green } from "@material-ui/core/colors";
 import Button from "@material-ui/core/Button";
-import { MenuItem, FormControl, InputLabel, Select } from "@material-ui/core";
-import { Visibility, VisibilityOff } from "@material-ui/icons";
-import { InputAdornment, IconButton } from "@material-ui/core";
+import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import { MenuItem, FormControl, InputLabel, Select } from "@material-ui/core";
+import { Visibility, VisibilityOff } from "@material-ui/icons";
+import { InputAdornment, IconButton } from "@material-ui/core";
 import { i18n } from "../../translate/i18n";
-import TextField from "@material-ui/core/TextField";
+
+// Lista de modelos suportados, alinhada com o backend
+const allowedModels = [
+  "gpt-3.5-turbo-1106",
+  "gpt-4o",
+  "gemini-1.5-flash",
+  "gemini-1.5-pro",
+  "gemini-2.0-flash",
+  "gemini-2.0-pro",
+];
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
   },
-  textField: {
-    marginRight: theme.spacing(1),
-    flex: 1,
-  },
-
-  extraAttr: {
+  multFieldLine: {
     display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+    "& > *:not(:last-child)": {
+      marginRight: theme.spacing(1),
+    },
   },
-
   btnWrapper: {
     position: "relative",
   },
-
   buttonProgress: {
     color: green[500],
     position: "absolute",
@@ -43,128 +46,139 @@ const useStyles = makeStyles((theme) => ({
     marginTop: -12,
     marginLeft: -12,
   },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
 }));
 
+// Esquema de validação alinhado com o backend
 const DialogflowSchema = Yup.object().shape({
   name: Yup.string()
-    .min(2, "Too Short!")
-    .max(50, "Too Long!")
-    .required("Required"),
-  // projectName: Yup.string()
-  //   .min(3, "Too Short!")
-  //   .max(100, "Too Long!")
-  //   .required(),
-  // jsonContent: Yup.string().min(3, "Too Short!").required(),
-  // language: Yup.string().min(2, "Too Short!").max(50, "Too Long!").required(),
+    .min(5, "Muito curto!")
+    .max(100, "Muito longo!")
+    .required("Obrigatório"),
+  prompt: Yup.string()
+    .min(50, "Muito curto!")
+    .required("Descreva o treinamento para Inteligência Artificial"),
+  model: Yup.string()
+    .oneOf(allowedModels, "Modelo inválido")
+    .required("Informe o modelo"),
+  maxTokens: Yup.number()
+    .min(10, "Mínimo 10 tokens")
+    .max(4096, "Máximo 4096 tokens")
+    .required("Informe o número máximo de tokens"),
+  temperature: Yup.number()
+    .min(0, "Mínimo 0")
+    .max(1, "Máximo 1")
+    .required("Informe a temperatura"),
+  apiKey: Yup.string().required("Informe a API Key"),
+  maxMessages: Yup.number()
+    .min(1, "Mínimo 1 mensagem")
+    .max(50, "Máximo 50 mensagens")
+    .required("Informe o número máximo de mensagens"),
+  voice: Yup.string().when("model", {
+    is: "gpt-3.5-turbo-1106",
+    then: Yup.string().required("Informe o modo para Voz"),
+    otherwise: Yup.string().notRequired(),
+  }),
+  voiceKey: Yup.string().notRequired(),
+  voiceRegion: Yup.string().notRequired(),
 });
 
 const FlowBuilderOpenAIModal = ({ open, onSave, data, onUpdate, close }) => {
   const classes = useStyles();
   const isMounted = useRef(true);
 
-  const handleToggleApiKey = () => {
-    setShowApiKey(!showApiKey);
-  };
-
   const initialState = {
     name: "",
     prompt: "",
+    model: "gpt-3.5-turbo-1106",
     voice: "texto",
     voiceKey: "",
     voiceRegion: "",
     maxTokens: 100,
     temperature: 1,
     apiKey: "",
-    queueId: null,
     maxMessages: 10,
   };
 
   const [showApiKey, setShowApiKey] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState("texto");
-
-  const [activeModal, setActiveModal] = useState(false);
-  const [integration, setIntegration] = useState();
+  const [integration, setIntegration] = useState(initialState);
   const [labels, setLabels] = useState({
-    title: "Adicionar OpenAI ao fluxo",
+    title: "Adicionar OpenAI/Gemini ao fluxo",
     btn: "Adicionar",
   });
 
   useEffect(() => {
     if (open === "edit") {
       setLabels({
-        title: "Editar OpenAI do fluxo",
+        title: "Editar OpenAI/Gemini do fluxo",
         btn: "Salvar",
       });
-      console.log("FlowTybebotEdit", data);
+      const typebotIntegration = data?.data?.typebotIntegration || {};
       setIntegration({
-        ...data.data.typebotIntegration,
+        ...initialState,
+        ...typebotIntegration,
+        model: allowedModels.includes(typebotIntegration.model)
+          ? typebotIntegration.model
+          : "gpt-3.5-turbo-1106",
       });
-      setActiveModal(true);
     } else if (open === "create") {
       setLabels({
-        title: "Cria OpenAI no fluxo",
-        btn: "Salvar",
+        title: "Adicionar OpenAI/Gemini ao fluxo",
+        btn: "Adicionar",
       });
       setIntegration(initialState);
-      setActiveModal(true);
     }
 
     return () => {
       isMounted.current = false;
     };
-  }, [open]);
+  }, [open, data]);
 
   const handleClose = () => {
     close(null);
-    setActiveModal(false);
   };
 
-  const handleChangeVoice = (e) => {
-    setSelectedVoice(e.target.value);
-  };
+  const handleSavePrompt = (values, { setSubmitting }) => {
+    const promptData = {
+      ...values,
+      voice: values.model === "gpt-3.5-turbo-1106" ? values.voice : "texto",
+    };
 
-  const handleSavePrompt = (values) => {
     if (open === "edit") {
-      handleClose();
       onUpdate({
         ...data,
-        data: { typebotIntegration: { ...values,  voice: selectedVoice} },
+        data: { typebotIntegration: promptData },
       });
     } else if (open === "create") {
-      values.projectName = values.name;
-      handleClose();
+      promptData.projectName = promptData.name;
       onSave({
-        typebotIntegration: {
-          ...values,
-          voice: selectedVoice
-        }
+        typebotIntegration: promptData,
       });
     }
+    handleClose();
+    setSubmitting(false);
   };
 
   return (
     <div className={classes.root}>
       <Dialog
-        open={activeModal}
+        open={open === "create" || open === "edit"}
         onClose={handleClose}
         fullWidth
         maxWidth="md"
         scroll="paper"
       >
-        <DialogTitle id="form-dialog-title">
-          {open === "create" ? `Adicionar OpenAI ao fluxo` : `Editar OpenAI`}
-        </DialogTitle>
+        <DialogTitle id="form-dialog-title">{labels.title}</DialogTitle>
         <Formik
           initialValues={integration}
           enableReinitialize={true}
-          onSubmit={(values, actions) => {
-            setTimeout(() => {
-              handleSavePrompt(values);
-              actions.setSubmitting(false);
-            }, 400);
-          }}
+          validationSchema={DialogflowSchema}
+          onSubmit={handleSavePrompt}
         >
-          {({ touched, errors, isSubmitting, values }) => (
+          {({ touched, errors, isSubmitting, values, setFieldValue }) => (
             <Form style={{ width: "100%" }}>
               <DialogContent dividers>
                 <Field
@@ -193,7 +207,7 @@ const FlowBuilderOpenAIModal = ({ open, onSave, data, onUpdate, close }) => {
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton onClick={handleToggleApiKey}>
+                          <IconButton onClick={() => setShowApiKey(!showApiKey)}>
                             {showApiKey ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
                         </InputAdornment>
@@ -212,114 +226,82 @@ const FlowBuilderOpenAIModal = ({ open, onSave, data, onUpdate, close }) => {
                   fullWidth
                   required
                   rows={10}
-                  multiline={true}
+                  multiline
                 />
                 <div className={classes.multFieldLine}>
-                  <FormControl fullWidth margin="dense" variant="outlined">
-                    <InputLabel>{i18n.t("promptModal.form.voice")}</InputLabel>
-                    <Select
-                      id="type-select"
-                      labelWidth={60}
-                      name="voice"
-                      value={selectedVoice}
-                      onChange={handleChangeVoice}
-                      multiple={false}
+                  <FormControl
+                    fullWidth
+                    margin="dense"
+                    variant="outlined"
+                    error={touched.model && Boolean(errors.model)}
+                  >
+                    <InputLabel>{i18n.t("promptModal.form.model")}</InputLabel>
+                    <Field
+                      as={Select}
+                      label={i18n.t("promptModal.form.model")}
+                      name="model"
+                      onChange={(e) => {
+                        setFieldValue("model", e.target.value);
+                        if (e.target.value !== "gpt-3.5-turbo-1106") {
+                          setFieldValue("voice", "texto");
+                        }
+                      }}
                     >
-                      <MenuItem key={"texto"} value={"texto"}>
-                        Texto
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-FranciscaNeural"}
-                        value={"pt-BR-FranciscaNeural"}
-                      >
-                        Francisa
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-AntonioNeural"}
-                        value={"pt-BR-AntonioNeural"}
-                      >
-                        Antônio
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-BrendaNeural"}
-                        value={"pt-BR-BrendaNeural"}
-                      >
-                        Brenda
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-DonatoNeural"}
-                        value={"pt-BR-DonatoNeural"}
-                      >
-                        Donato
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-ElzaNeural"}
-                        value={"pt-BR-ElzaNeural"}
-                      >
-                        Elza
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-FabioNeural"}
-                        value={"pt-BR-FabioNeural"}
-                      >
-                        Fábio
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-GiovannaNeural"}
-                        value={"pt-BR-GiovannaNeural"}
-                      >
-                        Giovanna
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-HumbertoNeural"}
-                        value={"pt-BR-HumbertoNeural"}
-                      >
-                        Humberto
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-JulioNeural"}
-                        value={"pt-BR-JulioNeural"}
-                      >
-                        Julio
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-LeilaNeural"}
-                        value={"pt-BR-LeilaNeural"}
-                      >
-                        Leila
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-LeticiaNeural"}
-                        value={"pt-BR-LeticiaNeural"}
-                      >
-                        Letícia
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-ManuelaNeural"}
-                        value={"pt-BR-ManuelaNeural"}
-                      >
-                        Manuela
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-NicolauNeural"}
-                        value={"pt-BR-NicolauNeural"}
-                      >
-                        Nicolau
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-ValerioNeural"}
-                        value={"pt-BR-ValerioNeural"}
-                      >
-                        Valério
-                      </MenuItem>
-                      <MenuItem
-                        key={"pt-BR-YaraNeural"}
-                        value={"pt-BR-YaraNeural"}
-                      >
-                        Yara
-                      </MenuItem>
-                    </Select>
+                      {allowedModels.map((model) => (
+                        <MenuItem key={model} value={model}>
+                          {model === "gpt-3.5-turbo-1106" && "GPT 3.5 Turbo"}
+                          {model === "gpt-4o" && "GPT 4o"}
+                          {model === "gemini-1.5-flash" && "Gemini 1.5 Flash"}
+                          {model === "gemini-1.5-pro" && "Gemini 1.5 Pro"}
+                          {model === "gemini-2.0-flash" && "Gemini 2.0 Flash"}
+                          {model === "gemini-2.0-pro" && "Gemini 2.0 Pro"}
+                        </MenuItem>
+                      ))}
+                    </Field>
+                    {touched.model && errors.model && (
+                      <div style={{ color: "red", fontSize: "12px" }}>
+                        {errors.model}
+                      </div>
+                    )}
                   </FormControl>
+                  <FormControl
+                    fullWidth
+                    margin="dense"
+                    variant="outlined"
+                    disabled={values.model !== "gpt-3.5-turbo-1106"}
+                    error={touched.voice && Boolean(errors.voice)}
+                  >
+                    <InputLabel>{i18n.t("promptModal.form.voice")}</InputLabel>
+                    <Field
+                      as={Select}
+                      label={i18n.t("promptModal.form.voice")}
+                      name="voice"
+                    >
+                      <MenuItem value="texto">Texto</MenuItem>
+                      <MenuItem value="pt-BR-FranciscaNeural">Francisca</MenuItem>
+                      <MenuItem value="pt-BR-AntonioNeural">Antônio</MenuItem>
+                      <MenuItem value="pt-BR-BrendaNeural">Brenda</MenuItem>
+                      <MenuItem value="pt-BR-DonatoNeural">Donato</MenuItem>
+                      <MenuItem value="pt-BR-ElzaNeural">Elza</MenuItem>
+                      <MenuItem value="pt-BR-FabioNeural">Fábio</MenuItem>
+                      <MenuItem value="pt-BR-GiovannaNeural">Giovanna</MenuItem>
+                      <MenuItem value="pt-BR-HumbertoNeural">Humberto</MenuItem>
+                      <MenuItem value="pt-BR-JulioNeural">Julio</MenuItem>
+                      <MenuItem value="pt-BR-LeilaNeural">Leila</MenuItem>
+                      <MenuItem value="pt-BR-LeticiaNeural">Letícia</MenuItem>
+                      <MenuItem value="pt-BR-ManuelaNeural">Manuela</MenuItem>
+                      <MenuItem value="pt-BR-NicolauNeural">Nicolau</MenuItem>
+                      <MenuItem value="pt-BR-ValerioNeural">Valério</MenuItem>
+                      <MenuItem value="pt-BR-YaraNeural">Yara</MenuItem>
+                    </Field>
+                    {touched.voice && errors.voice && (
+                      <div style={{ color: "red", fontSize: "12px" }}>
+                        {errors.voice}
+                      </div>
+                    )}
+                  </FormControl>
+                </div>
+                <div className={classes.multFieldLine}>
                   <Field
                     as={TextField}
                     label={i18n.t("promptModal.form.voiceKey")}
@@ -329,6 +311,7 @@ const FlowBuilderOpenAIModal = ({ open, onSave, data, onUpdate, close }) => {
                     variant="outlined"
                     margin="dense"
                     fullWidth
+                    disabled={values.model !== "gpt-3.5-turbo-1106"}
                   />
                   <Field
                     as={TextField}
@@ -339,9 +322,9 @@ const FlowBuilderOpenAIModal = ({ open, onSave, data, onUpdate, close }) => {
                     variant="outlined"
                     margin="dense"
                     fullWidth
+                    disabled={values.model !== "gpt-3.5-turbo-1106"}
                   />
                 </div>
-
                 <div className={classes.multFieldLine}>
                   <Field
                     as={TextField}
@@ -352,6 +335,12 @@ const FlowBuilderOpenAIModal = ({ open, onSave, data, onUpdate, close }) => {
                     variant="outlined"
                     margin="dense"
                     fullWidth
+                    type="number"
+                    inputProps={{
+                      step: "0.1",
+                      min: "0",
+                      max: "1",
+                    }}
                   />
                   <Field
                     as={TextField}
@@ -362,6 +351,7 @@ const FlowBuilderOpenAIModal = ({ open, onSave, data, onUpdate, close }) => {
                     variant="outlined"
                     margin="dense"
                     fullWidth
+                    type="number"
                   />
                   <Field
                     as={TextField}
@@ -372,6 +362,7 @@ const FlowBuilderOpenAIModal = ({ open, onSave, data, onUpdate, close }) => {
                     variant="outlined"
                     margin="dense"
                     fullWidth
+                    type="number"
                   />
                 </div>
               </DialogContent>
@@ -380,8 +371,9 @@ const FlowBuilderOpenAIModal = ({ open, onSave, data, onUpdate, close }) => {
                   onClick={handleClose}
                   color="secondary"
                   variant="outlined"
+                  disabled={isSubmitting}
                 >
-                  {i18n.t("contactModal.buttons.cancel")}
+                  {i18n.t("promptModal.buttons.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -390,7 +382,7 @@ const FlowBuilderOpenAIModal = ({ open, onSave, data, onUpdate, close }) => {
                   className={classes.btnWrapper}
                   disabled={isSubmitting}
                 >
-                  {open === "create" ? `Adicionar` : "Editar"}
+                  {labels.btn}
                 </Button>
               </DialogActions>
             </Form>

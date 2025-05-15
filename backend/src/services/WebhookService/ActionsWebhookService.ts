@@ -246,8 +246,8 @@ export const ActionsWebhookService = async (
         });
       }
 
-      if (nodeSelected.type === "openai") {
-        let {
+      if (nodeSelected.type === "openai" && nodeSelected.data?.typebotIntegration) {
+        const {
           name,
           prompt,
           voice,
@@ -257,35 +257,37 @@ export const ActionsWebhookService = async (
           temperature,
           apiKey,
           queueId,
-          maxMessages
+          maxMessages,
+          model // ✅ novo campo
         } = nodeSelected.data.typebotIntegration as IOpenAi;
-
-        let openAiSettings = {
+      
+        const openAiSettings = {
           name,
           prompt,
           voice,
           voiceKey,
           voiceRegion,
-          maxTokens: parseInt(maxTokens),
-          temperature: parseInt(temperature),
+          maxTokens: Number(maxTokens),
+          temperature: Number(temperature),
           apiKey,
-          queueId: parseInt(queueId),
-          maxMessages: parseInt(maxMessages)
+          queueId: Number(queueId),
+          maxMessages: Number(maxMessages),
+          model // ✅ incluso aqui também
         };
-
+      
         const contact = await Contact.findOne({
           where: { number: numberClient, companyId }
         });
-
+      
         const wbot = getWbot(whatsapp.id);
-
+      
         const ticketTraking = await FindOrCreateATicketTrakingService({
           ticketId: ticket.id,
           companyId,
           userId: null,
           whatsappId: whatsapp?.id
         });
-
+      
         await handleOpenAi(
           openAiSettings,
           msg,
@@ -296,6 +298,7 @@ export const ActionsWebhookService = async (
           ticketTraking
         );
       }
+      
 
       if (nodeSelected.type === "question") {
         ticket = ticket || (await Ticket.findOne({ where: { id: idTicket, companyId } }));
@@ -453,12 +456,17 @@ export const ActionsWebhookService = async (
             const isDev = process.env.NODE_ENV !== 'production';
             
             if (isDev) {
-              // In development, return path to backend directory
-              return path.resolve(__dirname, '..', '..', '..').replace(/[\\\/]src$/, '');
+              // In development, return path without 'src'
+              return path.resolve(__dirname, '..', '..').replace(/[\\\/]src$/, '');
             } else {
-              // In production, return path to backend directory
-              return path.resolve(__dirname, '..', '..', '..', '..').replace(/[\\\/]dist$/, '');
+              // In production, the code is running from dist
+              return path.resolve(__dirname, '..', '..', '..').replace(/[\\\/]src$/, '');
             }
+          };
+          
+          // Helper function to correct paths
+          const correctMediaPath = (pathToCorrect: string): string => {
+            return pathToCorrect.replace(/[\\\/]src[\\\/]public/, '/public');
           };
           
           // Updated media path handling in the if blocks for img, audio, and video
@@ -467,7 +475,6 @@ export const ActionsWebhookService = async (
             // Correct path for images
             const mediaPath = path.join(
               getBaseDir(),
-
               "public",
               nodeSelected.data.elements.filter(
                 item => item.number === elementNowSelected
@@ -485,7 +492,6 @@ export const ActionsWebhookService = async (
             // Correct path for audio
             const mediaDirectory = path.join(
               getBaseDir(),
-
               "public",
               nodeSelected.data.elements.filter(
                 item => item.number === elementNowSelected
@@ -511,7 +517,6 @@ export const ActionsWebhookService = async (
             // Correct path for video
             const mediaDirectory = path.join(
               getBaseDir(),
-
               "public",
               nodeSelected.data.elements.filter(
                 item => item.number === elementNowSelected

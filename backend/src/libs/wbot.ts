@@ -103,18 +103,16 @@ export const restartWbot = async (
         companyId,
       },
       attributes: ["id"],
-    }
+    };
 
     const whatsapp = await Whatsapp.findAll(options);
 
     whatsapp.map(async c => {
       const sessionIndex = sessions.findIndex(s => s.id === c.id);
       if (sessionIndex !== -1) {
-        sessions[sessionIndex].ws.close(undefined);
+        sessions[sessionIndex].ws.close(); // Remove the `undefined` argument
       }
-
     });
-
   } catch (err) {
     logger.error(err);
   }

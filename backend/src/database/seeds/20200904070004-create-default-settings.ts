@@ -19,7 +19,9 @@ module.exports = {
       { key: "acceptAudioMessageContact", value: "enabled", companyId: "1" },
       { key: "enableLGPD", value: "disabled", companyId: "1" },
       { key: "requiredTag", value: "disabled", companyId: "1" },
-      { key: "wtV", value: "disabled" }
+      { key: "wtV", value: "disabled" },
+      { key: "apiTranscription", value: "sk-as88128nsh82990hs", companyId: "1" },
+      { key: "mpaccesstoken", value: "SEU_TOKEN_DO_MERCADO_PAGO_AQUI", companyId: "1" } // Nova chave adicionada
     ];
 
     for (let setting of settings) {
