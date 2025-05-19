@@ -41,6 +41,7 @@ import {
   Timer,
 } from "@material-ui/icons";
 import AddIcon from "@material-ui/icons/Add";
+import BoltIcon from '@mui/icons-material/FlashOn';
 import { CameraAlt } from "@material-ui/icons";
 import MicRecorder from "mic-recorder-to-mp3";
 import clsx from "clsx";
@@ -56,7 +57,8 @@ import { isString, isEmpty } from "lodash";
 import ContactSendModal from "../ContactSendModal";
 import CameraModal from "../CameraModal";
 import axios from "axios";
-
+import ButtonModal from "../ButtonModal";
+import MenuIcon from '@material-ui/icons/Menu';
 import useCompanySettings from "../../hooks/useSettings/companySettings";
 import { ForwardMessageContext } from "../../context/ForwarMessage/ForwardMessageContext";
 import MessageUploadMedias from "../MessageUploadMedias";
@@ -73,7 +75,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    borderTop: "1px solid rgba(255, 0, 0, 0.12)",
+    borderTop: "1px solid rgba(0, 0, 0, 0.12)",
     [theme.breakpoints.down("sm")]: {
       position: "fixed",
       bottom: 0,
@@ -346,7 +348,7 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
   const theme = useTheme();
   const [mediasUpload, setMediasUpload] = useState([]);
   const isMounted = useRef(true);
-
+  const [buttonModalOpen, setButtonModalOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -481,6 +483,11 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
   const handlePrivateMessage = (e) => {
     setPrivateMessage(!privateMessage);
     setPrivateMessageInputVisible(!privateMessageInputVisible);
+  };
+
+  const handleButtonModalOpen = () => {
+    handleMenuItemClick();
+    setButtonModalOpen(true); // Define o estado como true para abrir o modal
   };
 
   const handleQuickAnswersClick = async (value) => {
@@ -1041,6 +1048,19 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
                   </Fab>
                   {i18n.t("messageInput.type.meet")}
                 </MenuItem>
+                {buttonModalOpen && (
+          <ButtonModal
+            modalOpen={buttonModalOpen}
+            onClose={() => setButtonModalOpen(false)} // Função para fechar o modal
+            ticketId={ticketId}
+          />
+        )}
+                <MenuItem onClick={handleButtonModalOpen}>
+                  <Fab className={classes.invertedFabMenuCont}>
+                    <MenuIcon />
+                  </Fab>
+                  Botões
+                </MenuItem>
               </Menu>
               {/* <IconButton
 				  aria-label="upload"
@@ -1269,6 +1289,15 @@ const MessageInput = ({ ticketId, ticketStatus, droppedFiles, contactId, ticketC
             </div>
             {!privateMessageInputVisible && (
               <>
+              <Tooltip title={i18n.t("tickets.buttons.quickmessageflash")}>
+                  <IconButton
+                    aria-label="flash"
+                    component="span"
+                    onClick={() => setInputMessage('/')}
+                  >
+                    <BoltIcon className={classes.sendMessageIcons} />
+                  </IconButton>
+                </Tooltip>
                 <Tooltip title={i18n.t("tickets.buttons.scredule")}>
                   <IconButton
                     aria-label="scheduleMessage"

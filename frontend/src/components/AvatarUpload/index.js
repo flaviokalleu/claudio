@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import Button from '@material-ui/core/Button';
@@ -21,19 +21,10 @@ const AvatarUploader = ({ setAvatar, avatar, companyId }) => {
   const classes = useStyles();
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-  const { user } = useContext(AuthContext);
-
-  // Monitorar mudanças no prop avatar
-  useEffect(() => {
-    if (avatar && !selectedFile) {
-      setPreviewImage(null); // Limpar a prévia após o upload
-      console.log('Prop avatar atualizado:', avatar); // Log para depuração
-    }
-  }, [avatar, selectedFile]);
+  const user = useContext(AuthContext);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    console.log('Arquivo selecionado:', file); // Log para depuração
     setSelectedFile(file);
     setAvatar(file);
 
@@ -41,7 +32,6 @@ const AvatarUploader = ({ setAvatar, avatar, companyId }) => {
       const reader = new FileReader();
       reader.onload = () => {
         setPreviewImage(reader.result);
-        console.log('Prévia da imagem gerada:', reader.result); // Log para depuração
       };
       reader.readAsDataURL(file);
     }
@@ -49,29 +39,22 @@ const AvatarUploader = ({ setAvatar, avatar, companyId }) => {
 
   return (
     <Box display="flex" flexDirection="column" alignItems="center">
-      {!previewImage && avatar ? (
-        <Avatar
-          key={avatar || 'default'} // Força re-renderização quando avatar mudar
-          src={`${process.env.REACT_APP_BACKEND_URL}/public/company${companyId}/user/${avatar}?v=${new Date().getTime()}`}
+      {!previewImage && avatar ?
+        <><Avatar
+          src={`${process.env.REACT_APP_BACKEND_URL}/public/company${companyId}/user/${avatar}`}
           style={{ width: 120, height: 120 }}
-          className={classes.avatar}
-        />
-      ) : !avatar && !previewImage ? (
-        <Avatar
-          key="noimage" // Chave fixa para imagem padrão
+        /></>
+        : !avatar && !previewImage ? <><Avatar
           src={`${process.env.REACT_APP_BACKEND_URL}/public/app/noimage.png`}
           style={{ width: 120, height: 120 }}
-          className={classes.avatar}
-        />
-      ) : (
-        <Avatar
-          key="preview" // Chave fixa para prévia
-          alt="Preview Avatar"
-          src={previewImage ? previewImage : user.avatar}
-          style={{ width: 120, height: 120 }}
-          className={classes.avatar}
-        />
-      )}
+        /></> :
+          <Avatar
+            alt="Preview Avatar"
+            src={previewImage ? previewImage : user.avatar}
+            style={{ width: 120, height: 120 }}
+          />
+      }
+
 
       <input
         accept="image/*"
@@ -89,6 +72,7 @@ const AvatarUploader = ({ setAvatar, avatar, companyId }) => {
           Upload Avatar
         </Button>
       </label>
+      {/**   <p>{selectedFile ? `Selected: ${selectedFile.name}` : 'No file selected'}</p>*/}
     </Box>
   );
 };
